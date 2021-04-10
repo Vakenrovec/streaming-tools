@@ -2,6 +2,8 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
+
+  # Deploy Ubuntu 20.04 VM
   config.vm.define "ubuntu2004_dev" do |ubuntu2004_dev|
     ubuntu2004_dev.vm.box = "generic/ubuntu2004"
 
@@ -10,10 +12,12 @@ Vagrant.configure("2") do |config|
       automount: true,
       id: "streaming-tools"
 
-      ubuntu2004_dev.vm.provider "virtualbox" do |vb|
-        vb.gui = true
-        vb.memory = "4096"
-        vb.cpus = "4"
+    ubuntu1804.vm.network "private_network", ip: "192.11.0.3"
+    
+    ubuntu2004_dev.vm.provider "virtualbox" do |vb|
+      vb.gui = true
+      vb.memory = "5120"
+      vb.cpus = "4"
     end
 
     # Update repos
@@ -21,10 +25,26 @@ Vagrant.configure("2") do |config|
       apt-get update
     SHELL
 
-    # Install all project dependencies
+    # Install all needed tools
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
-      apt-get install -y git cmake 
-      apt-get install -y libvpx-dev ffmpeg
+      sudo apt-get install -y git cmake
+    SHELL
+
+    # Install boost
+    ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
+      
+    SHELL
+
+    # Install ffmpeg
+    ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
+      # https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
+      # pkg-config --cflags --libs libavcodec libavformat libswscale
+    SHELL
+
+    # Install sdl
+    ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
+      sudo apt install -y libsdl1.2-dev
+      # sdl-config --cflags --libs
     SHELL
 
     # Install desktop environment
@@ -71,6 +91,7 @@ Vagrant.configure("2") do |config|
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
       sudo sysctl net.ipv4.ip_default_ttl=65
       gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize-or-overview'
+      gsettings set org.gnome.desktop.lockdown disable-lock-screen true
     SHELL
 
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
