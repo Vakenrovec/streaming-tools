@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
 
     # Install boost
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
-      
+      # https://www.boost.org/doc/libs/1_75_0/more/getting_started/unix-variants.html
     SHELL
 
     # Install ffmpeg
@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
       # pkg-config --cflags --libs libavcodec libavformat libswscale
     SHELL
 
-    # Install sdl
+    # Install sdl2
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
       sudo apt install -y libsdl1.2-dev
       # sdl-config --cflags --libs
