@@ -25,5 +25,7 @@ public:
 
     static bool ReadFile(const std::string& fileName, std::vector<std::uint8_t>& buffer);
 
+    static bool WriteFile(const std::string& fileName, char *data, std::uint32_t size);
+
     static bool CreateDirs(const boost::filesystem::path& path);
 };

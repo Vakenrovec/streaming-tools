@@ -1,6 +1,4 @@
-#include "stdafx.h"
 #include "FileUtils.h"
-#include "LogHelper.h"
 
 #include <boost/dll.hpp>
 #include <boost/algorithm/string.hpp>
@@ -36,13 +34,20 @@ bool FileUtils::ReadFile(const std::string& fileName, std::vector<std::uint8_t>&
     return true;
 }
 
+bool FileUtils::WriteFile(const std::string& fileName, char *data, std::uint32_t size)
+{
+    std::ofstream file;
+    file.open(fileName, std::ios::binary | std::ios::trunc);
+    file.write(data, size);
+    file.close();
+    return true;
+}
+
 bool FileUtils::CreateDirs(const boost::filesystem::path& path) {
     boost::system::error_code ec;
     boost::filesystem::create_directories(path, ec);
 
     if (ec) {
-        LOG_EX_ERROR("Enable to create dir: %s, error: %s", path.string().c_str(), ec.message().c_str());
-        
         return false;
     }
 
