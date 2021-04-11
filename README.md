@@ -24,6 +24,6 @@
     cmake ..
     make -j 4
 
-## Bonus: ffplay commands to open images
+# Some useful ffplay commands to open images
 
     ffplay -s 1280x720 -pixel_format yuv420p -f rawvideo -i ./webcam_output.yuv420p
