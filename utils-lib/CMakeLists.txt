@@ -1,15 +1,17 @@
 set (PROJECT_NAME utils-lib)
 
 set(HEADERS 
-    # FileUtils.h
+    FileUtils.h
     ImageUtils.h
     Logger.h
+    DateTimeUtils.h
 )
 
 set(SOURCES
-    # FileUtils.cpp
+    FileUtils.cpp
     ImageUtils.cpp
     Logger.cpp
+    DateTimeUtils.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -22,11 +24,12 @@ add_library(${PROJECT_NAME} STATIC ${PROJECT_CONTENT})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
+        ${Boost_INCLUDE_DIRS}
         ../core-lib
         ${FFMPEG_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        # ${FFMPEG_LIBRARIES}
+        ${FFMPEG_LINK_LIBRARIES}
 )
