@@ -5,6 +5,7 @@
 #include "Image.h"
 #include "ImageUtils.h"
 #include "Logger.h"
+#include "rtp/RTPFragmenter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,10 +18,9 @@ extern "C" {
 #include <fstream>
 
 int main() {
-    int width = 1280, height = 720;
+    int width = 1280, height = 720, gopSize = 10;
     
     VP8Codec vp8codec;
-    int gopSize = 10;
     vp8codec.InitEncodeContext(width, height, gopSize);
     vp8codec.InitDecodeContext();
 
