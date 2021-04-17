@@ -26,4 +26,4 @@
 
 # Some useful ffplay commands to open images
 
-    ffplay -s 1280x720 -pixel_format yuv420p -f rawvideo -i ./webcam_output.yuv420p
+    ffplay -s 1280x720 -pixel_format yuv420p -f rawvideo -i ./webcam_output.yv12
