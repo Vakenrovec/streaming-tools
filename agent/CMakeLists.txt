@@ -1,11 +1,11 @@
 set (PROJECT_NAME agent)
 
 set(HEADERS 
-    agent.h
+    program.h
 )
 
 set(SOURCES
-    agent.cpp
+    program.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -21,6 +21,7 @@ target_include_directories(${PROJECT_NAME}
         ${Boost_INCLUDE_DIRS}
         ../utils-lib
         ../network-lib
+        ../core-lib
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -28,4 +29,5 @@ target_link_libraries(${PROJECT_NAME}
         ${Boost_LIBRARIES}
         utils-lib
         network-lib
+        core-lib
 )
