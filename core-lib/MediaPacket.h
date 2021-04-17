@@ -20,10 +20,11 @@ typedef struct {
 
 #pragma pack(pop)
 
-typedef struct {
+struct media_packet_t {
     media_pkt_header_t header;
-    std::vector<std::uint8_t> data;
-} media_packet_t;
+    std::uint8_t *data;
+    ~media_packet_t(){ delete[] data; };
+};
 
 #define MEDIA_PACKET_SIZE_BYTES sizeof(media_pkt_header_t)
 
