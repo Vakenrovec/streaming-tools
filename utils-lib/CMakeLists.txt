@@ -5,6 +5,7 @@ set(HEADERS
     ImageUtils.h
     Logger.h
     DateTimeUtils.h
+    ThreadPoolManager.h
 )
 
 set(SOURCES
@@ -12,6 +13,7 @@ set(SOURCES
     ImageUtils.cpp
     Logger.cpp
     DateTimeUtils.cpp
+    ThreadPoolManager.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
