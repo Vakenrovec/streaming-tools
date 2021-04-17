@@ -1,20 +1,11 @@
-set (PROJECT_NAME network-lib)
+set (PROJECT_NAME receiver)
 
 set(HEADERS 
-    udp.h
-    NetPacket.h
-    Agent.h
-    Room.h
-    StreamerSession.h
-    ReceiverSession.h
+    program.h
 )
 
 set(SOURCES
-    udp.cpp
-    Agent.cpp
-    Room.cpp
-    StreamerSession.cpp
-    ReceiverSession.cpp
+    program.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -22,19 +13,23 @@ source_group("Header Files" FILES ${HEADERS})
 
 set(PROJECT_CONTENT ${SOURCES} ${HEADERS})
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_CONTENT})
+add_executable(${PROJECT_NAME} ${PROJECT_CONTENT})
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
-        ${Boost_INCLUDE_DIRS}
         ../utils-lib
         ../core-lib
+        ../network-lib
+        ${Boost_INCLUDE_DIRS}
+        ${FFMPEG_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        ${Boost_LIBRARIES}
         utils-lib
         core-lib
+        network-lib
+        ${Boost_LIBRARIES}
+        ${FFMPEG_LINK_LIBRARIES}
 )
