@@ -1,11 +1,11 @@
 set (PROJECT_NAME stream-sender)
 
 set(HEADERS 
-    streamer.h
+    program.h
 )
 
 set(SOURCES
-    streamer.cpp
+    program.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -20,6 +20,8 @@ target_include_directories(${PROJECT_NAME}
         .
         ../utils-lib
         ../core-lib
+        ../network-lib
+        ${Boost_INCLUDE_DIRS}
         ${FFMPEG_INCLUDE_DIRS}
 )
 
@@ -27,5 +29,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         utils-lib
         core-lib
+        network-lib
+        ${Boost_LIBRARIES}
         ${FFMPEG_LINK_LIBRARIES}
 )

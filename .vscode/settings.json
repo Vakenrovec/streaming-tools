@@ -74,11 +74,14 @@
         "numeric": "cpp",
         "random": "cpp",
         "bit": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "*.ipp": "cpp",
+        "queue": "cpp"
     },
     "[makefile]": {
         "editor.tabSize": 4,
         "editor.insertSpaces": false,
         "editor.detectIndentation": false
-    }
+    },
+    "cmake.configureOnOpen": false
 }
