@@ -19,9 +19,9 @@ extern "C" {
 #endif
 
 TEST_CASE("Encode-decode-yv12", "[encode][decode]") {
-    int width = 1280, height = 720, gopSize = 10;
+    int width = 1280, height = 720, gopSize = 10, bitrate = 400000;
     VP8Codec vp8codec;
-    vp8codec.InitEncodeContext(width, height, gopSize);
+    vp8codec.InitEncodeContext(width, height, gopSize, bitrate);
     vp8codec.InitDecodeContext();
 
     std::vector<std::uint8_t> imageData;
@@ -43,9 +43,9 @@ TEST_CASE("Encode-decode-yv12", "[encode][decode]") {
 }
 
 TEST_CASE("Encode-fragment-defragment-decode-yv12", "[encode][decode][fragment][defragment]") {
-    int width = 1280, height = 720, gopSize = 10;
+    int width = 1280, height = 720, gopSize = 10, bitrate = 400000;
     VP8Codec vp8codec;
-    vp8codec.InitEncodeContext(width, height, gopSize);
+    vp8codec.InitEncodeContext(width, height, gopSize, bitrate);
     vp8codec.InitDecodeContext();
 
     std::vector<std::uint8_t> imageData;

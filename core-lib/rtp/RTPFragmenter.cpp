@@ -68,3 +68,20 @@ Image RTPFragmenter::DefragmentRTPPackets(std::list<media_packet_ptr>& packets)
 
     return image;
 }
+
+Image RTPFragmenter::DefragmentRTPPackets(std::list<media_packet_ptr>& packets, std::uint32_t payloadSize)
+{
+    Image image;
+    image.size = payloadSize;
+    image.data = new std::uint8_t[payloadSize];
+    int pos = 0;
+    size_t payloadLen = 0;
+    for (const auto& pkt : packets)
+    {
+        auto payload = m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen);        
+        std::copy(payload, payload + payloadLen, image.data + pos);
+        pos += payloadLen;
+    }
+
+    return image;
+}

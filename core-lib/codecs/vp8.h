@@ -14,7 +14,7 @@ class VP8Codec
 public:
     VP8Codec();
 
-    bool InitEncodeContext(int width, int height, int gopSize);
+    bool InitEncodeContext(int width, int height, int gopSize, int bitrate);
     void DeinitEncodeContext();
     bool InitDecodeContext();
     void DeinitDecodeContext();

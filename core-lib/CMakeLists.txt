@@ -8,8 +8,9 @@ set(HEADERS
     rtp/RtpDefs.h
     rtp/RTPHelper.h
     rtp/RTPFragmenter.h
-    # rtp/RTPVp8DepayDataProcessor.h
+    rtp/RTPVp8Depay.h
     rtp/FrameUtils.h
+    video/VideoDisplay.h
 )
 
 set(SOURCES
@@ -17,8 +18,9 @@ set(SOURCES
     devices/WebCamera.cpp
     rtp/RTPHelper.cpp
     rtp/RTPFragmenter.cpp
-    # rtp/RTPVp8DepayDataProcessor.cpp
+    rtp/RTPVp8Depay.cpp
     rtp/FrameUtils.cpp
+    video/VideoDisplay.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -34,6 +36,7 @@ target_include_directories(${PROJECT_NAME}
         ../utils-lib
         ../network-lib
         ${FFMPEG_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -41,4 +44,5 @@ target_link_libraries(${PROJECT_NAME}
         utils-lib
         network-lib
         # ${FFMPEG_LIBRARIES}
+        ${SDL2_LINK_LIBRARIES}
 )

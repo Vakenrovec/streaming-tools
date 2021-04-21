@@ -44,15 +44,18 @@ pkg_check_modules(SDL2 REQUIRED
     sdl2
 )
 
-# message("ffmpeg libs = ${FFMPEG_LINK_LIBRARIES}")
 # message("ffmpeg include dirs = ${FFMPEG_INCLUDE_DIRS}")
+# message("ffmpeg libs = ${FFMPEG_LINK_LIBRARIES}")
 # message("ffmpeg cflags = ${FFMPEG_CFLAGS}")
+
+# message("sdl include dirs = ${SDL2_INCLUDE_DIRS}")
+# message("sdl libs = ${SDL2_LINK_LIBRARIES}")
 
 add_subdirectory(utils-lib)
 add_subdirectory(network-lib)
 add_subdirectory(core-lib)
 
 # add_subdirectory(tests)
+add_subdirectory(receiver)
 add_subdirectory(stream-sender)
 add_subdirectory(agent)
-add_subdirectory(receiver)

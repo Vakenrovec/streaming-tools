@@ -23,10 +23,10 @@ extern "C" {
 #endif
 
 int main() {
-    int width = 1280, height = 720, gopSize = 10;
+    int width = 1280, height = 720, gopSize = 5, bitrate = 400000;
     
     VP8Codec vp8codec;
-    vp8codec.InitEncodeContext(width, height, gopSize);
+    vp8codec.InitEncodeContext(width, height, gopSize, bitrate);
     vp8codec.InitDecodeContext();
 
     std::uint16_t threadsCount = 1;
@@ -43,7 +43,7 @@ int main() {
 
     WebCamera webCamera;
     webCamera.Initialize(width, height);
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 1000; i++)
     {
         Image jpegImage;
         
@@ -72,15 +72,11 @@ int main() {
 
         RTPFragmenter fragmenter;
         auto packets = fragmenter.FragmentRTPFrame(vp8Image);       
-        // transfer over the network
-        while (true)
+        // transfer over the network        
+        for (const auto& pkt : packets)
         {
-            for (const auto& pkt : packets)
-            {
-                session->WriteData(pkt);
-            }
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }        
+            session->WriteData(pkt);
+        }                
         // ... 
         auto img = fragmenter.DefragmentRTPPackets(packets);
 
@@ -90,6 +86,8 @@ int main() {
         outFile.write((char*)yv12Image.data, yv12Image.size);
         outFile.close();
         delete[] yv12Image.data;
+
+        // std::this_thread::sleep_for(std::chrono::seconds(2));
     }
     webCamera.Deinitialize();
     vp8codec.DeinitEncodeContext();

@@ -21,16 +21,12 @@ void Room::Start()
 
 void Room::ReadMediaPacket()
 {
-    std::shared_ptr<char[]> buffer = std::shared_ptr<char[]>(new char[UDP::MTU]); // store it as member
-    m_localUdpSocket->async_receive_from(boost::asio::buffer(&buffer[0], UDP::MTU), m_streamerUdpEndpoint, 
+    std::shared_ptr<char[]> buffer = std::shared_ptr<char[]>(new char[UDP::MaxUdpPacketSize]); // store it as member
+    m_localUdpSocket->async_receive_from(boost::asio::buffer(&buffer[0], UDP::MaxUdpPacketSize), m_streamerUdpEndpoint, 
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec)
             {
                 LOG_EX_INFO("Read media packet: size(bytes) = " + std::to_string(bytesTransferred));
-                // auto pkt = std::make_shared<media_packet_ptr::element_type>();
-                // std::copy(&buffer[0], &buffer[0] + sizeof(media_pkt_header_t), (char*)pkt.get());
-                // pkt->data.resize(pkt->header.size);
-                // std::copy(&buffer[0] + sizeof(media_pkt_header_t), &buffer[0] + bytesTransferred, pkt->data.data());
                 Multicast(buffer);
                 ReadMediaPacket();              
             } else {
@@ -50,7 +46,7 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
 {
     auto port = receiverUdpEndpoint.port();
     auto ip = receiverUdpEndpoint.address().to_string();
-    m_localUdpSocket->async_send_to(boost::asio::buffer(buffer.get(), UDP::MTU), receiverUdpEndpoint, 
+    m_localUdpSocket->async_send_to(boost::asio::buffer(buffer.get(), UDP::MaxUdpPacketSize), receiverUdpEndpoint, 
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec) {
                 LOG_EX_INFO("Send media packet: size(bytes) = " + std::to_string(bytesTransferred));

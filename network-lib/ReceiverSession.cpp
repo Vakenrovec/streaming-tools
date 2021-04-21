@@ -8,7 +8,7 @@ ReceiverSession::ReceiverSession(boost::asio::io_context& ioContext)
 , m_tcpSocket(std::make_shared<boost::asio::ip::tcp::socket>(ioContext))
 , m_udpSocket(std::make_shared<boost::asio::ip::udp::socket>(ioContext))
 , m_state(State::INITIALIZED)
-, m_writeQueue()
+, m_rtpVp8Depay()
 {
 }
 
@@ -58,17 +58,12 @@ void ReceiverSession::ReceiveData()
 {
     if (m_state == State::CONNECTED)
     {
-        // std::shared_ptr<char[]> buffer = std::shared_ptr<char[]>(new char[UDP::MTU]); // store it as member
         auto pkt = std::make_shared<media_packet_ptr::element_type>();
-        pkt->data = new uint8_t[UDP::MTU - sizeof(pkt->header)];
-        m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), UDP::MTU), m_serverUdpEndpoint, 
+        m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), UDP::MaxUdpPacketSize), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec)
                 {
-                    {
-                        const std::lock_guard<std::mutex> lock(m_queueMutex);
-                        m_writeQueue.push(pkt);
-                    }
+                    m_rtpVp8Depay.Process(pkt);
                     LOG_EX_INFO("Receive media packet: size(bytes) = " + std::to_string(pkt->header.size));
                     ReceiveData();
                 } else {

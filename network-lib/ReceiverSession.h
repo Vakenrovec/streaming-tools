@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MediaPacket.h"
+#include "rtp/RTPVp8Depay.h"
 #include <boost/asio.hpp>
 #include <memory>
 #include <cstdint>
@@ -16,7 +17,7 @@ public:
         CONNECTED,
         STOPPED,
     };
-
+    
 public:
     ReceiverSession(boost::asio::io_context& ioContext);
     void ConnectToStream(const std::uint32_t id);
@@ -48,8 +49,5 @@ private:
     std::shared_ptr<boost::asio::ip::udp::socket> m_udpSocket;
     int m_fps;
     State m_state;
-
-public:
-    std::queue<media_packet_ptr> m_writeQueue;
-    std::mutex m_queueMutex;
+    RTPVp8Depay m_rtpVp8Depay;
 };

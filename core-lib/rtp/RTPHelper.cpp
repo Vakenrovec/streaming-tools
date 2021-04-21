@@ -189,8 +189,8 @@ media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
     rtpHeader.csrcCount = 0;
     rtpHeader.pt = 0; 
     rtpHeader.m = m_marker; 
-    rtpHeader.seq = m_seqNumber; 
-    rtpHeader.ts = m_timestamp; 
+    rtpHeader.seq = htons(m_seqNumber); 
+    rtpHeader.ts = htonl(m_timestamp); 
     rtpHeader.ssrc = 0;
 
     rtp_descriptor_t rtpDescriptor;
@@ -202,7 +202,6 @@ media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
     packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
     packet->header.size = size + RTP_HEADER_SIZE_BYTES + RTP_DESCRIPTOR_SIZE_BYTES;
 
-    packet->data = new std::uint8_t[sizeof(packet->header) + packet->header.size];
     std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + RTP_HEADER_SIZE_BYTES, packet->data);
     std::copy((unsigned char *)&rtpDescriptor, (unsigned char *)&rtpDescriptor + RTP_DESCRIPTOR_SIZE_BYTES, packet->data + RTP_HEADER_SIZE_BYTES);
     std::copy(slice, slice + size, packet->data + RTP_HEADER_SIZE_BYTES + RTP_DESCRIPTOR_SIZE_BYTES);

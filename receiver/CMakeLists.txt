@@ -23,6 +23,7 @@ target_include_directories(${PROJECT_NAME}
         ../network-lib
         ${Boost_INCLUDE_DIRS}
         ${FFMPEG_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -32,4 +33,5 @@ target_link_libraries(${PROJECT_NAME}
         network-lib
         ${Boost_LIBRARIES}
         ${FFMPEG_LINK_LIBRARIES}
+        ${SDL2_LINK_LIBRARIES}
 )

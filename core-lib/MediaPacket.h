@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include "udp.h"
 
 typedef enum PacketType: std::uint8_t {
     UNKNOWN = 0,
@@ -22,8 +23,7 @@ typedef struct {
 
 struct media_packet_t {
     media_pkt_header_t header;
-    std::uint8_t *data;
-    ~media_packet_t(){ delete[] data; };
+    std::uint8_t data[UDP::MaxUdpPacketSize - sizeof(media_pkt_header_t)];
 };
 
 #define MEDIA_PACKET_SIZE_BYTES sizeof(media_pkt_header_t)

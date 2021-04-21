@@ -34,7 +34,7 @@ VP8Codec::VP8Codec()
 {
 }
 
-bool VP8Codec::InitEncodeContext(int width, int height, int gopSize)
+bool VP8Codec::InitEncodeContext(int width, int height, int gopSize, int bitrate)
 {
     m_encodeContext->codec = avcodec_find_encoder(m_encodeContext->id);
     if (!m_encodeContext->codec) {
@@ -51,7 +51,7 @@ bool VP8Codec::InitEncodeContext(int width, int height, int gopSize)
     m_encodeContext->codecContext->gop_size = gopSize;
     m_encodeContext->codecContext->pix_fmt = AV_PIX_FMT_YUV420P;
     m_encodeContext->codecContext->time_base = AVRational{1, 25};
-    m_encodeContext->codecContext->bit_rate = 400000;
+    m_encodeContext->codecContext->bit_rate = bitrate;
     int ret = avcodec_open2(m_encodeContext->codecContext, m_encodeContext->codec, nullptr);
     if (ret < 0) {
         LOG_EX_WARN("Could not open codec");
