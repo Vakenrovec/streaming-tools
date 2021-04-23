@@ -9,9 +9,9 @@ using namespace boost::program_options;
 
 int main(int argc, char* argv[])
 {
-    std::string tcpIp = "127.0.0.1";
+    std::string tcpIp = "192.11.0.3";
     std::uint16_t tcpPort = 35005;
-    std::string udpIp = "127.0.0.1";
+    std::string udpIp = "192.11.0.3";
     std::uint16_t udpPort = 35006;
     std::uint32_t threadsCount = 2;
     bool saveRawStreams = false;

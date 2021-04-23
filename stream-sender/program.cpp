@@ -33,10 +33,10 @@ int main() {
     ThreadPoolManager::GetInstance()->Start(threadsCount);
     auto session = std::make_shared<StreamerSession>(ThreadPoolManager::GetInstance()->Get());
     session->SetFPS(30);
-    session->SetServerTcpEndpoint("127.0.0.1", 35005);
-    session->SetServerUdpEndpoint("127.0.0.1", 35006);
-    session->SetLocalUdpEndpoint("127.0.0.1", 35007);
-    session->SetLocalUdpIp("127.0.0.1");
+    session->SetServerTcpEndpoint("192.11.0.3", 35005);
+    session->SetServerUdpEndpoint("192.11.0.3", 35006);
+    session->SetLocalUdpEndpoint("192.11.0.3", 35007);
+    session->SetLocalUdpIp("192.11.0.3");
     session->SetLocalUdpPort(35007);
     std::uint32_t id = 777;
     session->CreateStream(id);

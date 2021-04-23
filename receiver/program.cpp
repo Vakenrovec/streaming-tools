@@ -42,10 +42,10 @@ int main(int argc, char* argv[]) {
     ThreadPoolManager::GetInstance()->Start(threadsCount);
     auto session = std::make_shared<ReceiverSession>(ThreadPoolManager::GetInstance()->Get());
     session->SetFPS(30);
-    session->SetServerTcpEndpoint("127.0.0.1", 35005);
-    session->SetServerUdpEndpoint("127.0.0.1", 35006);
-    session->SetLocalUdpEndpoint("127.0.0.1", udpPort);
-    session->SetLocalUdpIp("127.0.0.1");
+    session->SetServerTcpEndpoint("192.11.0.3", 35005);
+    session->SetServerUdpEndpoint("192.11.0.3", 35006);
+    session->SetLocalUdpEndpoint("192.11.0.3", udpPort);
+    session->SetLocalUdpIp("192.11.0.3");
     session->SetLocalUdpPort(udpPort);
     std::uint32_t id = 777;
     session->ConnectToStream(id);

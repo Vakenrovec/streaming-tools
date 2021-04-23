@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
       automount: true,
       id: "streaming-tools"
 
-    ubuntu1804.vm.network "private_network", ip: "192.11.0.3"
+    ubuntu2004_dev.vm.network "private_network", ip: "192.11.0.3"
     
     ubuntu2004_dev.vm.provider "virtualbox" do |vb|
       vb.gui = true
