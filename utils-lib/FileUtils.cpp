@@ -26,11 +26,11 @@ bool FileUtils::ReadFile(const std::string& fileName, std::vector<std::uint8_t>&
     file.seekg(0, std::ios::end);
     auto len = file.tellg();
     file.seekg(0, std::ios::beg);
-    buffer.resize(len);
-    
+    buffer.resize(len);    
 
     file.read((char *)&buffer[0], len);
     file.close();
+    
     return true;
 }
 

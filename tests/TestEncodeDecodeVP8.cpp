@@ -1,68 +1,53 @@
 #include "catch.hpp"
-#include "codecs/vp8.h"
-#include "Image.h"
-#include "ImageUtils.h"
-#include "Logger.h"
-#include "rtp/RTPFragmenter.h"
+#include "codecs/VP8EncoderProcessor.h"
+#include "codecs/VP8DecoderProcessor.h"
+#include "file/FileSaveProcessor.h"
+#include "file/FileReadProcessor.h"
+#include "rtp/RTPFragmenterProcessor.h"
+#include "rtp/RTPDefragmenterProcessor.h"
 #include "FileUtils.h"
-#include <fstream>
 #include <string>
 #include <cstdint>
-#include <vector>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include <libavcodec/avcodec.h>
-#ifdef __cplusplus
-}
-#endif
+#include <memory>
 
 TEST_CASE("Encode-decode-yv12", "[encode][decode]") {
-    int width = 1280, height = 720, gopSize = 10, bitrate = 400000;
-    VP8Codec vp8codec;
-    vp8codec.InitEncodeContext(width, height, gopSize, bitrate);
-    vp8codec.InitDecodeContext();
+    int width = 1280, height = 720, gopSize = 10, bitrate = 400000, want = 11;
+    std::string testFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-data/webcam_output.yuv420p");
+    std::string saveFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-result/webcam_output.yv12");
+    
+    auto reader = std::make_shared<FileReadProcessor>(testFileName);
+    auto encoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
+    auto decoder = std::make_shared<VP8DecoderProcessor>();
+    auto saver = std::make_shared<FileSaveProcessor>(saveFileName);
+    
+    reader->SetNextProcessor(encoder);
+    encoder->SetNextProcessor(decoder);
+    decoder->SetNextProcessor(saver);
 
-    std::vector<std::uint8_t> imageData;
-    FileUtils::ReadFile("/media/sf_janus-tools/tests/test-data/webcam_output.yuv420p", imageData);
-    Image yuv420pImage;
-    yuv420pImage.data = imageData.data();
-    Image vp8Image;
-    vp8codec.Encode(yuv420pImage, vp8Image);
-
-    yuv420pImage.data = nullptr;
-    vp8codec.Decode(vp8Image, yuv420pImage);
-    std::ofstream outFile;
-    outFile.open("webcam_output.yv12", std::ios::binary | std::ios::trunc);
-    outFile.write((char*)yuv420pImage.data, yuv420pImage.size);
-    outFile.close();
-    delete[] yuv420pImage.data;
-    vp8codec.DeinitEncodeContext();
-    vp8codec.DeinitDecodeContext();
+    reader->Init();
+    REQUIRE(reader->Play(want) == want);
+    reader->Destroy();
 }
 
-TEST_CASE("Encode-fragment-defragment-decode-yv12", "[encode][decode][fragment][defragment]") {
-    int width = 1280, height = 720, gopSize = 10, bitrate = 400000;
-    VP8Codec vp8codec;
-    vp8codec.InitEncodeContext(width, height, gopSize, bitrate);
-    vp8codec.InitDecodeContext();
+TEST_CASE("Encode-fragment-defragment-decode-yv12", "[encode][fragment][defragment][decode]") {
+    int width = 1280, height = 720, gopSize = 10, bitrate = 400000, want = 11;
+    std::string testFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-data/webcam_output.yuv420p");
+    std::string saveFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-result/webcam_output.yv12");
+    
+    auto reader = std::make_shared<FileReadProcessor>(testFileName);
+    auto encoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
+    auto fragmenter = std::make_shared<RTPFragmenterProcessor>();
+    auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
+    auto decoder = std::make_shared<VP8DecoderProcessor>();
+    auto saver = std::make_shared<FileSaveProcessor>(saveFileName);
 
-    std::vector<std::uint8_t> imageData;
-    FileUtils::ReadFile("/media/sf_janus-tools/tests/test-data/webcam_output.yuv420p", imageData);
-    Image yuv420pImage;
-    yuv420pImage.data = imageData.data();
-    Image vp8Image;
-    vp8codec.Encode(yuv420pImage, vp8Image);
+    reader->SetNextProcessor(encoder);
+    encoder->SetNextProcessor(fragmenter);
+    fragmenter->SetNextProcessor(defragmenter);
+    defragmenter->SetNextProcessor(decoder);
+    decoder->SetNextProcessor(saver);
 
-    RTPFragmenter fragmenter;
-    auto packets = fragmenter.FragmentRTPFrame(vp8Image);
-    auto img = fragmenter.DefragmentRTPPackets(packets);
-
-    yuv420pImage.data = nullptr;
-    vp8codec.Decode(img, yuv420pImage);  // vp8Image instead of img
-    FileUtils::WriteFile("webcam_output.yv12", (char*)yuv420pImage.data, yuv420pImage.size);
-    delete[] yuv420pImage.data;
-    vp8codec.DeinitEncodeContext();
-    vp8codec.DeinitDecodeContext();
+    reader->Init();
+    REQUIRE(reader->Play(want) == want);
+    reader->Destroy();
 }
