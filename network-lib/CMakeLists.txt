@@ -1,7 +1,7 @@
 set (PROJECT_NAME network-lib)
 
 set(HEADERS 
-    udp.h
+    Network.h
     NetPacket.h
     Agent.h
     Room.h
@@ -10,7 +10,6 @@ set(HEADERS
 )
 
 set(SOURCES
-    udp.cpp
     Agent.cpp
     Room.cpp
     StreamerSession.cpp

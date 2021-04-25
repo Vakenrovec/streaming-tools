@@ -3,24 +3,38 @@ set (PROJECT_NAME core-lib)
 set(HEADERS 
     Image.h
     MediaPacket.h
-    codecs/vp8.h
+    DataProcessor.h
+    codecs/VP8EncoderProcessor.h
+    codecs/VP8DecoderProcessor.h
     devices/WebCamera.h
     rtp/RtpDefs.h
     rtp/RTPHelper.h
-    rtp/RTPFragmenter.h
+    rtp/RTPFragmenterProcessor.h
+    rtp/RTPDefragmenterProcessor.h
     rtp/RTPVp8Depay.h
     rtp/FrameUtils.h
     video/VideoDisplay.h
+    audio/RecordAudioProcessor.h
+    audio/PlaybackAudioProcessor.h
+    file/FileSaveProcessor.h
+    file/FileReadProcessor.h
 )
 
 set(SOURCES
-    codecs/vp8.cpp
+    DataProcessor.cpp
+    codecs/VP8EncoderProcessor.cpp
+    codecs/VP8DecoderProcessor.cpp
     devices/WebCamera.cpp
     rtp/RTPHelper.cpp
-    rtp/RTPFragmenter.cpp
+    rtp/RTPFragmenterProcessor.cpp
+    rtp/RTPDefragmenterProcessor.cpp
     rtp/RTPVp8Depay.cpp
     rtp/FrameUtils.cpp
     video/VideoDisplay.cpp
+    audio/RecordAudioProcessor.cpp
+    audio/PlaybackAudioProcessor.cpp
+    file/FileSaveProcessor.cpp
+    file/FileReadProcessor.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -42,7 +56,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         utils-lib
-        network-lib
+        #network-lib
         # ${FFMPEG_LIBRARIES}
         ${SDL2_LINK_LIBRARIES}
 )
