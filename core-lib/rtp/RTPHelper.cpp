@@ -11,7 +11,7 @@ const uint8_t* RTPHelper::ReadRtppacket(
 ) {
     size_t offset = 0;
 
-    if (len < RTP_HEADER_SIZE_BYTES + RTP_EXTENSION_SIZE_BYTES) {
+    if (len < sizeof(rtp_header_t) + sizeof(rtp_header_extension_t)) {
         return nullptr; // buffer too small for rtp
     }
 
@@ -25,7 +25,7 @@ const uint8_t* RTPHelper::ReadRtppacket(
     this->m_timestamp = ntohl(header->ts);
     this->m_marker = !!header->m;
 
-    offset += RTP_HEADER_SIZE_BYTES;
+    offset += sizeof(rtp_header_t);
 
     if (header->padding) {
         LOG_EX_WARN("Padding set");
@@ -34,13 +34,13 @@ const uint8_t* RTPHelper::ReadRtppacket(
     if (header->csrcCount) {
         // based on rfc: https://www.cl.cam.ac.uk/~jac22/books/mm/book/node159.html
         // the header is extended with the contributing sources, the size of each is 32 bits
-        offset += header->csrcCount * RTP_EXTENSION_SIZE_BYTES; 
+        offset += header->csrcCount * sizeof(rtp_header_extension_t); 
     }
 
     if (header->extension) {
         rtp_header_extension_t* extension = (rtp_header_extension_t*) (buffer + offset);
         offset += 4; 
-        int extlen = ntohs(extension->length) * RTP_EXTENSION_SIZE_BYTES;
+        int extlen = ntohs(extension->length) * sizeof(rtp_header_extension_t);
         if(len > (offset + extlen))
             offset += extlen;
     }
@@ -61,7 +61,7 @@ const bool RTPHelper::ReadTimestampInRtpPacket(
     size_t len
 )
 {
-    if (len < RTP_HEADER_SIZE_BYTES + RTP_EXTENSION_SIZE_BYTES) {
+    if (len < sizeof(rtp_header_t) + sizeof(rtp_header_extension_t)) {
         return false; // buffer too small for rtp
     }
 
@@ -82,7 +82,7 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
 ) {
     size_t offset = 0;
 
-    if (len < RTP_HEADER_SIZE_BYTES + RTP_EXTENSION_SIZE_BYTES) {
+    if (len < sizeof(rtp_header_t) + sizeof(rtp_header_extension_t)) {
         return nullptr; // buffer too small for rtp
     }
 
@@ -96,18 +96,18 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
     this->m_timestamp = ntohl(header->ts);
     this->m_marker = !!header->m;
 
-    offset += RTP_HEADER_SIZE_BYTES;
+    offset += sizeof(rtp_header_t);
 
     if (header->csrcCount) {
         // based on rfc: https://www.cl.cam.ac.uk/~jac22/books/mm/book/node159.html
         // the header is extended with the contributing sources, the size of each is 32 bits
-        offset += header->csrcCount * RTP_EXTENSION_SIZE_BYTES; 
+        offset += header->csrcCount * sizeof(rtp_header_extension_t); 
     }
 
     if (header->extension) {
         rtp_header_extension_t* extension = (rtp_header_extension_t*) (buffer + offset);
         offset += 4; 
-        int extlen = ntohs(extension->length) * RTP_EXTENSION_SIZE_BYTES;
+        int extlen = ntohs(extension->length) * sizeof(rtp_header_extension_t);
         if(len > (offset + extlen))
             offset += extlen;
     }
@@ -171,8 +171,8 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
     LOG_EX_INFO(
         ">>>>>>>>>>>>>>>>>>>>> Seq: " + std::to_string(m_seqNumber) + 
         ", ts = " + std::to_string(m_timestamp) + 
-        ", m = " + std::to_string(m_marker) + 
         ", s = " + std::to_string(m_sbit) + 
+        ", m = " + std::to_string(m_marker) + 
         ", key = " + std::to_string(m_isKeyFrame) + 
         ", pl: " + std::to_string(payloadLen)
     );
@@ -198,13 +198,13 @@ media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
     rtpDescriptor.s = m_sbit; 
 
     auto packet = std::make_shared<media_packet_t>();
-    packet->header.type = PacketType::VIDEO_RTP;
+    packet->header.type = PacketType::RTP;
     packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
-    packet->header.size = size + RTP_HEADER_SIZE_BYTES + RTP_DESCRIPTOR_SIZE_BYTES;
+    packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 
-    std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + RTP_HEADER_SIZE_BYTES, packet->data);
-    std::copy((unsigned char *)&rtpDescriptor, (unsigned char *)&rtpDescriptor + RTP_DESCRIPTOR_SIZE_BYTES, packet->data + RTP_HEADER_SIZE_BYTES);
-    std::copy(slice, slice + size, packet->data + RTP_HEADER_SIZE_BYTES + RTP_DESCRIPTOR_SIZE_BYTES);
+    std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + sizeof(rtp_header_t), packet->data);
+    std::copy((unsigned char *)&rtpDescriptor, (unsigned char *)&rtpDescriptor + sizeof(rtp_descriptor_t), packet->data + sizeof(rtp_header_t));
+    std::copy(slice, slice + size, packet->data + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t));
 
     return packet;
 }

@@ -60,7 +60,3 @@ typedef struct rtp_descriptor {
 } rtp_descriptor_t;
 
 #pragma pack(pop)
-
-#define RTP_HEADER_SIZE_BYTES sizeof(rtp_header_t)
-#define RTP_EXTENSION_SIZE_BYTES sizeof(rtp_header_extension_t)
-#define RTP_DESCRIPTOR_SIZE_BYTES sizeof(rtp_descriptor)

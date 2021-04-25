@@ -3,12 +3,15 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
-#include "udp.h"
 
 typedef enum PacketType: std::uint8_t {
     UNKNOWN = 0,
     AUDIO = 1,
-    VIDEO_RTP = 2,
+    JPEG = 2,
+    YUV422P = 3,
+    YV12 = 4,
+    VP8 = 5,
+    RTP = 6,
 } packet_type_t;
 
 #pragma pack(push, 1)
@@ -21,11 +24,11 @@ typedef struct {
 
 #pragma pack(pop)
 
+constexpr inline std::uint32_t MediaPacketDataSize = 3 * 1024 * 1024;
+
 struct media_packet_t {
     media_pkt_header_t header;
-    std::uint8_t data[UDP::MaxUdpPacketSize - sizeof(media_pkt_header_t)];
+    std::uint8_t data[MediaPacketDataSize];
 };
-
-#define MEDIA_PACKET_SIZE_BYTES sizeof(media_pkt_header_t)
 
 using media_packet_ptr = std::shared_ptr<media_packet_t>;
