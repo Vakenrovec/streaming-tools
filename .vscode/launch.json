@@ -15,7 +15,7 @@
             // "program": "${workspaceFolder}/build/bin/stream-sender",
             // "args": [],
             "program": "${workspaceFolder}/build/bin/receiver",
-            "args": [],
+            "args": ["--local-udp-port", "35011"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
             "environment": [],

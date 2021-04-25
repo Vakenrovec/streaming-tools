@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     
     ubuntu2004_dev.vm.provider "virtualbox" do |vb|
       vb.gui = true
-      vb.memory = "5120"
+      vb.memory = "6144"
       vb.cpus = "4"
     end
 
