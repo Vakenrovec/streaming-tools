@@ -43,7 +43,8 @@ int main() {
 
     WebCamera webCamera;
     webCamera.Initialize(width, height);
-    for (int i = 0; i < 1000; i++)
+    // for (int i = 0; i < 1000; i++)
+    for (int  i = 0;; i++)
     {
         Image jpegImage;
         
@@ -71,13 +72,11 @@ int main() {
         delete[] yuv420pImage.data; 
 
         RTPFragmenter fragmenter;
-        auto packets = fragmenter.FragmentRTPFrame(vp8Image);       
-        // transfer over the network        
+        auto packets = fragmenter.FragmentRTPFrame(vp8Image); 
         for (const auto& pkt : packets)
         {
             session->WriteData(pkt);
-        }                
-        // ... 
+        }
         auto img = fragmenter.DefragmentRTPPackets(packets);
 
         Image yv12Image;
@@ -87,7 +86,7 @@ int main() {
         outFile.close();
         delete[] yv12Image.data;
 
-        // std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     webCamera.Deinitialize();
     vp8codec.DeinitEncodeContext();

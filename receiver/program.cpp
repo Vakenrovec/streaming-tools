@@ -22,6 +22,10 @@ int main(int argc, char* argv[]) {
             std::cout << desc << "\n";
             return 0;
         }
+
+        if (vm.count("local-udp-port")) {
+            udpPort = vm["local-udp-port"].as<std::uint16_t>();
+        }
     } catch(const std::exception& e) {
         std::cerr << e.what() << "\n";
         return 1;
