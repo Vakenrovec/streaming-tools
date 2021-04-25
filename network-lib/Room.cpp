@@ -1,5 +1,5 @@
 #include "Room.h"
-#include "udp.h"
+#include "Network.h"
 #include "Logger.h"
 #include <functional>
 
@@ -21,8 +21,8 @@ void Room::Start()
 
 void Room::ReadMediaPacket()
 {
-    std::shared_ptr<char[]> buffer = std::shared_ptr<char[]>(new char[UDP::MaxUdpPacketSize]); // store it as member
-    m_localUdpSocket->async_receive_from(boost::asio::buffer(&buffer[0], UDP::MaxUdpPacketSize), m_streamerUdpEndpoint, 
+    std::shared_ptr<char[]> buffer = std::shared_ptr<char[]>(new char[Network::MaxUdpPacketSize]); // store it as member
+    m_localUdpSocket->async_receive_from(boost::asio::buffer(&buffer[0], Network::MaxUdpPacketSize), m_streamerUdpEndpoint, 
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec)
             {
@@ -46,7 +46,7 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
 {
     auto port = receiverUdpEndpoint.port();
     auto ip = receiverUdpEndpoint.address().to_string();
-    m_localUdpSocket->async_send_to(boost::asio::buffer(buffer.get(), UDP::MaxUdpPacketSize), receiverUdpEndpoint, 
+    m_localUdpSocket->async_send_to(boost::asio::buffer(buffer.get(), Network::MaxUdpPacketSize), receiverUdpEndpoint, 
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec) {
                 LOG_EX_INFO("Send media packet: size(bytes) = " + std::to_string(bytesTransferred));

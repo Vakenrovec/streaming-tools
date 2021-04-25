@@ -1,14 +1,14 @@
 #include "ReceiverSession.h"
 #include "NetPacket.h"
 #include "Logger.h"
-#include "udp.h"
+#include "Network.h"
 
 ReceiverSession::ReceiverSession(boost::asio::io_context& ioContext)
 : m_ioContext(ioContext)
 , m_tcpSocket(std::make_shared<boost::asio::ip::tcp::socket>(ioContext))
 , m_udpSocket(std::make_shared<boost::asio::ip::udp::socket>(ioContext))
 , m_state(State::INITIALIZED)
-, m_rtpVp8Depay()
+// , m_rtpVp8Depay()
 {
 }
 
@@ -59,11 +59,11 @@ void ReceiverSession::ReceiveData()
     if (m_state == State::CONNECTED)
     {
         auto pkt = std::make_shared<media_packet_ptr::element_type>();
-        m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), UDP::MaxUdpPacketSize), m_serverUdpEndpoint, 
+        m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), Network::MaxUdpPacketSize), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec)
                 {
-                    m_rtpVp8Depay.Process(pkt);
+                    // m_rtpVp8Depay.Process(pkt);
                     LOG_EX_INFO("Receive media packet: size(bytes) = " + std::to_string(pkt->header.size));
                     ReceiveData();
                 } else {

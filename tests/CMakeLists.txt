@@ -8,6 +8,7 @@ set(SOURCES
     main.cpp
     TestEncodeDecodeVP8.cpp
     TestAgent.cpp
+    TestAudio.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -21,8 +22,8 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
         ${Boost_INCLUDE_DIRS}
-        ../network-lib
         ../utils-lib
+        ../network-lib
         ../core-lib
         ${FFMPEG_INCLUDE_DIRS}
 )
