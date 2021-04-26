@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-typedef enum PacketType: std::uint8_t {
+typedef enum MediaPacketType: std::uint8_t {
     UNKNOWN = 0,
     AUDIO = 1,
     JPEG = 2,
@@ -12,14 +12,14 @@ typedef enum PacketType: std::uint8_t {
     YV12 = 4,
     VP8 = 5,
     RTP = 6,
-} packet_type_t;
+} media_packet_type_t;
 
 #pragma pack(push, 1)
 
 typedef struct {
-   PacketType type;         /* payload type */
-   std::uint64_t ts;        /* timestamp */
-   std::uint32_t size;      /* the size of the payload data */
+    MediaPacketType type;        /* payload type */
+    std::uint64_t ts;            /* timestamp */
+    std::uint32_t size;          /* the size of the payload data */
 } media_pkt_header_t;
 
 #pragma pack(pop)
