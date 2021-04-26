@@ -1,6 +1,5 @@
 #include "RTPFragmenterProcessor.h"
 #include "Network.h"
-#include "Image.h"
 #include "RtpDefs.h"
 #include "DateTimeUtils.h"
 

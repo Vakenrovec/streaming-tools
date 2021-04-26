@@ -1,6 +1,5 @@
 #include "VP8EncoderProcessor.h"
 #include "Logger.h"
-#include "ImageUtils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,9 +99,9 @@ void VP8EncoderProcessor::Process(const media_packet_ptr& pkt)
         return;
     }
     LOG_EX_INFO("Frame was encoded");
-    pkt->header.type = PacketType::VP8;
+    pkt->header.type = MediaPacketType::VP8;
     pkt->header.size = m_encodeContext->packet->size;
-    memcpy(pkt->data, m_encodeContext->packet->data, m_encodeContext->packet->size);    
+    std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    
 
     DataProcessor::Process(pkt);
 }

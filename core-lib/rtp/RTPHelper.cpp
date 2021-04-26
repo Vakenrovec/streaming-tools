@@ -198,7 +198,7 @@ media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
     rtpDescriptor.s = m_sbit; 
 
     auto packet = std::make_shared<media_packet_t>();
-    packet->header.type = PacketType::RTP;
+    packet->header.type = MediaPacketType::RTP;
     packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
     packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 

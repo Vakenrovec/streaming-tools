@@ -1,6 +1,5 @@
 #include "VP8DecoderProcessor.h"
 #include "Logger.h"
-#include "ImageUtils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,7 +84,7 @@ void VP8DecoderProcessor::Process(const media_packet_ptr& pkt)
     Decode(m_decodeContext->codecContext, m_decodeContext->frame, m_decodeContext->packet);
     LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
 
-    pkt->header.type = PacketType::YV12;
+    pkt->header.type = MediaPacketType::YV12;
     pkt->header.size = m_decodeContext->frame->width * m_decodeContext->frame->height * 3 / 2;
     std::copy(
         m_decodeContext->frame->data[0], 

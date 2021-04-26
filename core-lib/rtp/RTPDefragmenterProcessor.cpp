@@ -1,6 +1,5 @@
 #include "RTPDefragmenterProcessor.h"
 #include "Network.h"
-#include "Image.h"
 #include "RtpDefs.h"
 #include "DateTimeUtils.h"
 
@@ -32,7 +31,7 @@ void RTPDefragmenterProcessor::Process(const std::list<media_packet_ptr>& pkts)
 media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<media_packet_ptr>& packets)
 {
     auto pkt = std::make_shared<media_packet_t>();
-    pkt->header.type = packet_type_t::VP8;
+    pkt->header.type = media_packet_type_t::VP8;
     int pos = 0;
     size_t payloadLen = 0;
     for (const auto& packet : packets)

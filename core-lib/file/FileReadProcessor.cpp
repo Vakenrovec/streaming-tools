@@ -30,9 +30,9 @@ int FileReadProcessor::Play(int wanted)
             break;
         }
         auto pkt = std::make_shared<media_packet_t>();
-        pkt->header.type = PacketType::UNKNOWN;
+        pkt->header.type = MediaPacketType::UNKNOWN;
         pkt->header.size = buffer.size();
-        memcpy(pkt->data, buffer.data(), buffer.size());
+        std::copy(buffer.data(), buffer.data() + buffer.size(), pkt->data);
         DataProcessor::Process(pkt);
     }
     return m_counter;
