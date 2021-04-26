@@ -1,40 +1,41 @@
 set (PROJECT_NAME core-lib)
 
 set(HEADERS 
-    Image.h
     MediaPacket.h
     DataProcessor.h
     codecs/VP8EncoderProcessor.h
     codecs/VP8DecoderProcessor.h
-    devices/WebCamera.h
     rtp/RtpDefs.h
     rtp/RTPHelper.h
     rtp/RTPFragmenterProcessor.h
     rtp/RTPDefragmenterProcessor.h
-    rtp/RTPVp8Depay.h
+    rtp/RTPVp8DepayProcessor.h
     rtp/FrameUtils.h
-    video/VideoDisplay.h
+    video/WebCameraProcessor.h
+    video/VideoDisplayProcessor.h
     audio/RecordAudioProcessor.h
     audio/PlaybackAudioProcessor.h
     file/FileSaveProcessor.h
     file/FileReadProcessor.h
+    image/JPEG2YV12Processor.h
 )
 
 set(SOURCES
     DataProcessor.cpp
     codecs/VP8EncoderProcessor.cpp
     codecs/VP8DecoderProcessor.cpp
-    devices/WebCamera.cpp
     rtp/RTPHelper.cpp
     rtp/RTPFragmenterProcessor.cpp
     rtp/RTPDefragmenterProcessor.cpp
-    rtp/RTPVp8Depay.cpp
+    rtp/RTPVp8DepayProcessor.cpp
     rtp/FrameUtils.cpp
-    video/VideoDisplay.cpp
+    video/WebCameraProcessor.cpp
+    video/VideoDisplayProcessor.cpp
     audio/RecordAudioProcessor.cpp
     audio/PlaybackAudioProcessor.cpp
     file/FileSaveProcessor.cpp
     file/FileReadProcessor.cpp
+    image/JPEG2YV12Processor.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})

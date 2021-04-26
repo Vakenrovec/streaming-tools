@@ -2,7 +2,7 @@ set (PROJECT_NAME utils-lib)
 
 set(HEADERS 
     FileUtils.h
-    ImageUtils.h
+    #ImageUtils.h
     Logger.h
     DateTimeUtils.h
     ThreadPoolManager.h
@@ -10,7 +10,7 @@ set(HEADERS
 
 set(SOURCES
     FileUtils.cpp
-    ImageUtils.cpp
+    #ImageUtils.cpp
     Logger.cpp
     DateTimeUtils.cpp
     ThreadPoolManager.cpp

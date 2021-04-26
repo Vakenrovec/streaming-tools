@@ -6,9 +6,9 @@ set(HEADERS
 
 set(SOURCES
     main.cpp
-    TestEncodeDecodeVP8.cpp
-    TestAgent.cpp
     TestAudio.cpp
+    TestVideo.cpp
+    TestNetwork.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
