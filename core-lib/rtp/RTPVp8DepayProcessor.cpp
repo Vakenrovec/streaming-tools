@@ -1,32 +1,37 @@
-#include "RTPVp8Depay.h"
+#include "RTPVp8DepayProcessor.h"
 #include "RtpDefs.h"
 #include "Logger.h"
 #include "FrameUtils.h"
-#include "RTPFragmenter.h"
-#include "Image.h"
+#include <cstdint>
 #include <limits>
 #include <arpa/inet.h>
-#include <vector>
-#include <fstream>
 
-RTPVp8Depay::RTPVp8Depay() 
+RTPVp8DepayProcessor::RTPVp8DepayProcessor() 
 : m_maxWidth(0)
 , m_maxHeight(0)
 , m_frameSize(0)
 , m_waitForKeyFrameState(true)
 , m_frameTimestamp(std::numeric_limits<std::uint32_t>::max())
 , m_rtpHelper(new RTPHelper)
-, m_videoDisplay()
-{
-    m_vp8codec.InitDecodeContext();
-}
-
-RTPVp8Depay::~RTPVp8Depay() 
 {
 }
 
-void RTPVp8Depay::Process(const media_packet_ptr& pkt) {
-    if (pkt->header.type == packet_type_t::VIDEO_RTP) {
+RTPVp8DepayProcessor::~RTPVp8DepayProcessor() 
+{
+}
+
+void RTPVp8DepayProcessor::Init()
+{
+    DataProcessor::Init();
+}
+
+void RTPVp8DepayProcessor::Destroy()
+{
+    DataProcessor::Destroy();
+}
+
+void RTPVp8DepayProcessor::Process(const media_packet_ptr& pkt) {
+    if (pkt->header.type == media_packet_type_t::RTP) {
 
         size_t payloadLen = 0;
         if (!this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen))
@@ -93,20 +98,8 @@ void RTPVp8Depay::Process(const media_packet_ptr& pkt) {
 
                     // LOG_EX_TRACE("--------- isFrameValid: %d, Seq: %d, ts: %lu, pl: %d", 
                     //     isFrameValid, m_rtpHelper->seqNumber(), m_rtpHelper->timestamp(), payloadLen);
-                }   
-
-                RTPFragmenter rtpFragmenter;
-                Image imageVp8 = rtpFragmenter.DefragmentRTPPackets(m_framePackets);
-                Image yv12Image;
-                std::ofstream outFile;
-                m_vp8codec.Decode(imageVp8, yv12Image);
-                static int i = 0; i++;
-                outFile.open("receiverFolder/receiver_output" + std::to_string(i) + ".yv12", std::ios::binary | std::ios::trunc);
-                outFile.write((char*)yv12Image.data, yv12Image.size);
-                outFile.close();
-                m_videoDisplay.Display(yv12Image);
-                delete[] yv12Image.data;
-                // LOG_EX_INFO("!!!\n\n\n\n!!!");                                  
+                }
+                DataProcessor::Process(m_framePackets);                               
             }
             else
             {

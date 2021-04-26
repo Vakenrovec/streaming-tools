@@ -1,33 +1,69 @@
-#include "WebCamera.h"
+#include "WebCameraProcessor.h"
 #include "Logger.h"
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
 #include <unistd.h>
+#include <cstdint>
 
-WebCamera::WebCamera()
-: m_descriptor(0)
+WebCameraProcessor::WebCameraProcessor(int width, int height, std::uint32_t pixelformat)
+: m_width(width)
+, m_height(height)
+, m_pixelformat(pixelformat)
+, m_descriptor(0)
 , m_buffer(nullptr)
 {    
 }
 
-bool WebCamera::Initialize(int width, int height, unsigned int pixelformat)
+void WebCameraProcessor::Init()
 {
     Open();
     IsCanCapture();
-    SetImageFormat(width, height, pixelformat);
+    SetImageFormat(m_width, m_height, m_pixelformat);
     RequestBuffer();
     QueryBuffer();
-    return Start();
+    if (!Start())
+    {
+        LOG_EX_WARN("Couldn't start web canera");
+        return;
+    }
+
+    DataProcessor::Init();
 }
 
-bool WebCamera::Deinitialize()
+void WebCameraProcessor::Destroy()
 {
-    return Stop();
+    if (!Stop())
+    {
+        LOG_EX_WARN("Couldn't stop web canera");
+        return;
+    }
+
+    DataProcessor::Destroy();
 }
 
-bool WebCamera::Open() {
+int WebCameraProcessor::Play(int wanted)
+{
+    int i = 0;
+    auto pkt = std::make_shared<media_packet_t>();
+    for (; i < wanted; i++)
+    {
+        Process(pkt);
+    }
+    return i; 
+}
+
+void WebCameraProcessor::Process(const media_packet_ptr& pkt)
+{
+    if (!GetFrame(pkt)) {
+        LOG_EX_WARN("Couldn't get frame from web camera");
+    }
+    
+    DataProcessor::Process(pkt);
+}
+
+bool WebCameraProcessor::Open() {
     int fd = open("/dev/video0", O_RDWR);
     if (fd < 0) {
         LOG_EX_ERROR("Failed to open device");
@@ -37,7 +73,7 @@ bool WebCamera::Open() {
     return true;
 }
 
-bool WebCamera::IsCanCapture()
+bool WebCameraProcessor::IsCanCapture()
 {
     v4l2_capability capability;
     if(ioctl(m_descriptor, VIDIOC_QUERYCAP, &capability) < 0) {
@@ -47,7 +83,7 @@ bool WebCamera::IsCanCapture()
     return true;
 }
 
-bool WebCamera::SetImageFormat(int width, int height, unsigned int pixelformat) {
+bool WebCameraProcessor::SetImageFormat(int width, int height, std::uint32_t pixelformat) {
     v4l2_format imageFormat;
     imageFormat.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     imageFormat.fmt.pix.width = width;
@@ -61,7 +97,7 @@ bool WebCamera::SetImageFormat(int width, int height, unsigned int pixelformat) 
     return true;
 }
 
-bool WebCamera::RequestBuffer()
+bool WebCameraProcessor::RequestBuffer()
 {
     v4l2_requestbuffers requestBuffer = {0};
     requestBuffer.count = 1; 
@@ -74,7 +110,7 @@ bool WebCamera::RequestBuffer()
     return true;
 }
 
-bool WebCamera::QueryBuffer()
+bool WebCameraProcessor::QueryBuffer()
 {
     v4l2_buffer queryBuffer = {0};
     queryBuffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -92,7 +128,7 @@ bool WebCamera::QueryBuffer()
     return true;
 }
 
-bool WebCamera::Start()
+bool WebCameraProcessor::Start()
 {
     v4l2_buffer bufferinfo;
     memset(&bufferinfo, 0, sizeof(bufferinfo));
@@ -107,7 +143,7 @@ bool WebCamera::Start()
     return true;
 }
 
-bool WebCamera::GetFrame(Image& image)
+bool WebCameraProcessor::GetFrame(const media_packet_ptr& pkt)
 {
     // Queue the buffer
     if(ioctl(m_descriptor, VIDIOC_QBUF, &m_bufferInfo) < 0){
@@ -124,24 +160,20 @@ bool WebCamera::GetFrame(Image& image)
     // Frames get written after dequeuing the buffer
     LOG_EX_INFO("Frame was captured, size = " + std::to_string(m_bufferInfo.bytesused / 1024) + " KBytes");
 
-    std::uint8_t* buffer = new std::uint8_t[m_bufferInfo.bytesused * sizeof(std::uint8_t)];
-    std::copy(m_buffer, m_buffer + m_bufferInfo.bytesused, buffer);
-    
-    image.type = ImageType::JPEG;
-    image.size = m_bufferInfo.bytesused;
-    image.data = buffer;
+    pkt->header.type = MediaPacketType::JPEG;
+    pkt->header.size = m_bufferInfo.bytesused;
+    std::copy(m_buffer, m_buffer + m_bufferInfo.bytesused, pkt->data);
 
     return true;
 }
 
-bool WebCamera::Stop()
+bool WebCameraProcessor::Stop()
 {
-    if(ioctl(m_descriptor, VIDIOC_STREAMOFF, &m_bufferInfo.type) < 0){
+    if (ioctl(m_descriptor, VIDIOC_STREAMOFF, &m_bufferInfo.type) < 0) {
         LOG_EX_INFO("Could not end streaming, VIDIOC_STREAMOFF");
         return false;
     }
-    if (m_descriptor)
-    {
+    if (m_descriptor) {
         close(m_descriptor);
     }
 
