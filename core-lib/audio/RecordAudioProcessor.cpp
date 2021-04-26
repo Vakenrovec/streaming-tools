@@ -11,7 +11,7 @@ void RecordAudioProcessor::AudioRecordingCallback(void* userdata, std::uint8_t* 
 {
     RecordAudioProcessor *that = (RecordAudioProcessor*)userdata;
     auto pkt = std::make_shared<media_packet_t>();
-    memcpy(pkt->data, stream, len);
+    std::copy(stream, stream + len, pkt->data);
     that->Process(pkt);
     // memcpy(&that->m_recordingBuffer[that->m_bufferBytePosition], stream, len);
     // that->m_bufferBytePosition += len;

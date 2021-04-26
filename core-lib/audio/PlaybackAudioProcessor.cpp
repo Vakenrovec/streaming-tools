@@ -21,7 +21,7 @@ void PlaybackAudioProcessor::AudioPlaybackCallback(void* userdata, std::uint8_t*
         pkt = that->m_circularBuffer->front();
         that->m_circularBuffer->pop_front();        
     }
-    memcpy(stream, pkt->data, len);
+    std::copy(pkt->data, pkt->data + len, stream);
 
     // memcpy(stream, &m_recordingBuffer[m_bufferBytePosition], len);
     // that->m_bufferBytePosition += len;
