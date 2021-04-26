@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include "Image.h"
 
 struct AVCodecContext;
 struct AVFrame;
