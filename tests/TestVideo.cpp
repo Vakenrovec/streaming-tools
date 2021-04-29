@@ -5,6 +5,7 @@
 #include "file/FileReadProcessor.h"
 #include "rtp/RTPFragmenterProcessor.h"
 #include "rtp/RTPDefragmenterProcessor.h"
+#include "rtp/RTPVp8DepayProcessor.h"
 #include "video/WebCameraProcessor.h"
 #include "video/VideoDisplayProcessor.h"
 #include "image/JPEG2YV12Processor.h"
@@ -73,13 +74,14 @@ TEST_CASE("video", "[video]")
         reader->Destroy();
     }
 
-    SECTION("WebCamera-convert-encode-fragment-defragment-decode-display", 
-        "[webcam][convert][encode][fragment][defragment][decode][display]") 
+    SECTION("WebCamera-convert-encode-fragment-depay-defragment-decode-display", 
+        "[webcam][convert][encode][fragment][depay][defragment][decode][display]") 
     {
         auto webcam = std::make_shared<WebCameraProcessor>(width, height);
         auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(width, height);
         auto encoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
         auto fragmenter = std::make_shared<RTPFragmenterProcessor>();
+        auto depay = std::make_shared<RTPVp8DepayProcessor>();
         auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
         auto decoder = std::make_shared<VP8DecoderProcessor>();
         auto display = std::make_shared<VideoDisplayProcessor>(width, height);
@@ -87,7 +89,8 @@ TEST_CASE("video", "[video]")
         webcam->SetNextProcessor(jpeg2yv12);
         jpeg2yv12->SetNextProcessor(encoder);
         encoder->SetNextProcessor(fragmenter);
-        fragmenter->SetNextProcessor(defragmenter);
+        fragmenter->SetNextProcessor(depay);
+        depay->SetNextProcessor(defragmenter);
         defragmenter->SetNextProcessor(decoder);
         decoder->SetNextProcessor(display);
 
