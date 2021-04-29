@@ -18,8 +18,6 @@ public:
     void Process(const media_packet_ptr& pkt) override;
 
 private:
-    std::list<media_packet_ptr> FragmentRTPFrame(const media_packet_ptr& pkt);
-
     std::shared_ptr<RTPHelper> m_rtpHelper;
     const int m_maxPayloadLength;
 };

@@ -22,13 +22,13 @@ void RTPDefragmenterProcessor::Destroy()
     DataProcessor::Destroy();
 }
 
-void RTPDefragmenterProcessor::Process(const std::list<media_packet_ptr>& pkts)
+void RTPDefragmenterProcessor::Process(const std::list<udp_packet_ptr>& pkts)
 {
     auto pkt = DefragmentRTPPackets(pkts);
     DataProcessor::Process(pkt);
 }
 
-media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<media_packet_ptr>& packets)
+media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<udp_packet_ptr>& packets)
 {
     auto pkt = std::make_shared<media_packet_t>();
     pkt->header.type = media_packet_type_t::VP8;
@@ -45,7 +45,7 @@ media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<
     return pkt;
 }
 
-media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<media_packet_ptr>& packets, std::uint32_t payloadSize)
+media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<udp_packet_ptr>& packets, std::uint32_t payloadSize)
 {
     auto pkt = std::make_shared<media_packet_t>();
     pkt->header.size = payloadSize;

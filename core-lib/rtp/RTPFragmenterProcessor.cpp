@@ -1,4 +1,5 @@
 #include "RTPFragmenterProcessor.h"
+#include "UDPPacket.h"
 #include "Network.h"
 #include "RtpDefs.h"
 #include "DateTimeUtils.h"
@@ -24,38 +25,30 @@ void RTPFragmenterProcessor::Destroy()
 
 void RTPFragmenterProcessor::Process(const media_packet_ptr& pkt)
 {
-    std::list<media_packet_ptr> packets = std::move(FragmentRTPFrame(pkt));
-    DataProcessor::Process(packets);
-}
-
-std::list<media_packet_ptr> RTPFragmenterProcessor::FragmentRTPFrame(const media_packet_ptr& pkt)
-{
-    std::list<media_packet_ptr> packets;
+    udp_packet_ptr udpPacket = nullptr;
     int slices = (pkt->header.size / m_maxPayloadLength) + (!!(pkt->header.size % m_maxPayloadLength));
     int size = pkt->header.size, pos = 0;
     std::uint32_t seq = 0;
+    std::uint64_t ts = DateTimeUtils::GetCurrentTimeMiliseconds();
     while (size)
     {       
         m_rtpHelper->seqNumber(++seq);
-        m_rtpHelper->timestamp(DateTimeUtils::GetCurrentTimeMiliseconds());
-        m_rtpHelper->sbit(seq == 1 ? true : false);
-        m_rtpHelper->marker(seq == slices ? true : false); 
+        m_rtpHelper->timestamp(ts);
+        m_rtpHelper->sbit(seq == 1);
+        m_rtpHelper->marker(seq == slices); 
         m_rtpHelper->isKeyFrame(false);
         if (size > m_maxPayloadLength)
         {
-            media_packet_ptr packet = m_rtpHelper->MakeRtpPacket(pkt->data + pos, m_maxPayloadLength);
-            packets.push_back(packet);
+            udpPacket = m_rtpHelper->MakeUdpRtpPacket(pkt->data + pos, m_maxPayloadLength, ts);
             pos += m_maxPayloadLength;
             size -= m_maxPayloadLength;
         }
         else
         {
-            media_packet_ptr packet = m_rtpHelper->MakeRtpPacket(pkt->data + pos, size);
-            packets.push_back(packet);
+            udpPacket = m_rtpHelper->MakeUdpRtpPacket(pkt->data + pos, size, ts);
             pos += size;
             size -= size;
         }
+        DataProcessor::Process(udpPacket);
     }
-
-    return packets;
 }

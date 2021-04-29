@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MediaPacket.h"
+#include "UDPPacket.h"
 #include <cstdint>
 #include <string>
 
@@ -30,7 +30,8 @@ public:
     );
 
 
-    media_packet_ptr MakeRtpPacket(std::uint8_t* slice, int size);
+    udp_packet_ptr MakeUdpRtpPacket(std::uint8_t* slice, int size);
+    udp_packet_ptr MakeUdpRtpPacket(std::uint8_t* slice, int size, std::uint64_t ts);
 
     inline std::uint32_t timestamp() const { return this->m_timestamp; }
     inline std::uint16_t seqNumber() const { return this->m_seqNumber; } 
@@ -43,6 +44,7 @@ public:
     inline void marker(bool m) { this->m_marker = m; }
     inline void sbit(bool s) { this->m_sbit = s; }
     inline void isKeyFrame(bool isKey) { this->m_isKeyFrame = isKey; }
+
 private:
     std::uint32_t m_timestamp = 0;
     std::uint16_t m_seqNumber = 0;

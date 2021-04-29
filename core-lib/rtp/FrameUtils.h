@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MediaPacket.h"
+#include "UDPPacket.h"
 #include "RTPHelper.h"
 
 #include <list>
@@ -9,5 +9,5 @@
 class FrameUtils
 {
 public:
-    static bool IsFrameCorrupted(std::list<media_packet_ptr>& framePackets, std::shared_ptr<RTPHelper>& rtpHelper);
+    static bool IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::shared_ptr<RTPHelper>& rtpHelper);
 };

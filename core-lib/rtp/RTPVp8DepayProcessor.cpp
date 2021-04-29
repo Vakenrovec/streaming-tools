@@ -30,8 +30,8 @@ void RTPVp8DepayProcessor::Destroy()
     DataProcessor::Destroy();
 }
 
-void RTPVp8DepayProcessor::Process(const media_packet_ptr& pkt) {
-    if (pkt->header.type == media_packet_type_t::RTP) {
+void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
+    if (pkt->header.type == udp_packet_type_t::RTP) {
 
         size_t payloadLen = 0;
         if (!this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen))
@@ -57,7 +57,7 @@ void RTPVp8DepayProcessor::Process(const media_packet_ptr& pkt) {
         if (m_frameTimestamp != packetTimestamp)
         {
             // sort packets in a frame
-            this->m_framePackets.sort([]( const media_packet_ptr &a, media_packet_ptr &b) {
+            this->m_framePackets.sort([]( const udp_packet_ptr &a, udp_packet_ptr &b) {
                 rtp_header_t *headerA = (rtp_header_t *)&a->data[0];
                 rtp_header_t *headerB = (rtp_header_t *)&b->data[0];
                 return ntohs(headerA->seq) < ntohs(headerB->seq); 
@@ -103,6 +103,7 @@ void RTPVp8DepayProcessor::Process(const media_packet_ptr& pkt) {
             }
             else
             {
+                LOG_EX_INFO("Frame is not valid");
                 m_waitForKeyFrameState = true;
             }       
             

@@ -168,19 +168,19 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
         payloadLen = len - offset;
     }
 
-    LOG_EX_INFO(
-        ">>>>>>>>>>>>>>>>>>>>> Seq: " + std::to_string(m_seqNumber) + 
-        ", ts = " + std::to_string(m_timestamp) + 
-        ", s = " + std::to_string(m_sbit) + 
-        ", m = " + std::to_string(m_marker) + 
-        ", key = " + std::to_string(m_isKeyFrame) + 
-        ", pl: " + std::to_string(payloadLen)
-    );
+    // LOG_EX_INFO(
+    //     ">>>>>>>>>>>>>>>>>>>>> Seq: " + std::to_string(m_seqNumber) + 
+    //     ", ts = " + std::to_string(m_timestamp) + 
+    //     ", s = " + std::to_string(m_sbit) + 
+    //     ", m = " + std::to_string(m_marker) + 
+    //     ", key = " + std::to_string(m_isKeyFrame) + 
+    //     ", pl: " + std::to_string(payloadLen)
+    // );
 
     return (const uint8_t*)(buffer + offset);
 }
 
-media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
+udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size)
 {
     rtp_header_t rtpHeader;
     rtpHeader.version = 2;
@@ -197,9 +197,38 @@ media_packet_ptr RTPHelper::MakeRtpPacket(std::uint8_t* slice, int size)
     rtpDescriptor.x = 0;
     rtpDescriptor.s = m_sbit; 
 
-    auto packet = std::make_shared<media_packet_t>();
-    packet->header.type = MediaPacketType::RTP;
+    auto packet = std::make_shared<udp_packet_t>();
+    packet->header.type = udp_packet_type_t::RTP;
     packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
+    packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
+
+    std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + sizeof(rtp_header_t), packet->data);
+    std::copy((unsigned char *)&rtpDescriptor, (unsigned char *)&rtpDescriptor + sizeof(rtp_descriptor_t), packet->data + sizeof(rtp_header_t));
+    std::copy(slice, slice + size, packet->data + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t));
+
+    return packet;
+}
+
+udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size, std::uint64_t ts)
+{
+    rtp_header_t rtpHeader;
+    rtpHeader.version = 2;
+    rtpHeader.padding = 0;
+    rtpHeader.extension = 0;
+    rtpHeader.csrcCount = 0;
+    rtpHeader.pt = 0; 
+    rtpHeader.m = m_marker; 
+    rtpHeader.seq = htons(m_seqNumber); 
+    rtpHeader.ts = htonl(m_timestamp); 
+    rtpHeader.ssrc = 0;
+
+    rtp_descriptor_t rtpDescriptor;
+    rtpDescriptor.x = 0;
+    rtpDescriptor.s = m_sbit; 
+
+    auto packet = std::make_shared<udp_packet_t>();
+    packet->header.type = udp_packet_type_t::RTP;
+    packet->header.ts = ts;
     packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 
     std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + sizeof(rtp_header_t), packet->data);
