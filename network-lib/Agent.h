@@ -8,8 +8,6 @@
 #include <string>
 #include <map>
 
-using boost::asio::ip::tcp;
-
 class Agent : public std::enable_shared_from_this<Agent>
 {
 public:
@@ -32,7 +30,7 @@ private:
     boost::asio::ip::udp::endpoint DecodeAddress(std::string& address);
 
     boost::asio::io_context& m_ioContext;
-    tcp::acceptor m_acceptor;
+    boost::asio::ip::tcp::acceptor m_acceptor;
     boost::asio::ip::tcp::endpoint m_localTcpEndpoint;
     boost::asio::ip::udp::endpoint m_localUdpEndpoint;
     bool m_saveRawStreams;

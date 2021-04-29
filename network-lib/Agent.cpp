@@ -22,7 +22,7 @@ void Agent::Start()
 
 void Agent::AcceptNewConnection()
 {
-    auto socket = std::make_shared<tcp::socket>(m_ioContext);
+    auto socket = std::make_shared<boost::asio::ip::tcp::socket>(m_ioContext);
     m_acceptor.async_accept(*socket, [this, that = shared_from_this(), socket](const boost::system::error_code& ec) {
         if (!ec)
         {
