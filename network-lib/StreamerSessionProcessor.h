@@ -1,24 +1,29 @@
 #pragma once
 
-#include "MediaPacket.h"
+#include "DataProcessor.h"
+#include "UDPPacket.h"
 #include <boost/asio.hpp>
 #include <memory>
 #include <cstdint>
 #include <string>
 
-class StreamerSession : public std::enable_shared_from_this<StreamerSession>
+class StreamerSessionProcessor: public DataProcessor
 {
 public:
     enum class State {
         INITIALIZED,
-        CONNECTED,
+        SESSION_CREATED,
+        SESSION_DESTROYED,
         STOPPED,
     };
 
 public:
-    StreamerSession(boost::asio::io_context& ioContext);
-    void CreateStream(const std::uint32_t id);
-    void WriteData(const media_packet_ptr& pkt);
+    StreamerSessionProcessor(boost::asio::io_context& ioContext, const std::uint32_t sessionId);
+
+    void Init() override;
+    void Destroy() override;
+
+    void Process(const udp_packet_ptr& pkt) override;
 
     inline void SetServerTcpEndpoint(const std::string& bindTcpIp, const std::uint16_t bindTcpPort) { 
         m_serverTcpEndpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(bindTcpIp), bindTcpPort);
@@ -31,9 +36,12 @@ public:
     };
     inline void SetLocalUdpIp(const std::string& localIp) { m_localUdpIp = localIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localPort) { m_localUdpPort = localPort; };
-    inline void SetFPS(const int fps) { m_fps = fps; };
     
 private:
+    void CreateStream();
+    void DestroyStream();
+    void SendData(const udp_packet_ptr& pkt);
+
     std::string EncodeLocalAddress();
 
     boost::asio::io_context& m_ioContext;
@@ -44,6 +52,6 @@ private:
     std::uint16_t m_localUdpPort;
     std::shared_ptr<boost::asio::ip::tcp::socket> m_tcpSocket;
     std::shared_ptr<boost::asio::ip::udp::socket> m_udpSocket;
-    int m_fps;
+    int m_sessionId;
     State m_state;
 };
