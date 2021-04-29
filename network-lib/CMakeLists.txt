@@ -2,18 +2,19 @@ set (PROJECT_NAME network-lib)
 
 set(HEADERS 
     Network.h
+    UDPPacket.h
     NetPacket.h
     Agent.h
     Room.h
-    StreamerSession.h
-    ReceiverSession.h
+    StreamerSessionProcessor.h
+    ReceiverSessionProcessor.h
 )
 
 set(SOURCES
     Agent.cpp
     Room.cpp
-    StreamerSession.cpp
-    ReceiverSession.cpp
+    StreamerSessionProcessor.cpp
+    ReceiverSessionProcessor.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
