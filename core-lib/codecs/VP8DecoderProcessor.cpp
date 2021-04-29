@@ -81,7 +81,10 @@ void VP8DecoderProcessor::Process(const media_packet_ptr& pkt)
     m_decodeContext->packet->size = pkt->header.size;
     m_decodeContext->packet->data = pkt->data;
     
-    Decode(m_decodeContext->codecContext, m_decodeContext->frame, m_decodeContext->packet);
+    if (!Decode(m_decodeContext->codecContext, m_decodeContext->frame, m_decodeContext->packet)) {
+        LOG_EX_WARN("Frame wasn't decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
+        return;
+    }
     LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
 
     pkt->header.type = MediaPacketType::YV12;
