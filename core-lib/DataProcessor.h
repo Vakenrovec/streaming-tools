@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MediaPacket.h"
+#include "UDPPacket.h"
 #include <memory>
 #include <list>
 
@@ -28,6 +29,9 @@ public:
 
     virtual void Process(const media_packet_ptr& pkt);
     virtual void Process(const std::list<media_packet_ptr>& pkts);
+
+    virtual void Process(const udp_packet_ptr& pkt);
+    virtual void Process(const std::list<udp_packet_ptr>& pkts);
 
 protected:
     data_processor_ptr m_nextProcessor = nullptr;

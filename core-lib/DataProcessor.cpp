@@ -32,3 +32,15 @@ void DataProcessor::Process(const std::list<media_packet_ptr>& pkts) {
         this->m_nextProcessor->Process(pkts);
     }
 }
+
+void DataProcessor::Process(const udp_packet_ptr& pkt) {
+    if (this->m_nextProcessor) {
+        this->m_nextProcessor->Process(pkt);
+    }
+}
+
+void DataProcessor::Process(const std::list<udp_packet_ptr>& pkts) {
+    if (this->m_nextProcessor) {
+        this->m_nextProcessor->Process(pkts);
+    }
+}
