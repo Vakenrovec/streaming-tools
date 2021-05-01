@@ -14,6 +14,7 @@
 #include <string>
 #include <cstdint>
 #include <memory>
+#include <SDL2/SDL.h>
 
 TEST_CASE("video", "[video]")
 {

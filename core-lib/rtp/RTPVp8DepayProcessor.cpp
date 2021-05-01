@@ -62,15 +62,15 @@ void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
                 rtp_header_t *headerB = (rtp_header_t *)&b->data[0];
                 return ntohs(headerA->seq) < ntohs(headerB->seq); 
             });     
-            
+
             // check the frame for corruption
             bool isFrameValid = !FrameUtils::IsFrameCorrupted(m_framePackets, m_rtpHelper);
             
             // find key frame
-            for (const auto& pkt : m_framePackets)
+            for (const auto& packet : m_framePackets)
             {
                 size_t payloadLen = 0;
-                auto payload = this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen);
+                auto payload = this->m_rtpHelper->ReadFrameInRtpPacket(&packet->data[0], packet->header.size, payloadLen);
                 auto isKeyFrame = this->m_rtpHelper->isKeyFrame();
                 if (isKeyFrame)
                 {
@@ -79,26 +79,8 @@ void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
             } 
 
             if (isFrameValid && !m_waitForKeyFrameState)
-            {                
-                // create pkt
-                // auto framePacket = std::make_shared<media_packet_t>();
-                // framePacket->header.type = PacketType::VPXFRAME;
-                // framePacket->header.ts = m_frameTimestamp;
-                // framePacket->header.size = m_frameSize;
-                // framePacket->data.resize(framePacket->header.size);
-
-                // copy payload into framePacket->data) 
-                int size = 0;          
-                for (const auto& pkt : m_framePackets)
-                {
-                    // size_t payloadLen = 0;
-                    // auto payload = this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen);
-                    // std::copy(payload, payload + payloadLen, framePacket->data.data() + size);
-                    // size += payloadLen;
-
-                    // LOG_EX_TRACE("--------- isFrameValid: %d, Seq: %d, ts: %lu, pl: %d", 
-                    //     isFrameValid, m_rtpHelper->seqNumber(), m_rtpHelper->timestamp(), payloadLen);
-                }
+            {
+                // copy payload into framePacket->data)                
                 DataProcessor::Process(m_framePackets);                               
             }
             else

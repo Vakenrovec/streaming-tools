@@ -5,6 +5,7 @@
 #include "RTPHelper.h"
 #include <memory>
 #include <list>
+#include <string>
 
 class RTPVp8DepayProcessor: public DataProcessor
 {

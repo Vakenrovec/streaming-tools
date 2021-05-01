@@ -14,11 +14,14 @@ public:
 public:
     Logger(const char* methodName, LogLevel logLevel = LogLevel::Info);
     void operator()(const std::string& message);
+    void operator()(const char* format, ...);
 
 private:
     void Log(const std::string& message);
 
 private:
+    std::string m_buffer;
+    const int m_maxBufferLen;
     const char* m_methodName;
     LogLevel m_logLevel;
 };

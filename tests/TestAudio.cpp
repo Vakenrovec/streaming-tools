@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <boost/circular_buffer.hpp>
+#include <SDL2/SDL.h>
 
 TEST_CASE("audio", "[record][playback][audio]") {
     REQUIRE_FALSE(SDL_Init(SDL_INIT_AUDIO));

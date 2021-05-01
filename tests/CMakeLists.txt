@@ -22,17 +22,19 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
         ${Boost_INCLUDE_DIRS}
+        ${FFMPEG_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}
         ../utils-lib
         ../network-lib
-        ../core-lib
-        ${FFMPEG_INCLUDE_DIRS}
+        ../core-lib        
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${Boost_LIBRARIES}
+        ${FFMPEG_LINK_LIBRARIES}
+        ${SDL2_LINK_LIBRARIES}
         utils-lib
         network-lib
-        core-lib
-        ${FFMPEG_LINK_LIBRARIES}
+        core-lib        
 )

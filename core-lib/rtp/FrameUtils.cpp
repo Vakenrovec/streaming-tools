@@ -1,4 +1,5 @@
 #include "FrameUtils.h"
+#include "Logger.h"
 
 bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::shared_ptr<RTPHelper>& rtpHelper)
 {
@@ -6,6 +7,7 @@ bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::
 
     if (!size)
     {
+        LOG_EX_WARN("FrameUtils: Invalid size");
         return true;
     }
 
@@ -14,6 +16,7 @@ bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::
     rtpHelper->ReadFrameInRtpPacket(&firstPacket->data[0], firstPacket->header.size, payloadLen);
     if (!rtpHelper->sbit())
     {
+        LOG_EX_WARN("FrameUtils: frame doesn't have first packet");
         return true;
     }
 
@@ -21,6 +24,7 @@ bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::
     rtpHelper->ReadFrameInRtpPacket(&lastPacket->data[0], lastPacket->header.size, payloadLen);
     if (!rtpHelper->marker())
     {
+        LOG_EX_WARN("FrameUtils: frame doesn't have last packet, size = " + std::to_string(framePackets.size()));
         return true;
     }
 
@@ -42,6 +46,7 @@ bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::
   
         if (seqNumOfCurrentPacket - seqNumOfPreviousPacket != 1)
         {
+            LOG_EX_WARN("FrameUtils: there is a hole in a frame");
             return true;
         }
 
