@@ -2,8 +2,7 @@
 #include "Logger.h"
 #include <string>
 
-RecordAudioProcessor::RecordAudioProcessor(std::shared_ptr<boost::circular_buffer<media_packet_ptr>>& circularBuffer)
-: m_circularBuffer(circularBuffer)
+RecordAudioProcessor::RecordAudioProcessor()
 {
 }
 
@@ -13,8 +12,6 @@ void RecordAudioProcessor::AudioRecordingCallback(void* userdata, std::uint8_t* 
     auto pkt = std::make_shared<media_packet_t>();
     std::copy(stream, stream + len, pkt->data);
     that->Process(pkt);
-    // memcpy(&that->m_recordingBuffer[that->m_bufferBytePosition], stream, len);
-    // that->m_bufferBytePosition += len;
 }
 
 void RecordAudioProcessor::Init()
@@ -53,11 +50,7 @@ void RecordAudioProcessor::Init()
     int bytesPerSecond = m_receivedRecordingSpec.freq * bytesPerSample;
     m_bufferByteSize = RECORDING_BUFFER_SECONDS * bytesPerSecond;
     m_bufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
-
     m_bufferByteSize = bytesPerSample * m_receivedRecordingSpec.samples;
-    m_recordingBuffer = new std::uint8_t[m_bufferByteSize];
-    memset(m_recordingBuffer, 0, m_bufferByteSize);
-    m_bufferBytePosition = 0;
     SDL_PauseAudioDevice(m_recordingDeviceId, false);
 
     DataProcessor::Init();
@@ -69,21 +62,5 @@ void RecordAudioProcessor::Destroy()
     SDL_PauseAudioDevice(m_recordingDeviceId, true);
     SDL_UnlockAudioDevice(m_recordingDeviceId);
 
-    if(m_recordingBuffer != nullptr)
-    {
-        delete[] m_recordingBuffer;
-        m_recordingBuffer = nullptr;
-    }
-
     DataProcessor::Destroy();
-}
-
-void RecordAudioProcessor::Play()
-{
-
-}
-
-void RecordAudioProcessor::Process(const media_packet_ptr& pkt)
-{
-    DataProcessor::Process(pkt);
 }

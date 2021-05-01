@@ -10,7 +10,7 @@
 class PlaybackAudioProcessor: public DataProcessor
 {
 public:
-    PlaybackAudioProcessor(std::shared_ptr<boost::circular_buffer<media_packet_ptr>>& circularBuffer);
+    PlaybackAudioProcessor(int audioBufferElements = 10);
 
     void Init() override;
     void Destroy() override;
@@ -24,10 +24,12 @@ private:
     std::shared_ptr<boost::circular_buffer<media_packet_ptr>> m_circularBuffer;
 
     SDL_AudioDeviceID m_playbackDeviceId;
+    SDL_AudioSpec m_receivedPlaybackSpec;
+    
     const int MAX_RECORDING_DEVICES = 10;
     const int MAX_RECORDING_SECONDS = 2;
     const int RECORDING_BUFFER_SECONDS = MAX_RECORDING_SECONDS + 1;
-    SDL_AudioSpec m_receivedPlaybackSpec;
+
     std::uint8_t* m_playbackBuffer = nullptr;
     std::uint32_t m_bufferByteSize = 0;
     std::uint32_t m_bufferBytePosition = 0;

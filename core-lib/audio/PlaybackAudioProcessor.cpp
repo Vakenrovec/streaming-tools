@@ -2,9 +2,9 @@
 #include "Logger.h"
 #include <string>
 
-PlaybackAudioProcessor::PlaybackAudioProcessor(std::shared_ptr<boost::circular_buffer<media_packet_ptr>>& circularBuffer)
-: m_circularBuffer(circularBuffer)
+PlaybackAudioProcessor::PlaybackAudioProcessor(int audioBufferElements)
 {
+    m_circularBuffer = std::make_shared<boost::circular_buffer<media_packet_ptr>>(audioBufferElements);
 }
 
 void PlaybackAudioProcessor::AudioPlaybackCallback(void* userdata, std::uint8_t* stream, int len)
@@ -19,12 +19,9 @@ void PlaybackAudioProcessor::AudioPlaybackCallback(void* userdata, std::uint8_t*
     else
     {
         pkt = that->m_circularBuffer->front();
-        that->m_circularBuffer->pop_front();        
+        that->m_circularBuffer->pop_front();
     }
     std::copy(pkt->data, pkt->data + len, stream);
-
-    // memcpy(stream, &m_recordingBuffer[m_bufferBytePosition], len);
-    // that->m_bufferBytePosition += len;
 }
 
 void PlaybackAudioProcessor::Init()
@@ -50,11 +47,7 @@ void PlaybackAudioProcessor::Init()
     int bytesPerSecond = m_receivedPlaybackSpec.freq * bytesPerSample;
     m_bufferByteSize = RECORDING_BUFFER_SECONDS * bytesPerSecond;
     m_bufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
-
     m_bufferByteSize = bytesPerSample * m_receivedPlaybackSpec.samples;
-    m_playbackBuffer = new std::uint8_t[m_bufferByteSize];
-    memset(m_playbackBuffer, 0, m_bufferByteSize);
-    m_bufferBytePosition = 0;
     SDL_PauseAudioDevice(m_playbackDeviceId, false);
 
     DataProcessor::Init();
@@ -65,12 +58,6 @@ void PlaybackAudioProcessor::Destroy()
     SDL_LockAudioDevice(m_playbackDeviceId);
     SDL_PauseAudioDevice(m_playbackDeviceId, true);
     SDL_UnlockAudioDevice(m_playbackDeviceId);
-
-    if(m_playbackBuffer != nullptr)
-    {
-        delete[] m_playbackBuffer;
-        m_playbackBuffer = nullptr;
-    }
 
     DataProcessor::Destroy();
 }

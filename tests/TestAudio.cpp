@@ -5,7 +5,6 @@
 #include <Logger.h>
 #include <memory>
 #include <string>
-#include <boost/circular_buffer.hpp>
 #include <SDL2/SDL.h>
 
 TEST_CASE("audio", "[record][playback][audio]") {
@@ -13,12 +12,10 @@ TEST_CASE("audio", "[record][playback][audio]") {
     
     SECTION("Record-and-playback-audio")
     {
-        auto circularBuffer = std::make_shared<boost::circular_buffer<media_packet_ptr>>(10);
-        auto recorder = std::make_shared<RecordAudioProcessor>(circularBuffer);
-        auto playback = std::make_shared<PlaybackAudioProcessor>(circularBuffer);
+        auto recorder = std::make_shared<RecordAudioProcessor>();
+        auto playback = std::make_shared<PlaybackAudioProcessor>();
         recorder->SetNextProcessor(playback);
         recorder->Init();
-        recorder->Play();
 
         bool quit = false;
         SDL_Event e;
