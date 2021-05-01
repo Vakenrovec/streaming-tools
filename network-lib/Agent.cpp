@@ -1,6 +1,7 @@
 #include "Agent.h"
 #include "Logger.h"
 #include "MediaPacket.h"
+#include "NetworkUtils.h"
 #include <functional>
 
 Agent::Agent(boost::asio::io_context& ioContext)
@@ -73,7 +74,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         if (m_rooms->find(pkt->header.id) == m_rooms->end())
         {
             auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint streamerUdpEndpoint = DecodeAddress(address);
+            boost::asio::ip::udp::endpoint streamerUdpEndpoint = NetworkUtils::DecodeUdpAddress(address);
             auto room = std::make_shared<room_ptr::element_type>(m_ioContext, m_localUdpEndpoint, streamerUdpEndpoint);
             m_rooms->insert({ 
                 pkt->header.id, 
@@ -98,7 +99,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         if (room != m_rooms->end())
         {
             auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint endpoint = DecodeAddress(address);
+            boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Join(endpoint);
             LOG_EX_INFO("Accepted new receiver");
         } 
@@ -110,7 +111,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         if (room != m_rooms->end())
         {
             auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint endpoint = DecodeAddress(address);
+            boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Leave(endpoint);
         } 
         break;
@@ -118,11 +119,4 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
     default:
         break;
     }
-}
-
-boost::asio::ip::udp::endpoint Agent::DecodeAddress(std::string& address)
-{
-    std::string ip = address.substr(0, address.find(':', 0));
-    std::string port = address.substr(address.find(':', 0) + 1);
-    return boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4::from_string(ip), std::atoi(port.c_str()));
 }
