@@ -4,6 +4,7 @@ set(HEADERS
     Network.h
     UDPPacket.h
     NetPacket.h
+    NetworkUtils.h
     Agent.h
     Room.h
     StreamerSessionProcessor.h
@@ -11,6 +12,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    NetworkUtils.cpp
     Agent.cpp
     Room.cpp
     StreamerSessionProcessor.cpp

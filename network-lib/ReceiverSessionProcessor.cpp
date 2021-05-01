@@ -2,6 +2,7 @@
 #include "NetPacket.h"
 #include "Logger.h"
 #include "Network.h"
+#include "NetworkUtils.h"
 
 ReceiverSessionProcessor::ReceiverSessionProcessor(boost::asio::io_context& ioContext, const std::uint32_t sessionId)
 : m_ioContext(ioContext)
@@ -25,9 +26,9 @@ void ReceiverSessionProcessor::Destroy()
     m_state = State::STOPPED;
 }
 
-void ReceiverSessionProcessor::Play(const udp_packet_ptr& pkt)
+void ReceiverSessionProcessor::Play()
 {
-    ReceiveData(pkt);
+    ReceiveData();
 }
 
 void ReceiverSessionProcessor::ConnectToStream()
@@ -38,7 +39,7 @@ void ReceiverSessionProcessor::ConnectToStream()
             auto pkt = std::make_shared<net_packet_ptr::element_type>();
             pkt->header.type = net_packet_type_t::CONNECT;
             pkt->header.id = this->m_sessionId;
-            pkt->data = EncodeLocalAddress();
+            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
             pkt->header.size = pkt->data.size();
             boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
                 [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
@@ -74,7 +75,7 @@ void ReceiverSessionProcessor::DisconnectFromStream()
             auto pkt = std::make_shared<net_packet_ptr::element_type>();
             pkt->header.type = net_packet_type_t::DISCONNECT;
             pkt->header.id = this->m_sessionId;
-            pkt->data = EncodeLocalAddress();
+            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
             pkt->header.size = pkt->data.size();
             boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
                 [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
@@ -105,25 +106,20 @@ void ReceiverSessionProcessor::DisconnectFromStream()
     });
 }
 
-std::string ReceiverSessionProcessor::EncodeLocalAddress()
-{
-    // return std::string(m_localUdpIp + ":" +  std::to_string(m_localUdpPort));
-    return std::string(m_localUdpEndpoint.address().to_string() + ":" +  std::to_string(m_localUdpEndpoint.port()));
-}
-
-void ReceiverSessionProcessor::ReceiveData(const udp_packet_ptr& pkt)
+void ReceiverSessionProcessor::ReceiveData()
 {
     if (m_state == State::CONNECTED)
     {
+        auto pkt = std::make_shared<udp_packet_t>();
         m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), Network::MaxUdpPacketSize), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec)
                 {
+                    // LOG_EX_INFO("Received udp packet: size(bytes) = " + std::to_string(pkt->header.size));
                     DataProcessor::Process(pkt);
-                    LOG_EX_INFO("Receive media packet: size(bytes) = " + std::to_string(pkt->header.size));
-                    ReceiveData(pkt);
+                    ReceiveData();
                 } else {
-                    LOG_EX_WARN("Unable to receive media packet: " + ec.message());
+                    LOG_EX_WARN("Unable to receive udp packet: " + ec.message());
                 }
             });
     }

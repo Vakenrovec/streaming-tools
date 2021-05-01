@@ -42,8 +42,7 @@ private:
     void DestroyStream();
     void SendData(const udp_packet_ptr& pkt);
 
-    std::string EncodeLocalAddress();
-
+public:
     boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::endpoint m_serverTcpEndpoint;
     boost::asio::ip::udp::endpoint m_serverUdpEndpoint;

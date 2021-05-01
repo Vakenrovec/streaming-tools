@@ -1,5 +1,6 @@
 #include "StreamerSessionProcessor.h"
 #include "NetPacket.h"
+#include "NetworkUtils.h"
 #include "Logger.h"
 
 StreamerSessionProcessor::StreamerSessionProcessor(boost::asio::io_context& ioContext, const std::uint32_t sessionId)
@@ -27,7 +28,7 @@ void StreamerSessionProcessor::Destroy()
 void StreamerSessionProcessor::Process(const udp_packet_ptr& pkt)
 {
     SendData(pkt);
-    DataProcessor::Process(pkt);
+    // DataProcessor::Process(pkt);
 }
 
 void StreamerSessionProcessor::CreateStream()
@@ -38,7 +39,7 @@ void StreamerSessionProcessor::CreateStream()
             auto pkt = std::make_shared<net_packet_ptr::element_type>();
             pkt->header.type = net_packet_type_t::CREATE;
             pkt->header.id = this->m_sessionId;
-            pkt->data = EncodeLocalAddress();
+            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
             pkt->header.size = pkt->data.size();
             boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
                 [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
@@ -74,7 +75,7 @@ void StreamerSessionProcessor::DestroyStream()
             auto pkt = std::make_shared<net_packet_ptr::element_type>();
             pkt->header.type = net_packet_type_t::DESTROY;
             pkt->header.id = this->m_sessionId;
-            pkt->data = EncodeLocalAddress();
+            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
             pkt->header.size = pkt->data.size();
             boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
                 [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
@@ -105,12 +106,6 @@ void StreamerSessionProcessor::DestroyStream()
     });
 }
 
-std::string StreamerSessionProcessor::EncodeLocalAddress()
-{
-    // return std::string(m_localUdpIp + ":" +  std::to_string(m_localUdpPort));
-    return std::string(m_localUdpEndpoint.address().to_string() + ":" +  std::to_string(m_localUdpEndpoint.port()));
-}
-
 void StreamerSessionProcessor::SendData(const udp_packet_ptr& pkt)
 {
     if (m_state == State::SESSION_CREATED)
@@ -118,9 +113,9 @@ void StreamerSessionProcessor::SendData(const udp_packet_ptr& pkt)
         m_udpSocket->async_send_to(boost::asio::buffer(pkt.get(), sizeof(pkt->header) + pkt->header.size), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec) {
-
+                    // LOG_EX_INFO("Udp packet was sent");
                 } else {
-                    LOG_EX_WARN("Unable to send media packet: " + ec.message());
+                    LOG_EX_WARN("Unable to send udp packet: " + ec.message());
                 }
             });
     }

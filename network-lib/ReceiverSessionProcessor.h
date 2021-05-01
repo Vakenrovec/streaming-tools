@@ -25,7 +25,7 @@ public:
     void Init() override;
     void Destroy() override;
 
-    void Play(const udp_packet_ptr& pkt);
+    void Play();
 
     inline void SetServerTcpEndpoint(const std::string& bindTcpIp, const std::uint16_t bindTcpPort) { 
         m_serverTcpEndpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(bindTcpIp), bindTcpPort);
@@ -42,10 +42,9 @@ public:
 private:
     void ConnectToStream();
     void DisconnectFromStream();
-    void ReceiveData(const udp_packet_ptr& pkt);
+    void ReceiveData();
 
-    std::string EncodeLocalAddress();
-
+public:
     boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::endpoint m_serverTcpEndpoint;
     boost::asio::ip::udp::endpoint m_serverUdpEndpoint;
