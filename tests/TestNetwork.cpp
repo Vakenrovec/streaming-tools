@@ -32,9 +32,9 @@ TEST_CASE("network", "[network][broadcast][communication]") {
         auto receiver = std::make_shared<ReceiverSessionProcessor>(*ioReceiverContext, streamId);
         receiver->SetLocalUdpEndpoint("192.11.0.3", 35007);
         receiver->SetServerUdpEndpoint("192.11.0.3", 35006);
-        receiver->m_udpSocket->open(receiver->m_localUdpEndpoint.protocol());
-        receiver->m_udpSocket->bind(receiver->m_localUdpEndpoint);
-        receiver->m_state = ReceiverSessionProcessor::State::CONNECTED;
+        receiver->GetUdpSocket()->open(receiver->GetLocalUdpEndpoint().protocol());
+        receiver->GetUdpSocket()->bind(receiver->GetLocalUdpEndpoint());
+        receiver->SetState(ReceiverSessionProcessor::State::CONNECTED);
         auto depay = std::make_shared<RTPVp8DepayProcessor>();
         auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
         auto decoder = std::make_shared<VP8DecoderProcessor>();
@@ -60,9 +60,9 @@ TEST_CASE("network", "[network][broadcast][communication]") {
         auto streamer = std::make_shared<StreamerSessionProcessor>(*ioStreamerContext, streamId);
         streamer->SetLocalUdpEndpoint("192.11.0.3", 35006);
         streamer->SetServerUdpEndpoint("192.11.0.3", 35007);
-        streamer->m_udpSocket->open(streamer->m_localUdpEndpoint.protocol());
-        streamer->m_udpSocket->bind(streamer->m_localUdpEndpoint);
-        streamer->m_state = StreamerSessionProcessor::State::SESSION_CREATED;
+        streamer->GetUdpSocket()->open(streamer->GetLocalUdpEndpoint().protocol());
+        streamer->GetUdpSocket()->bind(streamer->GetLocalUdpEndpoint());
+        streamer->SetState(StreamerSessionProcessor::State::SESSION_CREATED);
         
         webcam->SetNextProcessor(jpeg2yv12);
         jpeg2yv12->SetNextProcessor(encoder);

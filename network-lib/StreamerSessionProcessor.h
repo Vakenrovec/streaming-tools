@@ -36,13 +36,15 @@ public:
     };
     inline void SetLocalUdpIp(const std::string& localIp) { m_localUdpIp = localIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localPort) { m_localUdpPort = localPort; };
-    
+    inline void SetState(const State state) { m_state = state; };
+    inline std::shared_ptr<boost::asio::ip::udp::socket> GetUdpSocket() const { return m_udpSocket; };
+    inline boost::asio::ip::udp::endpoint GetLocalUdpEndpoint() const { return m_localUdpEndpoint; };
+
 private:
     void CreateStream();
     void DestroyStream();
     void SendData(const udp_packet_ptr& pkt);
 
-public:
     boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::endpoint m_serverTcpEndpoint;
     boost::asio::ip::udp::endpoint m_serverUdpEndpoint;

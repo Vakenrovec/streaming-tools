@@ -18,7 +18,7 @@
 
 TEST_CASE("video", "[video]")
 {
-    int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 1000;
+    int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 20;
     std::string testFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-data/webcam_output.yv12");
     std::string saveFileName = FileUtils::CombinePath(FileUtils::GetCurrentExecutableFolder(), "test-result/webcam_output_result.yv12");    
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO));
