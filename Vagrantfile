@@ -92,6 +92,7 @@ Vagrant.configure("2") do |config|
       sudo sysctl net.ipv4.ip_default_ttl=65
       gsettings set org.gnome.shell.extensions.dash-to-dock click-action 'minimize-or-overview'
       gsettings set org.gnome.desktop.lockdown disable-lock-screen true
+      gsettings set org.gnome.desktop.screensaver lock-enabled false
     SHELL
 
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL

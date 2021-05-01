@@ -35,7 +35,7 @@
     mkdir build
     cd build
     cmake ..
-    make -j 4
+    make -j `nproc`
 
 # Some useful ffplay commands to open images
 
