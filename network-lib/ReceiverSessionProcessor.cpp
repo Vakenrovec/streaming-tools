@@ -9,7 +9,7 @@ ReceiverSessionProcessor::ReceiverSessionProcessor(boost::asio::io_context& ioCo
 , m_tcpSocket(std::make_shared<boost::asio::ip::tcp::socket>(ioContext))
 , m_udpSocket(std::make_shared<boost::asio::ip::udp::socket>(ioContext))
 , m_sessionId(sessionId)
-, m_state(State::INITIALIZED)
+, m_sessionState(ReceiverSessionState::INITIALIZED)
 {
 }
 
@@ -23,7 +23,7 @@ void ReceiverSessionProcessor::Destroy()
 {
     DisconnectFromStream();
     DataProcessor::Destroy();
-    m_state = State::STOPPED;
+    m_sessionState = ReceiverSessionState::STOPPED;
 }
 
 void ReceiverSessionProcessor::Play()
@@ -52,7 +52,7 @@ void ReceiverSessionProcessor::ConnectToStream()
                                     m_tcpSocket->close(ec);
                                     m_udpSocket->open(m_localUdpEndpoint.protocol());
                                     m_udpSocket->bind(m_localUdpEndpoint);
-                                    m_state = State::CONNECTED;
+                                    m_sessionState = ReceiverSessionState::CONNECTED;
                                 } else {
                                     LOG_EX_WARN("Unable to write net packet data: " + ec.message());
                                 }
@@ -91,7 +91,7 @@ void ReceiverSessionProcessor::DisconnectFromStream()
                                         m_udpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
                                         m_udpSocket->close();
                                     }
-                                    m_state = State::DISCONNECTED;
+                                    m_sessionState = ReceiverSessionState::DISCONNECTED;
                                 } else {
                                     LOG_EX_WARN("Unable to write net packet data: " + ec.message());
                                 }
@@ -108,14 +108,14 @@ void ReceiverSessionProcessor::DisconnectFromStream()
 
 void ReceiverSessionProcessor::ReceiveData()
 {
-    if (m_state == State::CONNECTED)
+    if (m_sessionState == ReceiverSessionState::CONNECTED)
     {
         auto pkt = std::make_shared<udp_packet_t>();
         m_udpSocket->async_receive_from(boost::asio::buffer(pkt.get(), Network::MaxUdpPacketSize), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec)
                 {
-                    // LOG_EX_INFO("Received udp packet: size(bytes) = " + std::to_string(pkt->header.size));
+                    LOG_EX_INFO("Received udp packet: size(bytes) = " + std::to_string(pkt->header.size));
                     DataProcessor::Process(pkt);
                     ReceiveData();
                 } else {

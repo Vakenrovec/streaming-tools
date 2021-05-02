@@ -10,7 +10,7 @@
 class StreamerSessionProcessor: public DataProcessor
 {
 public:
-    enum class State {
+    enum class StreamerSessionState {
         INITIALIZED,
         SESSION_CREATED,
         SESSION_DESTROYED,
@@ -36,9 +36,10 @@ public:
     };
     inline void SetLocalUdpIp(const std::string& localIp) { m_localUdpIp = localIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localPort) { m_localUdpPort = localPort; };
-    inline void SetState(const State state) { m_state = state; };
-    inline std::shared_ptr<boost::asio::ip::udp::socket> GetUdpSocket() const { return m_udpSocket; };
-    inline boost::asio::ip::udp::endpoint GetLocalUdpEndpoint() const { return m_localUdpEndpoint; };
+    inline void SetSessionState(const StreamerSessionState sessionState) { m_sessionState = sessionState; };    // for tests
+    inline StreamerSessionState GetSessionState() const { return m_sessionState; };                                           
+    inline std::shared_ptr<boost::asio::ip::udp::socket> GetUdpSocket() const { return m_udpSocket; };          // for tests
+    inline boost::asio::ip::udp::endpoint GetLocalUdpEndpoint() const { return m_localUdpEndpoint; };           // for tests
 
 private:
     void CreateStream();
@@ -54,5 +55,5 @@ private:
     std::shared_ptr<boost::asio::ip::tcp::socket> m_tcpSocket;
     std::shared_ptr<boost::asio::ip::udp::socket> m_udpSocket;
     int m_sessionId;
-    State m_state;
+    StreamerSessionState m_sessionState;
 };

@@ -8,7 +8,7 @@ StreamerSessionProcessor::StreamerSessionProcessor(boost::asio::io_context& ioCo
 , m_tcpSocket(std::make_shared<boost::asio::ip::tcp::socket>(ioContext))
 , m_udpSocket(std::make_shared<boost::asio::ip::udp::socket>(ioContext))
 , m_sessionId(sessionId)
-, m_state(State::INITIALIZED)
+, m_sessionState(StreamerSessionState::INITIALIZED)
 {
 }
 
@@ -22,7 +22,7 @@ void StreamerSessionProcessor::Destroy()
 {
     DestroyStream();
     DataProcessor::Destroy();
-    m_state = State::STOPPED;
+    m_sessionState = StreamerSessionState::STOPPED;
 }
 
 void StreamerSessionProcessor::Process(const udp_packet_ptr& pkt)
@@ -52,7 +52,7 @@ void StreamerSessionProcessor::CreateStream()
                                     m_tcpSocket->close(ec);
                                     m_udpSocket->open(m_localUdpEndpoint.protocol());
                                     m_udpSocket->bind(m_localUdpEndpoint);
-                                    m_state = State::SESSION_CREATED;
+                                    m_sessionState = StreamerSessionState::SESSION_CREATED;
                                 } else {
                                     LOG_EX_WARN("Unable to write net packet data: " + ec.message());
                                 }
@@ -91,7 +91,7 @@ void StreamerSessionProcessor::DestroyStream()
                                         m_udpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
                                         m_udpSocket->close();
                                     }
-                                    m_state = State::SESSION_DESTROYED;
+                                    m_sessionState = StreamerSessionState::SESSION_DESTROYED;
                                 } else {
                                     LOG_EX_WARN("Unable to write net packet data: " + ec.message());
                                 }
@@ -108,7 +108,7 @@ void StreamerSessionProcessor::DestroyStream()
 
 void StreamerSessionProcessor::SendData(const udp_packet_ptr& pkt)
 {
-    if (m_state == State::SESSION_CREATED)
+    if (m_sessionState == StreamerSessionState::SESSION_CREATED)
     {
         m_udpSocket->async_send_to(boost::asio::buffer(pkt.get(), sizeof(pkt->header) + pkt->header.size), m_serverUdpEndpoint, 
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
