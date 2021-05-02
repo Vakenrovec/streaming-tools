@@ -1,11 +1,15 @@
-set (PROJECT_NAME receiver)
+set (PROJECT_NAME client)
 
 set(HEADERS 
     program.h
+    streamer.h
+    receiver.h
 )
 
 set(SOURCES
     program.cpp
+    streamer.cpp
+    receiver.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
