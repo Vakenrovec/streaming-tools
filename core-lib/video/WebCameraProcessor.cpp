@@ -45,13 +45,21 @@ void WebCameraProcessor::Destroy()
 
 int WebCameraProcessor::Play(int wanted)
 {
-    int i = 0;
     auto pkt = std::make_shared<media_packet_t>();
-    for (; i < wanted; i++)
-    {
-        Process(pkt);
+    if (wanted != -1) {
+        int i = 0;        
+        for (; i < wanted; i++)
+        {
+            Process(pkt);
+        }
+        return i;
+    } else {
+        for (;;)
+        {
+            Process(pkt);
+        }
+        return -1;
     }
-    return i; 
 }
 
 void WebCameraProcessor::Process(const media_packet_ptr& pkt)

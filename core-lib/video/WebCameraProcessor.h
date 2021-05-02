@@ -13,7 +13,7 @@ public:
     void Init() override;
     void Destroy() override;
 
-    int Play(int wanted);
+    int Play(int wanted = -1);
     void Process(const media_packet_ptr& pkt) override;
 
 private:
