@@ -26,7 +26,7 @@ void Room::ReadMediaPacket()
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec)
             {
-                LOG_EX_INFO("Read media packet: size(bytes) = " + std::to_string(bytesTransferred));
+                // LOG_EX_INFO("Read media packet: size(bytes) = " + std::to_string(bytesTransferred));
                 Multicast(buffer);
                 ReadMediaPacket();              
             } else {
@@ -49,7 +49,7 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
     m_localUdpSocket->async_send_to(boost::asio::buffer(buffer.get(), Network::MaxUdpPacketSize), receiverUdpEndpoint, 
         [this, that = shared_from_this(), buffer](const boost::system::error_code& ec, std::size_t bytesTransferred){
             if (!ec) {
-                LOG_EX_INFO("Send media packet: size(bytes) = " + std::to_string(bytesTransferred));
+                // LOG_EX_INFO("Send media packet: size(bytes) = " + std::to_string(bytesTransferred));
             } else {
                 LOG_EX_WARN("Unable to send media packet: " + ec.message());
             }

@@ -56,6 +56,5 @@ add_subdirectory(network-lib)
 add_subdirectory(core-lib)
 
 add_subdirectory(tests)
-add_subdirectory(receiver)
-add_subdirectory(stream-sender)
+add_subdirectory(client)
 add_subdirectory(agent)

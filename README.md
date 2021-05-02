@@ -9,7 +9,7 @@
 
         sudo apt-get install libvpx-dev
 
-3. What you need to do to install SDL2 is:
+3. what you need to do to install SDL2 is:
 
         install sdl2
         sudo apt install libsdl2-dev libsdl2-2.0-0 -y
@@ -40,3 +40,31 @@
 # Some useful ffplay commands to open images
 
     ffplay -s 1280x720 -pixel_format yuv420p -f rawvideo -i ./webcam_output.yv12
+
+# Program default values
+
+    server tcp ip = 192.11.0.3
+    server tcp port = 35005
+
+    server udp ip = 192.11.0.3
+    server udp port = 35006
+
+    streamer udp ip = 192.11.0.3
+    streamer udp port = 35007
+
+    receiver udp ip = 192.11.0.3
+    receiver udp port = 35008
+
+    streamId = 777
+    width = 1280, height = 720
+    bitrate = 4'000'000
+    gopSize = 10, 
+
+# Command line arguments
+## Server
+
+    ...
+
+## Client
+
+    ...
