@@ -13,6 +13,7 @@ WebCameraProcessor::WebCameraProcessor(int width, int height, std::uint32_t pixe
 , m_pixelformat(pixelformat)
 , m_descriptor(0)
 , m_buffer(nullptr)
+, stop(false)
 {    
 }
 
@@ -46,20 +47,19 @@ void WebCameraProcessor::Destroy()
 int WebCameraProcessor::Play(int wanted)
 {
     auto pkt = std::make_shared<media_packet_t>();
-    if (wanted != -1) {
-        int i = 0;        
+    int i = 0; 
+    if (wanted) {               
         for (; i < wanted; i++)
         {
             Process(pkt);
         }
-        return i;
     } else {
-        for (;;)
+        while (!stop)
         {
             Process(pkt);
         }
-        return -1;
     }
+    return i;
 }
 
 void WebCameraProcessor::Process(const media_packet_ptr& pkt)

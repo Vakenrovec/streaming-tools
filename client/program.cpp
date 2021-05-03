@@ -106,7 +106,9 @@ int main(int argc, char* argv[]) {
             streamer->SetBitrate(bitrate);
             streamer->SetGopSize(gopSize);
 
-            streamer->Start();
+            streamer->StartAsync();
+            streamer->HandleEvents();
+            streamer->Destroy();
         } else if (vm.count("receiver")) {
             auto receiver = std::make_shared<Receiver>();
             receiver->SetServerTcpIp(serverTcpIp);

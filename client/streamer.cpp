@@ -5,17 +5,18 @@
 #include "rtp/RTPFragmenterProcessor.h"
 #include "StreamerSessionProcessor.h"
 #include "Logger.h"
+#include <SDL2/SDL.h>
 
 Streamer::Streamer()
 {
     m_ioVideoContext = std::make_shared<boost::asio::io_context>();
     m_videoWork = std::make_shared<boost::asio::io_context::work>(*m_ioVideoContext);
 
-    m_ioAudioContext = std::make_shared<boost::asio::io_context>();
-    m_audioWork = std::make_shared<boost::asio::io_context::work>(*m_ioAudioContext);
+    // m_ioAudioContext = std::make_shared<boost::asio::io_context>();
+    // m_audioWork = std::make_shared<boost::asio::io_context::work>(*m_ioAudioContext);
 }
 
-void Streamer::Start()
+void Streamer::StartAsync()
 {
     auto webcam = std::make_shared<WebCameraProcessor>(m_width, m_height);
     auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(m_width, m_height);
@@ -34,25 +35,46 @@ void Streamer::Start()
     m_firstProcessor = webcam;
     m_lastProcessor = streamerSession;
 
-    webcam->Init();
-
-    m_videoThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
+    m_videoSenderThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
         this->m_ioVideoContext->run();
     });
 
-    webcam->Play();
+    m_videoPlayThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
+        auto processor = std::dynamic_pointer_cast<WebCameraProcessor>(this->m_firstProcessor);
+        processor->Init();
+        processor->Play();
+    });
+
+    if (SDL_Init(SDL_INIT_EVENTS))
+    {
+        LOG_EX_WARN("Could not initialize SDL - %s", SDL_GetError());
+        return;
+    }
+
+    LOG_EX_INFO("Streamer started");
 }
 
 void Streamer::HandleEvents()
 {
-
+    SDL_Event e;
+    while(SDL_WaitEvent(&e) != 0)
+    {
+        if (e.type == SDL_QUIT)
+        {
+            auto processor = std::dynamic_pointer_cast<WebCameraProcessor>(this->m_firstProcessor);
+            processor->stop = true;
+            LOG_EX_INFO("Exit from sdl");
+            break;
+        }
+    }
 }
 
 void Streamer::Destroy()
 {
-    m_videoWork.reset();
-    m_ioVideoContext->stop();
-    m_ioVideoContext.reset();    
-    m_videoThread->join();
+    SDL_Quit();
+    m_videoPlayThread->join();
     m_firstProcessor->Destroy();
+    m_videoWork.reset();
+    m_videoSenderThread->join();
+    LOG_EX_INFO("Streamer destroyed");
 }

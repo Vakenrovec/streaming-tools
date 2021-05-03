@@ -13,9 +13,11 @@ public:
     void Init() override;
     void Destroy() override;
 
-    int Play(int wanted = -1);
+    int Play(int wanted = 0);
     void Process(const media_packet_ptr& pkt) override;
 
+    volatile bool stop;
+    
 private:
     bool Open();
     bool IsCanCapture();
