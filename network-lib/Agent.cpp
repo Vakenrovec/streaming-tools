@@ -90,6 +90,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         if (m_rooms->find(pkt->header.id) != m_rooms->end())
         {
             m_rooms->erase(pkt->header.id);
+            LOG_EX_INFO("Erased streamer");
         } 
         break;
     }
@@ -101,7 +102,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
             auto address = std::string(&pkt->data[0], pkt->header.size);
             boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Join(endpoint);
-            LOG_EX_INFO("Accepted new receiver");
+            LOG_EX_INFO("Connected new receiver");
         } 
         break;
     }
@@ -113,6 +114,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
             auto address = std::string(&pkt->data[0], pkt->header.size);
             boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Leave(endpoint);
+            LOG_EX_INFO("Disconnected receiver");
         } 
         break;
     }
