@@ -3,7 +3,6 @@
 #include "DataProcessor.h"
 #include <memory>
 
-struct Image;
 struct vp8encodeContext;
 struct AVCodecContext;
 struct AVFrame;
