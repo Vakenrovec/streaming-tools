@@ -33,7 +33,7 @@ void RTPFragmenterProcessor::Process(const media_packet_ptr& pkt)
     std::uint32_t seq = 0;
     std::uint64_t ts = DateTimeUtils::GetCurrentTimeMiliseconds();
     while (size)
-    {       
+    {
         m_rtpHelper->seqNumber(++seq);
         m_rtpHelper->timestamp(ts);
         m_rtpHelper->sbit(seq == 1);

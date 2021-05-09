@@ -13,7 +13,6 @@ WebCameraProcessor::WebCameraProcessor(int width, int height, std::uint32_t pixe
 , m_pixelformat(pixelformat)
 , m_descriptor(0)
 , m_buffer(nullptr)
-, stop(false)
 {    
 }
 
@@ -35,31 +34,13 @@ void WebCameraProcessor::Init()
 
 void WebCameraProcessor::Destroy()
 {
-    if (!Stop())
+    if (!Close())
     {
         LOG_EX_WARN("Couldn't stop web canera");
         return;
     }
 
     DataProcessor::Destroy();
-}
-
-int WebCameraProcessor::Play(int wanted)
-{
-    auto pkt = std::make_shared<media_packet_t>();
-    int i = 0; 
-    if (wanted) {               
-        for (; i < wanted; i++)
-        {
-            Process(pkt);
-        }
-    } else {
-        while (!stop)
-        {
-            Process(pkt);
-        }
-    }
-    return i;
 }
 
 void WebCameraProcessor::Process(const media_packet_ptr& pkt)
@@ -175,7 +156,7 @@ bool WebCameraProcessor::GetFrame(const media_packet_ptr& pkt)
     return true;
 }
 
-bool WebCameraProcessor::Stop()
+bool WebCameraProcessor::Close()
 {
     if (ioctl(m_descriptor, VIDIOC_STREAMOFF, &m_bufferInfo.type) < 0) {
         LOG_EX_INFO("Could not end streaming, VIDIOC_STREAMOFF");

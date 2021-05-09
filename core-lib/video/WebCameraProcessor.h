@@ -1,11 +1,11 @@
 #pragma once
 
-#include "DataProcessor.h"
+#include "PlayableDataProcessor.h"
 #include "MediaPacket.h"
 #include <linux/videodev2.h>
 #include <cstdint>
 
-class WebCameraProcessor: public DataProcessor
+class WebCameraProcessor: public PlayableDataProcessor
 {
 public:
     WebCameraProcessor(int width, int height, std::uint32_t pixelformat = V4L2_PIX_FMT_JPEG);
@@ -13,10 +13,7 @@ public:
     void Init() override;
     void Destroy() override;
 
-    int Play(int wanted = 0);
     void Process(const media_packet_ptr& pkt) override;
-
-    volatile bool stop;
     
 private:
     bool Open();
@@ -25,7 +22,7 @@ private:
     bool RequestBuffer();
     bool QueryBuffer();
     bool Start();
-    bool Stop();
+    bool Close();
 
     bool GetFrame(const media_packet_ptr& pkt);
 
