@@ -3,6 +3,10 @@ set (PROJECT_NAME core-lib)
 set(HEADERS 
     MediaPacket.h
     DataProcessor.h
+    PlayableDataProcessor.h
+    utility/QueueDataProcessor.h
+    utility/ForkDataProcessor.h
+    utility/AudioVideoForkDataProcessor.h
     codecs/VP8EncoderProcessor.h
     codecs/VP8DecoderProcessor.h
     rtp/RtpDefs.h
@@ -22,6 +26,7 @@ set(HEADERS
 
 set(SOURCES
     DataProcessor.cpp
+    PlayableDataProcessor.cpp
     codecs/VP8EncoderProcessor.cpp
     codecs/VP8DecoderProcessor.cpp
     rtp/RTPHelper.cpp

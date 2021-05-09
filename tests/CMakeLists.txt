@@ -7,8 +7,9 @@ set(HEADERS
 set(SOURCES
     main.cpp
     TestAudio.cpp
-    TestVideo.cpp
+    TestVideo.cpp    
     TestNetwork.cpp
+    TestAll.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
