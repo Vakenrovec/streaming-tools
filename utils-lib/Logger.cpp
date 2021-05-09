@@ -43,10 +43,12 @@ void Logger::Log(const std::string& message)
         logLevelName = "Info";
         break;
     }
-    std::cout << logLevelName << ": ";
+    std::string log;
     if (m_methodName)
     {
-        std::cout << m_methodName << ": ";
+        log += m_methodName;
+        log +=  + ": ";
     }
+    log += logLevelName + ": " + message + "\n";
     std::cout << message << std::endl;
 }
