@@ -90,20 +90,27 @@ void VP8EncoderProcessor::Destroy()
 
 void VP8EncoderProcessor::Process(const media_packet_ptr& pkt)
 {
-    m_encodeContext->frame->data[0] = pkt->data;
-    m_encodeContext->frame->data[1] = pkt->data + m_encodeContext->frame->width * m_encodeContext->frame->height;
-    m_encodeContext->frame->data[2] = pkt->data + m_encodeContext->frame->width * m_encodeContext->frame->height * 5 / 4;
+    if (pkt->header.type == MediaPacketType::YV12)
+    {
+        m_encodeContext->frame->data[0] = pkt->data;
+        m_encodeContext->frame->data[1] = pkt->data + m_encodeContext->frame->width * m_encodeContext->frame->height;
+        m_encodeContext->frame->data[2] = pkt->data + m_encodeContext->frame->width * m_encodeContext->frame->height * 5 / 4;
 
-    if (!Encode(m_encodeContext->codecContext, m_encodeContext->frame, m_encodeContext->packet)) {
-        LOG_EX_WARN("Frame wasn't encoded");
-        return;
+        if (!Encode(m_encodeContext->codecContext, m_encodeContext->frame, m_encodeContext->packet)) {
+            LOG_EX_WARN("Frame wasn't encoded");
+            return;
+        }
+        LOG_EX_INFO("Frame was encoded");
+        pkt->header.type = MediaPacketType::VP8;
+        pkt->header.size = m_encodeContext->packet->size;
+        std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    
+    
+        DataProcessor::Process(pkt);
     }
-    LOG_EX_INFO("Frame was encoded");
-    pkt->header.type = MediaPacketType::VP8;
-    pkt->header.size = m_encodeContext->packet->size;
-    std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    
-
-    DataProcessor::Process(pkt);
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
+    }
 }
 
 bool VP8EncoderProcessor::Encode(AVCodecContext *context, AVFrame *frame, AVPacket *packet)

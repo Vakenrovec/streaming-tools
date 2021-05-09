@@ -62,8 +62,15 @@ void VideoDisplayProcessor::Destroy()
 
 void VideoDisplayProcessor::Process(const media_packet_ptr& pkt)
 {
-    Display(pkt);
-    DataProcessor::Process(pkt);
+    if (pkt->header.type == media_packet_type_t::YV12)
+    {
+        Display(pkt);
+        DataProcessor::Process(pkt);
+    }
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
+    }
 }
 
 void VideoDisplayProcessor::Display(const media_packet_ptr& pkt)

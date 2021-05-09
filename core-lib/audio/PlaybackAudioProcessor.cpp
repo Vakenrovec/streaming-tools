@@ -64,6 +64,9 @@ void PlaybackAudioProcessor::Destroy()
 
 void PlaybackAudioProcessor::Process(const media_packet_ptr& pkt)
 {
-    m_circularBuffer->push_back(pkt);
-    DataProcessor::Process(pkt);
+    if (pkt->header.type == MediaPacketType::AUDIO_SAMPLES)
+    {
+        m_circularBuffer->push_back(pkt);
+        DataProcessor::Process(pkt);
+    }
 }

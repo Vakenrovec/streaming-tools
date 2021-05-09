@@ -3,8 +3,9 @@
 #include "RtpDefs.h"
 #include "DateTimeUtils.h"
 
-RTPDefragmenterProcessor::RTPDefragmenterProcessor()
+RTPDefragmenterProcessor::RTPDefragmenterProcessor(media_packet_type_t packetType)
 : m_rtpHelper(new RTPHelper())
+, m_packetType(packetType)
 , m_maxPayloadLength(
     Network::MaxUdpPacketSize - sizeof(media_pkt_header_t) - 
     sizeof(rtp_header_t) - sizeof(rtp_descriptor)
@@ -31,7 +32,7 @@ void RTPDefragmenterProcessor::Process(const std::list<udp_packet_ptr>& pkts)
 media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<udp_packet_ptr>& packets)
 {
     auto pkt = std::make_shared<media_packet_t>();
-    pkt->header.type = media_packet_type_t::VP8;
+    pkt->header.type = m_packetType;
     int pos = 0;
     size_t payloadLen = 0;
     for (const auto& packet : packets)
@@ -48,6 +49,7 @@ media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<
 media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<udp_packet_ptr>& packets, std::uint32_t payloadSize)
 {
     auto pkt = std::make_shared<media_packet_t>();
+    pkt->header.type = m_packetType;
     pkt->header.size = payloadSize;
     int pos = 0;
     size_t payloadLen = 0;

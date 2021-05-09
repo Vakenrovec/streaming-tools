@@ -6,6 +6,7 @@
 
 RTPFragmenterProcessor::RTPFragmenterProcessor(udp_packet_type_t packetType)
 : m_rtpHelper(new RTPHelper(packetType))
+, m_packetType(packetType)
 , m_maxPayloadLength(
     Network::MaxUdpPacketSize - sizeof(media_pkt_header_t) - 
     sizeof(rtp_header_t) - sizeof(rtp_descriptor)

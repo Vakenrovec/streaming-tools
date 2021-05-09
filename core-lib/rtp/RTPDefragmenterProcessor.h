@@ -11,7 +11,7 @@
 class RTPDefragmenterProcessor: public DataProcessor
 {
 public:
-    RTPDefragmenterProcessor();
+    RTPDefragmenterProcessor(media_packet_type_t packetType = media_packet_type_t::UNKNOWN);
 
     void Init() override;
     void Destroy() override;
@@ -24,4 +24,6 @@ private:
 
     std::shared_ptr<RTPHelper> m_rtpHelper;
     const int m_maxPayloadLength;
+
+    media_packet_type_t m_packetType;
 };

@@ -78,34 +78,41 @@ void VP8DecoderProcessor::Destroy()
 
 void VP8DecoderProcessor::Process(const media_packet_ptr& pkt)
 {
-    m_decodeContext->packet->size = pkt->header.size;
-    m_decodeContext->packet->data = pkt->data;
-    
-    if (!Decode(m_decodeContext->codecContext, m_decodeContext->frame, m_decodeContext->packet)) {
-        LOG_EX_WARN("Frame wasn't decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
-        return;
+    if (pkt->header.type == media_packet_type_t::VP8)
+    {
+        m_decodeContext->packet->size = pkt->header.size;
+        m_decodeContext->packet->data = pkt->data;
+        
+        if (!Decode(m_decodeContext->codecContext, m_decodeContext->frame, m_decodeContext->packet)) {
+            LOG_EX_WARN("Frame wasn't decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
+            return;
+        }
+        LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
+
+        pkt->header.type = MediaPacketType::YV12;
+        pkt->header.size = m_decodeContext->frame->width * m_decodeContext->frame->height * 3 / 2;
+        std::copy(
+            m_decodeContext->frame->data[0], 
+            m_decodeContext->frame->data[0] + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height, 
+            pkt->data
+        );
+        std::copy(
+            m_decodeContext->frame->data[1], 
+            m_decodeContext->frame->data[1] + m_decodeContext->frame->linesize[1] * m_decodeContext->frame->height / 2, 
+            pkt->data + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height
+        );
+        std::copy(
+            m_decodeContext->frame->data[2], 
+            m_decodeContext->frame->data[2] + m_decodeContext->frame->linesize[2] * m_decodeContext->frame->height / 2, 
+            pkt->data + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height + m_decodeContext->frame->linesize[1] * m_decodeContext->frame->height / 2
+        );
+
+        DataProcessor::Process(pkt);
     }
-    LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
-
-    pkt->header.type = MediaPacketType::YV12;
-    pkt->header.size = m_decodeContext->frame->width * m_decodeContext->frame->height * 3 / 2;
-    std::copy(
-        m_decodeContext->frame->data[0], 
-        m_decodeContext->frame->data[0] + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height, 
-        pkt->data
-    );
-    std::copy(
-        m_decodeContext->frame->data[1], 
-        m_decodeContext->frame->data[1] + m_decodeContext->frame->linesize[1] * m_decodeContext->frame->height / 2, 
-        pkt->data + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height
-    );
-    std::copy(
-        m_decodeContext->frame->data[2], 
-        m_decodeContext->frame->data[2] + m_decodeContext->frame->linesize[2] * m_decodeContext->frame->height / 2, 
-        pkt->data + m_decodeContext->frame->linesize[0] * m_decodeContext->frame->height + m_decodeContext->frame->linesize[1] * m_decodeContext->frame->height / 2
-    );
-
-    DataProcessor::Process(pkt);
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
+    }
 }
 
 bool VP8DecoderProcessor::Decode(AVCodecContext *context, AVFrame *frame, AVPacket *packet)

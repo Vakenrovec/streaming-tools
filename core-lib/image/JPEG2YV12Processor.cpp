@@ -76,10 +76,17 @@ void JPEG2YV12Processor::Destroy()
 
 void JPEG2YV12Processor::Process(const media_packet_ptr& pkt)
 {
-    JPEG2YUV422P(pkt, m_yuv422pFrame);
-    YUV422P2YUV420P(m_yuv422pFrame, pkt);
+    if (pkt->header.type == media_packet_type_t::JPEG)
+    {
+        JPEG2YUV422P(pkt, m_yuv422pFrame);
+        YUV422P2YUV420P(m_yuv422pFrame, pkt);
 
-    DataProcessor::Process(pkt);
+        DataProcessor::Process(pkt);
+    }
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
+    }
 }
 
 bool JPEG2YV12Processor::JPEG2YUV422P(const media_packet_ptr& jpegImage, AVFrame *&yuv422pFrame)
