@@ -31,7 +31,7 @@ void RTPVp8DepayProcessor::Destroy()
 }
 
 void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
-    if (pkt->header.type == udp_packet_type_t::RTP) {
+    // if (pkt->header.type == udp_packet_type_t::RTP_VIDEO || pkt->header.type == udp_packet_type_t::RTP_AUDIO) {
 
         size_t payloadLen = 0;
         if (!this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen))
@@ -95,7 +95,7 @@ void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
          
         m_frameSize += payloadLen;
         m_framePackets.push_back(pkt); 
-    }
+    // }
 
     // DataProcessor::Process(pkt, prevProcessor);
 }

@@ -6,8 +6,8 @@
 
 enum class udp_packet_type_t: std::uint8_t {
     UNKNOWN = 0,
-    RTP = 1,
-    AUDIO = 2,
+    RTP_VIDEO = 1,
+    RTP_AUDIO = 2,
 };
 
 #pragma pack(push, 1)

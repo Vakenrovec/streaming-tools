@@ -39,7 +39,7 @@ bool FrameUtils::IsFrameCorrupted(std::list<udp_packet_ptr>& framePackets, std::
     uint32_t seqNumOfPreviousPacket = rtpHelper->seqNumber();
     ++iterator;
     for (; iterator != framePackets.end(); ++iterator)
-    {        
+    {
         udp_packet_ptr currentPacket = *iterator;
         rtpHelper->ReadRtppacket(&currentPacket->data[0], currentPacket->header.size, payloadLen);
         auto seqNumOfCurrentPacket = rtpHelper->seqNumber();

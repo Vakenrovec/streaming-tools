@@ -6,12 +6,13 @@
 
 typedef enum MediaPacketType: std::uint8_t {
     UNKNOWN = 0,
-    AUDIO = 1,
-    JPEG = 2,
-    YUV422P = 3,
-    YV12 = 4,
-    VP8 = 5,
-    RTP = 6,
+    AUDIO_SAMPLES = 1,
+    AUDIO_RTP = 2,
+    JPEG = 3,
+    YUV422P = 4,
+    YV12 = 5,
+    VP8 = 6,
+    VIDEO_RTP = 7,
 } media_packet_type_t;
 
 #pragma pack(push, 1)

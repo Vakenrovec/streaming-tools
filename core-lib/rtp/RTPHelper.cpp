@@ -4,6 +4,11 @@
 #include "DateTimeUtils.h"
 #include <arpa/inet.h>
 
+RTPHelper::RTPHelper(udp_packet_type_t packetType)
+: m_packetType(packetType)
+{
+}
+
 const uint8_t* RTPHelper::ReadRtppacket(
     const uint8_t* buffer,
     size_t len,
@@ -198,7 +203,7 @@ udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size)
     rtpDescriptor.s = m_sbit; 
 
     auto packet = std::make_shared<udp_packet_t>();
-    packet->header.type = udp_packet_type_t::RTP;
+    packet->header.type = m_packetType;
     packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
     packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 
@@ -227,7 +232,7 @@ udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size, std::u
     rtpDescriptor.s = m_sbit; 
 
     auto packet = std::make_shared<udp_packet_t>();
-    packet->header.type = udp_packet_type_t::RTP;
+    packet->header.type = m_packetType;
     packet->header.ts = ts;
     packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 

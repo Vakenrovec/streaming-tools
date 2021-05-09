@@ -7,6 +7,7 @@
 class RTPHelper {
 public:
     RTPHelper() = default;
+    RTPHelper(udp_packet_type_t packetType);
 
     /**
      * @returns nullptr in case of error, otherwise returns pointer where payload starts 
@@ -51,4 +52,5 @@ private:
     bool m_marker = false;
     bool m_sbit = false;
     bool m_isKeyFrame = false;
+    udp_packet_type_t m_packetType = udp_packet_type_t::UNKNOWN;
 };

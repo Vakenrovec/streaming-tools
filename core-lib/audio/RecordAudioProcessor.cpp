@@ -10,7 +10,7 @@ void RecordAudioProcessor::AudioRecordingCallback(void* userdata, std::uint8_t* 
 {
     RecordAudioProcessor *that = (RecordAudioProcessor*)userdata;
     auto pkt = std::make_shared<media_packet_t>();
-    pkt->header.type = MediaPacketType::AUDIO;
+    pkt->header.type = MediaPacketType::AUDIO_SAMPLES;
     pkt->header.size = len;
     std::copy(stream, stream + len, pkt->data);
     that->Process(pkt);

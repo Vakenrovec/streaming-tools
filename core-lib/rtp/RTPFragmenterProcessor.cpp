@@ -1,12 +1,11 @@
 #include "RTPFragmenterProcessor.h"
-#include "UDPPacket.h"
 #include "Network.h"
 #include "RtpDefs.h"
 #include "DateTimeUtils.h"
 #include "Logger.h"
 
-RTPFragmenterProcessor::RTPFragmenterProcessor()
-: m_rtpHelper(new RTPHelper())
+RTPFragmenterProcessor::RTPFragmenterProcessor(udp_packet_type_t packetType)
+: m_rtpHelper(new RTPHelper(packetType))
 , m_maxPayloadLength(
     Network::MaxUdpPacketSize - sizeof(media_pkt_header_t) - 
     sizeof(rtp_header_t) - sizeof(rtp_descriptor)

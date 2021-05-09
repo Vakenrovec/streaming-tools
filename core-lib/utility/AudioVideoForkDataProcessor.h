@@ -12,10 +12,10 @@ public:
     {
         switch (pkt->header.type)
         {
-        case udp_packet_type_t::AUDIO:
+        case udp_packet_type_t::RTP_AUDIO:
             this->m_processors[0]->Process(pkt);
             break;
-        case udp_packet_type_t::RTP:
+        case udp_packet_type_t::RTP_VIDEO:
             this->m_processors[1]->Process(pkt);
             break;
         default:

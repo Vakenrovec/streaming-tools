@@ -2,6 +2,7 @@
 
 #include "DataProcessor.h"
 #include "MediaPacket.h"
+#include "UDPPacket.h"
 #include "RTPHelper.h"
 #include <cstdint>
 #include <list>
@@ -10,7 +11,7 @@
 class RTPFragmenterProcessor: public DataProcessor
 {
 public:
-    RTPFragmenterProcessor();
+    RTPFragmenterProcessor(udp_packet_type_t packetType = udp_packet_type_t::UNKNOWN);
 
     void Init() override;
     void Destroy() override;
@@ -20,4 +21,5 @@ public:
 private:
     std::shared_ptr<RTPHelper> m_rtpHelper;
     const int m_maxPayloadLength;
+    udp_packet_type_t m_packetType;
 };
