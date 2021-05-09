@@ -47,7 +47,7 @@ void VP8EncoderProcessor::Init()
     m_encodeContext->codecContext->bit_rate = m_bitrate;
     int ret = avcodec_open2(m_encodeContext->codecContext, m_encodeContext->codec, nullptr);
     if (ret < 0) {
-        LOG_EX_WARN("Could not open codec");
+        LOG_EX_WARN("Could not open vp8 codec");
         return;
     }
 
