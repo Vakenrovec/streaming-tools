@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <mutex>
 
 class Agent : public std::enable_shared_from_this<Agent>
 {
@@ -35,4 +36,5 @@ private:
     bool m_saveRawStreams;
     std::string m_rawStreamsDir;    
     std::shared_ptr<std::map<std::uint32_t, room_ptr>> m_rooms;
+    std::mutex m_roomsMutex;
 };

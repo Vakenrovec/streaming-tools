@@ -7,16 +7,27 @@ Room::Room(boost::asio::io_context& ioContext,
     const udp_endpoint_t& serverUdpEndpoint, const udp_endpoint_t& streamerUdpEndpoint
 )
 : m_ioContext(ioContext)
-, m_localUdpSocket(std::make_shared<boost::asio::ip::udp::socket>(ioContext, serverUdpEndpoint))
 , m_serverUdpEndpoint(serverUdpEndpoint)
 , m_streamerUdpEndpoint(streamerUdpEndpoint)
-// , m_receivers(std::make_shared<>())
 {
 }
 
 void Room::Start()
 {
+    m_localUdpSocket = std::make_shared<boost::asio::ip::udp::socket>(m_ioContext);
+    m_localUdpSocket->open(m_serverUdpEndpoint.protocol());
+    m_localUdpSocket->bind(m_serverUdpEndpoint);
     ReadMediaPacket();
+}
+
+void Room::Destroy()
+{
+    if (m_localUdpSocket->is_open())
+    {
+        boost::system::error_code ec;
+        m_localUdpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
+        m_localUdpSocket->close();
+    }
 }
 
 void Room::ReadMediaPacket()
@@ -37,6 +48,7 @@ void Room::ReadMediaPacket()
 
 void Room::Multicast(const std::shared_ptr<char[]>& buffer)
 {
+    std::lock_guard<std::mutex> lock(m_receiversMutex);
     std::for_each(m_receivers.begin(), m_receivers.end(), 
         std::bind(&Room::WriteMediaPacket, shared_from_this(), std::placeholders::_1, buffer)    
     );
@@ -58,6 +70,7 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
 
 void Room::Join(const udp_endpoint_t& receiverEndpoint)
 {
+    std::lock_guard<std::mutex> lock(m_receiversMutex);
     auto port = receiverEndpoint.port();
     auto ip = receiverEndpoint.address().to_string();
     m_receivers.insert(receiverEndpoint);
@@ -65,5 +78,6 @@ void Room::Join(const udp_endpoint_t& receiverEndpoint)
 
 void Room::Leave(const udp_endpoint_t& receiverEndpoint)
 {
+    std::lock_guard<std::mutex> lock(m_receiversMutex);
     m_receivers.erase(receiverEndpoint);
 }

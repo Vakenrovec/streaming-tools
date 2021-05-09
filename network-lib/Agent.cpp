@@ -71,6 +71,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
     {
     case NetPacketType::CREATE:
     {
+        std::lock_guard<std::mutex> lock(m_roomsMutex);
         if (m_rooms->find(pkt->header.id) == m_rooms->end())
         {
             auto address = std::string(&pkt->data[0], pkt->header.size);
@@ -87,15 +88,19 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
     }
     case NetPacketType::DESTROY:
     {
-        if (m_rooms->find(pkt->header.id) != m_rooms->end())
+        std::lock_guard<std::mutex> lock(m_roomsMutex);
+        const auto room = m_rooms->find(pkt->header.id);
+        if (room != m_rooms->end())
         {
+            room->second->Destroy();
             m_rooms->erase(pkt->header.id);
             LOG_EX_INFO("Erased streamer");
-        } 
+        }
         break;
     }
     case NetPacketType::CONNECT:
     {
+        std::lock_guard<std::mutex> lock(m_roomsMutex);
         auto room = m_rooms->find(pkt->header.id);
         if (room != m_rooms->end())
         {
@@ -108,6 +113,7 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
     }
     case NetPacketType::DISCONNECT:
     {
+        std::lock_guard<std::mutex> lock(m_roomsMutex);
         auto room = m_rooms->find(pkt->header.id);
         if (room != m_rooms->end())
         {
