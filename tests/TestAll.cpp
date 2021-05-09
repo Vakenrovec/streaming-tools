@@ -12,6 +12,7 @@
 #include "StreamerSessionProcessor.h"
 #include "ReceiverSessionProcessor.h"
 #include "utility/QueueDataProcessor.h"
+#include "utility/AudioVideoForkDataProcessor.h"
 #include "audio/RecordAudioProcessor.h"
 #include "audio/PlaybackAudioProcessor.h"
 #include "UDPPacket.h"
@@ -22,8 +23,8 @@
 #include <boost/asio.hpp>
 #include <SDL2/SDL.h>
 
-#include "ThreadPoolManager.h"
-TEST_CASE("network", "[network][broadcast][communication]") {
+TEST_CASE("all", "[network][audio][video][all]")
+{
     std::uint32_t streamId = 777;
     int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 50;
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
@@ -31,7 +32,7 @@ TEST_CASE("network", "[network][broadcast][communication]") {
     auto ioStreamerContext = std::make_shared<boost::asio::io_context>();
     auto ioReceiverContext = std::make_shared<boost::asio::io_context>();
 
-    SECTION("Video-communication")
+    SECTION("Audio-video-communication") 
     {
         auto receiver = std::make_shared<ReceiverSessionProcessor>(*ioReceiverContext, streamId);
         receiver->SetLocalUdpEndpoint("192.11.0.3", 35007);
@@ -39,13 +40,15 @@ TEST_CASE("network", "[network][broadcast][communication]") {
         receiver->GetUdpSocket()->open(receiver->GetLocalUdpEndpoint().protocol());
         receiver->GetUdpSocket()->bind(receiver->GetLocalUdpEndpoint());
         receiver->SetSessionState(ReceiverSessionProcessor::ReceiverSessionState::CONNECTED);
+        auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
         auto queue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
         auto depay = std::make_shared<RTPVp8DepayProcessor>();
         auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
         auto decoder = std::make_shared<VP8DecoderProcessor>();
         auto display = std::make_shared<VideoDisplayProcessor>(width, height);
-
-        receiver->SetNextProcessor(queue);
+        // auto playback = std::make_shared<PlaybackAudioProcessor>();
+        receiver->SetNextProcessor(fork);
+        fork->SetNextProcessors({ { nullptr, queue } });
         queue->SetNextProcessor(depay);
         depay->SetNextProcessor(defragmenter);
         defragmenter->SetNextProcessor(decoder);
@@ -59,6 +62,7 @@ TEST_CASE("network", "[network][broadcast][communication]") {
         
         
 
+        auto recorder = std::make_shared<RecordAudioProcessor>();
         auto webcam = std::make_shared<WebCameraProcessor>(width, height);
         auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(width, height);
         auto encoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
@@ -91,76 +95,6 @@ TEST_CASE("network", "[network][broadcast][communication]") {
         ioReceiverContext->stop();
         receiverWorker.join();
         queue->Destroy();
-    }
-
-    SECTION("Audio-communication")
-    {
-        auto receiver = std::make_shared<ReceiverSessionProcessor>(*ioReceiverContext, streamId);
-        receiver->SetLocalUdpEndpoint("192.11.0.3", 35007);
-        receiver->SetServerUdpEndpoint("192.11.0.3", 35006);
-        receiver->GetUdpSocket()->open(receiver->GetLocalUdpEndpoint().protocol());
-        receiver->GetUdpSocket()->bind(receiver->GetLocalUdpEndpoint());
-        receiver->SetSessionState(ReceiverSessionProcessor::ReceiverSessionState::CONNECTED);
-        auto depay = std::make_shared<RTPVp8DepayProcessor>();
-        auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
-        auto playback = std::make_shared<PlaybackAudioProcessor>();
-
-        receiver->SetNextProcessor(depay);
-        depay->SetNextProcessor(defragmenter);
-        defragmenter->SetNextProcessor(playback);
-        depay->Init();
-
-        receiver->Play();
-        std::thread receiverWorker([&](){
-            ioReceiverContext->run();
-        });
-        
-        
-
-        auto recorder = std::make_shared<RecordAudioProcessor>();
-        auto fragmenter = std::make_shared<RTPFragmenterProcessor>();
-        auto streamer = std::make_shared<StreamerSessionProcessor>(*ioStreamerContext, streamId);
-        streamer->SetLocalUdpEndpoint("192.11.0.3", 35006);
-        streamer->SetServerUdpEndpoint("192.11.0.3", 35007);
-        streamer->GetUdpSocket()->open(streamer->GetLocalUdpEndpoint().protocol());
-        streamer->GetUdpSocket()->bind(streamer->GetLocalUdpEndpoint());
-        streamer->SetSessionState(StreamerSessionProcessor::StreamerSessionState::SESSION_CREATED);
-        
-        recorder->SetNextProcessor(fragmenter);
-        recorder->Init();
-        fragmenter->SetNextProcessor(streamer);
-
-        auto ioStreamerServiceWork = std::make_shared<boost::asio::io_context::work>(*ioStreamerContext);
-        std::thread streamerWorker([&](){
-            ioStreamerContext->run();
-        });
-        // REQUIRE(recorder->Play(want) == want);
-        bool quit = false;
-        SDL_Event e;
-        while (!quit)
-        {
-            while (SDL_WaitEvent(&e) != 0)
-            {
-                if (e.type == SDL_QUIT)
-                {
-                    quit = true;
-                }
-
-                break;
-            }
-        }
-
-        ioStreamerServiceWork.reset();
-        streamerWorker.join();
-        fragmenter->SetNextProcessor(nullptr);
-        recorder->Destroy();
-
-        
-
-        ioReceiverContext->stop();
-        ioReceiverContext.reset();
-        receiverWorker.join();
-        depay->Destroy();
     }
 
     SDL_Quit();
