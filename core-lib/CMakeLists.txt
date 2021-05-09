@@ -9,6 +9,8 @@ set(HEADERS
     utility/AudioVideoForkDataProcessor.h
     codecs/VP8EncoderProcessor.h
     codecs/VP8DecoderProcessor.h
+    codecs/OPUSEncoderProcessor.h
+    codecs/OPUSDecoderProcessor.h
     rtp/RtpDefs.h
     rtp/RTPHelper.h
     rtp/RTPFragmenterProcessor.h
@@ -29,6 +31,8 @@ set(SOURCES
     PlayableDataProcessor.cpp
     codecs/VP8EncoderProcessor.cpp
     codecs/VP8DecoderProcessor.cpp
+    codecs/OPUSEncoderProcessor.cpp
+    codecs/OPUSDecoderProcessor.cpp
     rtp/RTPHelper.cpp
     rtp/RTPFragmenterProcessor.cpp
     rtp/RTPDefragmenterProcessor.cpp
