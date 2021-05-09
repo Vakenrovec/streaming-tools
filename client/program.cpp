@@ -125,6 +125,8 @@ int main(int argc, char* argv[]) {
             receiver->SetGopSize(gopSize);
 
             receiver->Start();
+            receiver->HandleEvents();
+            receiver->Destroy();
         } else {
             std::cerr << "Neither receiver nor streamer were selected" << "\n";
             return 1;

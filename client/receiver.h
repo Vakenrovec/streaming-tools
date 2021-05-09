@@ -40,9 +40,9 @@ private:
     std::string m_localUdpIp;
     std::uint16_t m_localUdpPort;
 
-    std::shared_ptr<boost::asio::io_context> m_ioVideoContext, m_ioAudioContext;
-    std::shared_ptr<boost::asio::io_context::work> m_videoWork, m_audioWork;
-    std::shared_ptr<std::thread> m_videoThread, m_audioThread;
+    std::shared_ptr<boost::asio::io_context> m_ioVideoContext;
+    std::shared_ptr<boost::asio::io_context::work> m_videoWork;
+    std::shared_ptr<std::thread> m_videoThread;
 
     std::shared_ptr<DataProcessor> m_firstProcessor, m_lastProcessor;
 };

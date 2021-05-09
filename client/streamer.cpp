@@ -1,4 +1,5 @@
 #include "streamer.h"
+#include "PlayableDataProcessor.h"
 #include "video/WebCameraProcessor.h"
 #include "image/JPEG2YV12Processor.h"
 #include "codecs/VP8EncoderProcessor.h"
@@ -18,6 +19,12 @@ Streamer::Streamer()
 
 void Streamer::StartAsync()
 {
+    if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_AUDIO))
+    {
+        LOG_EX_WARN("Could not initialize SDL - %s", SDL_GetError());
+        return;
+    }
+
     auto webcam = std::make_shared<WebCameraProcessor>(m_width, m_height);
     auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(m_width, m_height);
     auto encoder = std::make_shared<VP8EncoderProcessor>(m_width, m_height, m_gopSize, m_bitrate);
@@ -40,16 +47,10 @@ void Streamer::StartAsync()
     });
 
     m_videoPlayThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
-        auto processor = std::dynamic_pointer_cast<WebCameraProcessor>(this->m_firstProcessor);
+        auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstProcessor);
         processor->Init();
         processor->Play();
     });
-
-    if (SDL_Init(SDL_INIT_EVENTS))
-    {
-        LOG_EX_WARN("Could not initialize SDL - %s", SDL_GetError());
-        return;
-    }
 
     LOG_EX_INFO("Streamer started");
 }
@@ -61,8 +62,8 @@ void Streamer::HandleEvents()
     {
         if (e.type == SDL_QUIT)
         {
-            auto processor = std::dynamic_pointer_cast<WebCameraProcessor>(this->m_firstProcessor);
-            processor->stop = true;
+            auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstProcessor);
+            processor->Stop();
             LOG_EX_INFO("Exit from sdl");
             break;
         }
@@ -71,10 +72,10 @@ void Streamer::HandleEvents()
 
 void Streamer::Destroy()
 {
-    SDL_Quit();
     m_videoPlayThread->join();
     m_firstProcessor->Destroy();
     m_videoWork.reset();
     m_videoSenderThread->join();
+    SDL_Quit();
     LOG_EX_INFO("Streamer destroyed");
 }
