@@ -27,5 +27,7 @@ public:
 
     static bool WriteFile(const std::string& fileName, char *data, std::uint32_t size);
 
+    static bool AppendFile(const std::string& fileName, char *data, std::uint32_t size);
+
     static bool CreateDirs(const boost::filesystem::path& path);
 };

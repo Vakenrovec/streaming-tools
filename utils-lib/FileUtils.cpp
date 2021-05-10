@@ -43,6 +43,15 @@ bool FileUtils::WriteFile(const std::string& fileName, char *data, std::uint32_t
     return true;
 }
 
+bool FileUtils::AppendFile(const std::string& fileName, char *data, std::uint32_t size)
+{
+    std::ofstream file;
+    file.open(fileName, std::ios::binary | std::ios::app);
+    file.write(data, size);
+    file.close();
+    return true;
+}
+
 bool FileUtils::CreateDirs(const boost::filesystem::path& path) {
     boost::system::error_code ec;
     boost::filesystem::create_directories(path, ec);
