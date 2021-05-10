@@ -16,6 +16,7 @@ set(HEADERS
     rtp/RTPFragmenterProcessor.h
     rtp/RTPDefragmenterProcessor.h
     rtp/RTPVp8DepayProcessor.h
+    rtp/RTPOpusDepayProcessor.h
     rtp/FrameUtils.h
     video/WebCameraProcessor.h
     video/VideoDisplayProcessor.h
@@ -23,6 +24,8 @@ set(HEADERS
     audio/PlaybackAudioProcessor.h
     file/FileSaveProcessor.h
     file/FileReadProcessor.h
+    file/FileReadRawStreamProcessor.h
+    file/FileSaveRawStreamProcessor.h
     image/JPEG2YV12Processor.h
 )
 
@@ -37,6 +40,7 @@ set(SOURCES
     rtp/RTPFragmenterProcessor.cpp
     rtp/RTPDefragmenterProcessor.cpp
     rtp/RTPVp8DepayProcessor.cpp
+    rtp/RTPOpusDepayProcessor.cpp
     rtp/FrameUtils.cpp
     video/WebCameraProcessor.cpp
     video/VideoDisplayProcessor.cpp

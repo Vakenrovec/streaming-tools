@@ -8,6 +8,7 @@
 #include "rtp/RTPFragmenterProcessor.h"
 #include "rtp/RTPDefragmenterProcessor.h"
 #include "rtp/RTPVp8DepayProcessor.h"
+#include "rtp/RTPOpusDepayProcessor.h"
 #include "video/WebCameraProcessor.h"
 #include "video/VideoDisplayProcessor.h"
 #include "image/JPEG2YV12Processor.h"
@@ -28,7 +29,7 @@
 TEST_CASE("all", "[network][audio][video][all]")
 {
     std::uint32_t streamId = 777;
-    int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 150;
+    int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 250;
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
 
     auto ioStreamerContext = std::make_shared<boost::asio::io_context>();
@@ -51,9 +52,9 @@ TEST_CASE("all", "[network][audio][video][all]")
         auto display = std::make_shared<VideoDisplayProcessor>(width, height);
         
         auto audioQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
-        auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
-        auto audioDepay = std::make_shared<RTPVp8DepayProcessor>();
+        auto audioDepay = std::make_shared<RTPOpusDepayProcessor>();
         auto audioDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::OPUS);
+        auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
         auto playback = std::make_shared<PlaybackAudioProcessor>();
         
         receiver->SetNextProcessor(fork);
@@ -84,7 +85,7 @@ TEST_CASE("all", "[network][audio][video][all]")
         auto audioFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_AUDIO);
 
         auto webcam = std::make_shared<WebCameraProcessor>(width, height);
-        auto recorderVideoQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>();
+        // auto recorderVideoQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>();
         auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(width, height);
         auto videoEncoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
         auto videoFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_VIDEO);
@@ -102,8 +103,8 @@ TEST_CASE("all", "[network][audio][video][all]")
         recorder->Init();
         audioFragmenter->SetNextProcessor(streamer);
 
-        webcam->SetNextProcessor(recorderVideoQueue);
-        recorderVideoQueue->SetNextProcessor(jpeg2yv12);
+        webcam->SetNextProcessor(jpeg2yv12);
+        // recorderVideoQueue->SetNextProcessor(jpeg2yv12);
         jpeg2yv12->SetNextProcessor(videoEncoder);
         videoEncoder->SetNextProcessor(videoFragmenter);
         webcam->Init();
