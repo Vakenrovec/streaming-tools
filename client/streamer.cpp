@@ -4,17 +4,19 @@
 #include "image/JPEG2YV12Processor.h"
 #include "codecs/VP8EncoderProcessor.h"
 #include "rtp/RTPFragmenterProcessor.h"
+#include "audio/RecordAudioProcessor.h"
+#include "utility/QueueDataProcessor.h"
+#include "rtp/RTPOpusDepayProcessor.h"
+#include "codecs/OPUSEncoderProcessor.h"
+#include "rtp/RTPFragmenterProcessor.h"
 #include "StreamerSessionProcessor.h"
 #include "Logger.h"
 #include <SDL2/SDL.h>
 
 Streamer::Streamer()
 {
-    m_ioVideoContext = std::make_shared<boost::asio::io_context>();
-    m_videoWork = std::make_shared<boost::asio::io_context::work>(*m_ioVideoContext);
-
-    // m_ioAudioContext = std::make_shared<boost::asio::io_context>();
-    // m_audioWork = std::make_shared<boost::asio::io_context::work>(*m_ioAudioContext);
+    m_ioContext = std::make_shared<boost::asio::io_context>();
+    m_work = std::make_shared<boost::asio::io_context::work>(*m_ioContext);
 }
 
 void Streamer::StartAsync()
@@ -27,29 +29,49 @@ void Streamer::StartAsync()
 
     auto webcam = std::make_shared<WebCameraProcessor>(m_width, m_height);
     auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(m_width, m_height);
-    auto encoder = std::make_shared<VP8EncoderProcessor>(m_width, m_height, m_gopSize, m_bitrate);
-    auto fragmenter = std::make_shared<RTPFragmenterProcessor>();
-    auto streamerSession = std::make_shared<StreamerSessionProcessor>(*m_ioVideoContext, m_streamId);
+    auto videoEncoder = std::make_shared<VP8EncoderProcessor>(m_width, m_height, m_gopSize, m_bitrate);
+    auto videoFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_VIDEO);
+    
+    auto recorder = std::make_shared<RecordAudioProcessor>();
+    auto audioQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>();
+    auto audioEncoder = std::make_shared<OPUSEncoderProcessor>();
+    auto audioFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_AUDIO);
+
+    auto streamerSession = std::make_shared<StreamerSessionProcessor>(*m_ioContext, m_streamId);
     streamerSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
     streamerSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
     streamerSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
 
     webcam->SetNextProcessor(jpeg2yv12);
-    jpeg2yv12->SetNextProcessor(encoder);
-    encoder->SetNextProcessor(fragmenter);
-    fragmenter->SetNextProcessor(streamerSession);
+    jpeg2yv12->SetNextProcessor(videoEncoder);
+    videoEncoder->SetNextProcessor(videoFragmenter);
+    videoFragmenter->SetNextProcessor(streamerSession);
+    
+    recorder->SetNextProcessor(audioQueue);
+    audioQueue->SetNextProcessor(audioEncoder);
+    audioEncoder->SetNextProcessor(audioFragmenter);
+    audioFragmenter->SetNextProcessor(streamerSession);
 
-    m_firstProcessor = webcam;
-    m_lastProcessor = streamerSession;
+    m_firstVideoProcessor = webcam;
+    m_firstAudioProcessor = recorder;
 
     m_videoSenderThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
-        this->m_ioVideoContext->run();
+        this->m_ioContext->run();
     });
 
-    m_videoPlayThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
-        auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstProcessor);
-        processor->Init();
-        processor->Play();
+    m_pipelinePlayThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
+        if (!this->m_disableAudio) 
+        {
+            auto audioProcessor = std::dynamic_pointer_cast<DataProcessor>(this->m_firstAudioProcessor);
+            audioProcessor->Init();
+        }
+
+        if (!m_disableVideo) 
+        {
+            auto videoProcessor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstVideoProcessor);
+            videoProcessor->Init();
+            videoProcessor->Play();
+        }
     });
 
     LOG_EX_INFO("Streamer started");
@@ -62,7 +84,7 @@ void Streamer::HandleEvents()
     {
         if (e.type == SDL_QUIT)
         {
-            auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstProcessor);
+            auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstVideoProcessor);
             processor->Stop();
             LOG_EX_INFO("Exit from sdl");
             break;
@@ -72,9 +94,9 @@ void Streamer::HandleEvents()
 
 void Streamer::Destroy()
 {
-    m_videoPlayThread->join();
-    m_firstProcessor->Destroy();
-    m_videoWork.reset();
+    m_pipelinePlayThread->join();
+    m_firstVideoProcessor->Destroy();
+    m_work.reset();
     m_videoSenderThread->join();
     SDL_Quit();
     LOG_EX_INFO("Streamer destroyed");

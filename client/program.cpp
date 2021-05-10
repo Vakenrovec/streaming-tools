@@ -22,8 +22,12 @@ int main(int argc, char* argv[]) {
     std::uint32_t streamId;
     int width = 1280, height = 720;
     int bitrate = 4'000'000, gopSize = 10;
-    bool saveRawStreams = false;
+
+    bool saveRawStream = false;
     std::string rawStreamsDir = "/tmp";
+
+    bool disableAudio = false;
+    bool disableVideo = false;
 
     options_description desc("Allowed options");
     desc.add_options()
@@ -33,6 +37,7 @@ int main(int argc, char* argv[]) {
         ("stream-id", value<std::uint32_t>()->required(), "Stream id")
         ("bitrate", value<int>()->default_value(bitrate)->required(), "Bitrate")
         ("gop-size", value<int>()->default_value(gopSize)->required(), "Gop size")
+
         ("server-tcp-ip", value<std::string>()->default_value(serverTcpIp)->required(), "Server bind TCP IP")
         ("server-tcp-port", value<std::uint16_t>()->default_value(serverTcpPort)->required(), "Server bind TCP port")
         ("server-udp-ip", value<std::string>()->default_value(serverUdpIp)->required(), "Server bind UDP IP")
@@ -41,6 +46,12 @@ int main(int argc, char* argv[]) {
         ("streamer-udp-port", value<std::uint16_t>()->default_value(streamerUdpPort)->required(), "Streamer bind UDP port")
         ("receiver-udp-ip", value<std::string>()->default_value(receiverUdpIp)->required(), "Receiver bind UDP IP")
         ("receiver-udp-port", value<std::uint16_t>()->default_value(receiverUdpPort)->required(), "Receiver bind UDP port")
+
+        ("disable-audio", value<bool>()->default_value(disableAudio), "Disable audio")
+        ("disable-video", value<bool>()->default_value(disableVideo), "Disable video")
+
+        ("save-raw-stream", value<bool>()->default_value(saveRawStream), "Save raw stream")
+        ("raw-stream-dir", value<std::string>()->default_value(rawStreamsDir), "Raw stream direction")
     ;
 
     try {
@@ -91,6 +102,20 @@ int main(int argc, char* argv[]) {
             receiverUdpPort = vm["receiver-udp-port"].as<std::uint16_t>();
         }
 
+        if (vm.count("disable-audio")) {
+            disableAudio = vm["disable-audio"].as<bool>();
+        }
+        if (vm.count("disable-video")) {
+            disableVideo = vm["disable-video"].as<bool>();
+        }
+
+        if (vm.count("save-raw-stream")) {
+            saveRawStream = vm["save-raw-stream"].as<bool>();
+        }
+        if (vm.count("raw-stream-dir")) {
+            rawStreamsDir = vm["raw-stream-dir"].as<std::string>();
+        }
+        
         if (vm.count("streamer")) {  
             auto streamer = std::make_shared<Streamer>();
             streamer->SetServerTcpIp(serverTcpIp);
@@ -105,6 +130,12 @@ int main(int argc, char* argv[]) {
             streamer->SetHeight(height);
             streamer->SetBitrate(bitrate);
             streamer->SetGopSize(gopSize);
+
+            streamer->SetDisableAudio(disableAudio);
+            streamer->SetDisableVideo(disableVideo);
+
+            streamer->SetSaveRawStream(saveRawStream);
+            streamer->SetRawStreamDir(rawStreamsDir);
 
             streamer->StartAsync();
             streamer->HandleEvents();
@@ -123,6 +154,9 @@ int main(int argc, char* argv[]) {
             receiver->SetHeight(height);
             receiver->SetBitrate(bitrate);
             receiver->SetGopSize(gopSize);
+
+            receiver->SetDisableAudio(disableAudio);
+            receiver->SetDisableVideo(disableVideo);
 
             receiver->Start();
             receiver->HandleEvents();

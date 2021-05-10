@@ -5,6 +5,10 @@
 #include "codecs/VP8DecoderProcessor.h"
 #include "video/VideoDisplayProcessor.h"
 #include "utility/QueueDataProcessor.h"
+#include "utility/AudioVideoForkDataProcessor.h"
+#include "rtp/RTPOpusDepayProcessor.h"
+#include "codecs/OPUSDecoderProcessor.h"
+#include "audio/PlaybackAudioProcessor.h"
 #include "Logger.h"
 #include <SDL2/SDL.h>
 #include <chrono>
@@ -31,20 +35,37 @@ void Receiver::Start()
     receiverSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
     receiverSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
     receiverSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
-    auto queue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
-    auto depay = std::make_shared<RTPVp8DepayProcessor>();
-    auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
-    auto decoder = std::make_shared<VP8DecoderProcessor>();
+    auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
+
+    auto videoQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
+    auto videoDepay = std::make_shared<RTPVp8DepayProcessor>();
+    auto videoDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::VP8);
+    auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
     auto display = std::make_shared<VideoDisplayProcessor>(m_width, m_height);
 
-    receiverSession->SetNextProcessor(queue);
-    queue->SetNextProcessor(depay);
-    depay->SetNextProcessor(defragmenter);
-    defragmenter->SetNextProcessor(decoder);
-    decoder->SetNextProcessor(display);
+    auto audioQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
+    auto audioDepay = std::make_shared<RTPOpusDepayProcessor>();
+    auto audioDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::OPUS);
+    auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
+    auto playback = std::make_shared<PlaybackAudioProcessor>();
+
+    receiverSession->SetNextProcessor(fork);
+    fork->SetNextProcessors({ { 
+        !this->m_disableAudio ? audioQueue : nullptr, 
+        !this->m_disableVideo ? videoQueue : nullptr
+    } });
+
+    videoQueue->SetNextProcessor(videoDepay);
+    videoDepay->SetNextProcessor(videoDefragmenter);
+    videoDefragmenter->SetNextProcessor(videoDecoder);
+    videoDecoder->SetNextProcessor(display);
+
+    audioQueue->SetNextProcessor(audioDepay);
+    audioDepay->SetNextProcessor(audioDefragmenter);
+    audioDefragmenter->SetNextProcessor(audioDecoder);
+    audioDecoder->SetNextProcessor(playback);
 
     m_firstProcessor = receiverSession;
-    m_lastProcessor = display;
 
     receiverSession->Init();   
     m_ioVideoContext->run();

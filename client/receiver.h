@@ -29,6 +29,9 @@ public:
     inline void SetLocalUdpIp(const std::string& localUdpIp) { m_localUdpIp = localUdpIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localUdpPort) { m_localUdpPort = localUdpPort; };
 
+    inline void SetDisableAudio(const bool disableAudio) { m_disableAudio = disableAudio; };
+    inline void SetDisableVideo(const bool disableVideo) { m_disableVideo = disableVideo; };
+    
 private:
     std::uint32_t m_streamId;
     int m_width, m_height, m_gopSize, m_bitrate;
@@ -40,9 +43,12 @@ private:
     std::string m_localUdpIp;
     std::uint16_t m_localUdpPort;
 
+    bool m_disableAudio;
+    bool m_disableVideo;
+
     std::shared_ptr<boost::asio::io_context> m_ioVideoContext;
     std::shared_ptr<boost::asio::io_context::work> m_videoWork;
     std::shared_ptr<std::thread> m_videoThread;
 
-    std::shared_ptr<DataProcessor> m_firstProcessor, m_lastProcessor;
+    std::shared_ptr<DataProcessor> m_firstProcessor;
 };
