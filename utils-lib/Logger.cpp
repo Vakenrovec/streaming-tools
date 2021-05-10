@@ -50,5 +50,5 @@ void Logger::Log(const std::string& message)
         log +=  + ": ";
     }
     log += logLevelName + ": " + message + "\n";
-    std::cout << message << std::endl;
+    std::cout << log << std::endl;
 }
