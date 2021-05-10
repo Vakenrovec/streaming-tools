@@ -1,0 +1,89 @@
+#include "RTPOpusDepayProcessor.h"
+#include "RtpDefs.h"
+#include "Logger.h"
+#include "FrameUtils.h"
+#include <cstdint>
+#include <limits>
+#include <arpa/inet.h>
+
+RTPOpusDepayProcessor::RTPOpusDepayProcessor() 
+: m_maxWidth(0)
+, m_maxHeight(0)
+, m_frameSize(0)
+, m_frameTimestamp(std::numeric_limits<std::uint32_t>::max())
+, m_rtpHelper(new RTPHelper)
+{
+}
+
+RTPOpusDepayProcessor::~RTPOpusDepayProcessor() 
+{
+}
+
+void RTPOpusDepayProcessor::Init()
+{
+    DataProcessor::Init();
+}
+
+void RTPOpusDepayProcessor::Destroy()
+{
+    DataProcessor::Destroy();
+}
+
+void RTPOpusDepayProcessor::Process(const udp_packet_ptr& pkt) {
+    if (pkt->header.type == udp_packet_type_t::RTP_AUDIO) 
+    {
+        size_t payloadLen = 0;
+        if (!this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen))
+        {
+            return;
+        }
+
+        auto packetTimestamp = this->m_rtpHelper->timestamp();
+
+        // we got packet at the first time
+        if (m_frameTimestamp == std::numeric_limits<std::uint32_t>::max())
+        {
+            m_frameTimestamp = packetTimestamp;
+        }
+
+        // we got outdated packet
+        if (packetTimestamp < m_frameTimestamp)
+        {
+            return;
+        }
+
+        // we got newer packet than we had
+        if (m_frameTimestamp != packetTimestamp)
+        {
+            // sort packets in a frame
+            this->m_framePackets.sort([]( const udp_packet_ptr &a, udp_packet_ptr &b) {
+                rtp_header_t *headerA = (rtp_header_t *)&a->data[0];
+                rtp_header_t *headerB = (rtp_header_t *)&b->data[0];
+                return ntohs(headerA->seq) < ntohs(headerB->seq); 
+            });
+
+            // check the frame for corruption
+            bool isFrameValid = !FrameUtils::IsFrameCorrupted(m_framePackets, m_rtpHelper);
+
+            if (isFrameValid)
+            {
+                // copy payload into framePacket->data)                
+                DataProcessor::Process(m_framePackets);                               
+            }
+            else
+            {
+                LOG_EX_WARN_WITH_CONTEXT("Frame is not valid, valid = %d, size = %d", isFrameValid, m_framePackets.size());
+            }       
+            
+            m_frameTimestamp = packetTimestamp;
+            m_framePackets.clear();
+        }
+         
+        m_frameSize += payloadLen;
+        m_framePackets.push_back(pkt);
+    }
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
+    }
+}
