@@ -14,10 +14,16 @@ public:
         switch (pkt->header.type)
         {
         case udp_packet_type_t::RTP_AUDIO:
-            this->m_processors[0]->Process(pkt);
+            if (this->m_processors[0])
+            {
+                this->m_processors[0]->Process(pkt);
+            }
             break;
         case udp_packet_type_t::RTP_VIDEO:
-            this->m_processors[1]->Process(pkt);
+            if (this->m_processors[1])
+            {
+                this->m_processors[1]->Process(pkt);
+            }
             break;
         default:
             LOG_EX_WARN_WITH_CONTEXT("Unknown packet type");

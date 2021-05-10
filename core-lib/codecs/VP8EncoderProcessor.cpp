@@ -97,10 +97,10 @@ void VP8EncoderProcessor::Process(const media_packet_ptr& pkt)
         m_encodeContext->frame->data[2] = pkt->data + m_encodeContext->frame->width * m_encodeContext->frame->height * 5 / 4;
 
         if (!Encode(m_encodeContext->codecContext, m_encodeContext->frame, m_encodeContext->packet)) {
-            LOG_EX_WARN("Frame wasn't encoded");
+            LOG_EX_WARN_WITH_CONTEXT("Frame wasn't encoded");
             return;
         }
-        LOG_EX_INFO("Frame was encoded");
+        // LOG_EX_INFO_WITH_CONTEXT("Frame was encoded");
         pkt->header.type = MediaPacketType::VP8;
         pkt->header.size = m_encodeContext->packet->size;
         std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    

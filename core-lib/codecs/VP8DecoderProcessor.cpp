@@ -9,17 +9,17 @@ extern "C" {
 }
 #endif
 
-typedef struct vp8decodeContext
+typedef struct vp8DecodeContext
 {
     AVCodecID id = AVCodecID::AV_CODEC_ID_VP8;
     AVCodec *codec = nullptr;
     AVCodecContext *codecContext = nullptr;
     AVPacket *packet = nullptr;
     AVFrame *frame = nullptr;
-} vp8decodeContext;
+} vp8DecodeContext;
 
 VP8DecoderProcessor::VP8DecoderProcessor()
-: m_decodeContext(std::make_shared<vp8decodeContext>())
+: m_decodeContext(std::make_shared<vp8DecodeContext>())
 {
 }
 
@@ -87,7 +87,7 @@ void VP8DecoderProcessor::Process(const media_packet_ptr& pkt)
             LOG_EX_WARN("Frame wasn't decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
             return;
         }
-        LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
+        // LOG_EX_INFO("Frame was decoded, key = " + std::to_string(m_decodeContext->frame->key_frame));
 
         pkt->header.type = MediaPacketType::YV12;
         pkt->header.size = m_decodeContext->frame->width * m_decodeContext->frame->height * 3 / 2;

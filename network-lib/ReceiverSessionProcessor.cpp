@@ -115,7 +115,7 @@ void ReceiverSessionProcessor::ReceiveData()
             [this, that = shared_from_this(), pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
                 if (!ec)
                 {
-                    LOG_EX_INFO("Received udp packet: size(bytes) = " + std::to_string(pkt->header.size));
+                    // LOG_EX_INFO("Received udp packet: size(bytes) = " + std::to_string(pkt->header.size));
                     DataProcessor::Process(pkt);
                     ReceiveData();
                 } else {

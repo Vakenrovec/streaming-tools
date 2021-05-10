@@ -3,7 +3,7 @@
 #include "DataProcessor.h"
 #include <memory>
 
-struct vp8decodeContext;
+struct vp8DecodeContext;
 struct AVCodecContext;
 struct AVFrame;
 struct AVPacket;
@@ -22,5 +22,5 @@ private:
     bool Decode(AVCodecContext *context, AVFrame *frame, AVPacket *packet);
     
 private:
-    std::shared_ptr<vp8decodeContext> m_decodeContext;
+    std::shared_ptr<vp8DecodeContext> m_decodeContext;
 };

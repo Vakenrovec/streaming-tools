@@ -33,9 +33,9 @@ void RecordAudioProcessor::Init()
     SDL_AudioSpec desiredRecordingSpec;
     SDL_zero(desiredRecordingSpec);
     desiredRecordingSpec.freq = 44100;
-    desiredRecordingSpec.format = AUDIO_F32;
+    desiredRecordingSpec.format = AUDIO_F32; // AUDIO_F32 AUDIO_S16
     desiredRecordingSpec.channels = 2;
-    desiredRecordingSpec.samples = 4096;
+    desiredRecordingSpec.samples = 4096; // 4096 1152;
     desiredRecordingSpec.callback = AudioRecordingCallback;
     desiredRecordingSpec.userdata = this;
     m_recordingDeviceId = SDL_OpenAudioDevice(

@@ -147,7 +147,7 @@ bool WebCameraProcessor::GetFrame(const media_packet_ptr& pkt)
     }
 
     // Frames get written after dequeuing the buffer
-    LOG_EX_INFO("Frame was captured, size = " + std::to_string(m_bufferInfo.bytesused / 1024) + " KBytes");
+    // LOG_EX_INFO("Frame was captured, size = " + std::to_string(m_bufferInfo.bytesused / 1024) + " KBytes");
 
     pkt->header.type = MediaPacketType::JPEG;
     pkt->header.size = m_bufferInfo.bytesused;

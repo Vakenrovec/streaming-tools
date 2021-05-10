@@ -58,13 +58,21 @@
     streamId = 777
     width = 1280, height = 720
     bitrate = 4'000'000
-    gopSize = 10, 
+    gopSize = 10
+
+    save raw stream = false;
+    raw stream dir = "/tmp";
+
+    disable video = false
+    disable audio = false
 
 # Command line arguments
 ## Server
 
-    ...
+    ./agent 
 
 ## Client
 
-    ...
+    ./client --streamer --stream-id 777
+    ./client --receiver --stream-id 777
+    ./client --receiver --stream-id 777 --receiver-udp-port 35009

@@ -31,7 +31,7 @@ void RTPVp8DepayProcessor::Destroy()
 }
 
 void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
-    if (pkt->header.type == udp_packet_type_t::RTP_VIDEO || pkt->header.type == udp_packet_type_t::RTP_AUDIO) 
+    if (pkt->header.type == udp_packet_type_t::RTP_VIDEO) 
     {
         size_t payloadLen = 0;
         if (!this->m_rtpHelper->ReadFrameInRtpPacket(&pkt->data[0], pkt->header.size, payloadLen))
@@ -85,7 +85,7 @@ void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
             }
             else
             {
-                LOG_EX_INFO("Frame is not valid");
+                LOG_EX_WARN_WITH_CONTEXT("Frame is not valid, valid = %d, waitForKey = %d", isFrameValid, m_waitForKeyFrameState);
                 m_waitForKeyFrameState = true;
             }       
             

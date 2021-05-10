@@ -14,15 +14,21 @@ StreamerSessionProcessor::StreamerSessionProcessor(boost::asio::io_context& ioCo
 
 void StreamerSessionProcessor::Init()
 {
-    CreateStream();
-    DataProcessor::Init();
+    if (this->m_state != State::INITIALIZED)
+    {
+        CreateStream();
+        DataProcessor::Init();
+    }
 }
 
 void StreamerSessionProcessor::Destroy()
 {
-    DestroyStream();
-    DataProcessor::Destroy();
-    m_sessionState = StreamerSessionState::STOPPED;
+    if (this->m_state != State::DESTROYED)
+    {
+        DestroyStream();
+        DataProcessor::Destroy();
+        m_sessionState = StreamerSessionState::STOPPED;
+    }
 }
 
 void StreamerSessionProcessor::Process(const udp_packet_ptr& pkt)

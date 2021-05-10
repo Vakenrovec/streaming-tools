@@ -173,14 +173,14 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
         payloadLen = len - offset;
     }
 
-    LOG_EX_INFO(
-        ">>>>>>>>>>>>>>>>>>>>> Seq: " + std::to_string(m_seqNumber) + 
-        ", ts = " + std::to_string(m_timestamp) + 
-        ", s = " + std::to_string(m_sbit) + 
-        ", m = " + std::to_string(m_marker) + 
-        ", key = " + std::to_string(m_isKeyFrame) + 
-        ", pl: " + std::to_string(payloadLen)
-    );
+    // LOG_EX_INFO(
+    //     ">>>>>>>>>>>>>>>>>>>>> Seq: " + std::to_string(m_seqNumber) + 
+    //     ", ts = " + std::to_string(m_timestamp) + 
+    //     ", s = " + std::to_string(m_sbit) + 
+    //     ", m = " + std::to_string(m_marker) + 
+    //     ", key = " + std::to_string(m_isKeyFrame) + 
+    //     ", pl: " + std::to_string(payloadLen)
+    // );
 
     return (const uint8_t*)(buffer + offset);
 }

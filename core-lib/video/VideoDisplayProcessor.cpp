@@ -1,5 +1,7 @@
 #include "VideoDisplayProcessor.h"
 #include "Logger.h"
+#include <thread>
+#include <chrono>
 
 VideoDisplayProcessor::VideoDisplayProcessor(int width, int height)
 : m_screen(nullptr)

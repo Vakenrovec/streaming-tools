@@ -29,9 +29,9 @@ void PlaybackAudioProcessor::Init()
     SDL_AudioSpec desiredPlaybackSpec;
     SDL_zero(desiredPlaybackSpec);
     desiredPlaybackSpec.freq = 44100;
-    desiredPlaybackSpec.format = AUDIO_F32;
+    desiredPlaybackSpec.format = AUDIO_F32; // AUDIO_F32 AUDIO_S16
     desiredPlaybackSpec.channels = 2;
-    desiredPlaybackSpec.samples = 4096;
+    desiredPlaybackSpec.samples = 4096; // 4096 1152;
     desiredPlaybackSpec.callback = AudioPlaybackCallback;
     desiredPlaybackSpec.userdata = this;
     m_playbackDeviceId = SDL_OpenAudioDevice(nullptr, false, 
@@ -68,5 +68,9 @@ void PlaybackAudioProcessor::Process(const media_packet_ptr& pkt)
     {
         m_circularBuffer->push_back(pkt);
         DataProcessor::Process(pkt);
+    }
+    else
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Incorrect packet type: %d", pkt->header.type);
     }
 }
