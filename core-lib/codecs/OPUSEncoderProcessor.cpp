@@ -1,5 +1,6 @@
 #include "codecs/OPUSEncoderProcessor.h"
 #include "Logger.h"
+#include <iostream>
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +12,7 @@ extern "C" {
 
 typedef struct opusEncodeContext
 {
-    AVCodecID id = AVCodecID::AV_CODEC_ID_VORBIS; // AV_CODEC_ID_VORBIS AV_CODEC_ID_OPUS
+    AVCodecID id = AVCodecID::AV_CODEC_ID_MP2; // AV_CODEC_ID_VORBIS AV_CODEC_ID_OPUS AV_CODEC_ID_MP2
     AVCodec *codec = nullptr;
     AVCodecContext *codecContext = nullptr;
     AVPacket *packet = nullptr;
@@ -36,14 +37,14 @@ void OPUSEncoderProcessor::Init()
         LOG_EX_WARN("Could not allocate audio codec context");
         return;
     }
-    m_encodeContext->codecContext->bit_rate = 400000; //m_bitrate;
-    m_encodeContext->codecContext->sample_fmt = AVSampleFormat::AV_SAMPLE_FMT_FLTP;
+    m_encodeContext->codecContext->bit_rate = m_bitrate;
+    m_encodeContext->codecContext->sample_fmt = AVSampleFormat::AV_SAMPLE_FMT_S16;
     m_encodeContext->codecContext->sample_rate = 44100;
     m_encodeContext->codecContext->channel_layout = AV_CH_LAYOUT_STEREO;
     m_encodeContext->codecContext->channels = av_get_channel_layout_nb_channels(m_encodeContext->codecContext->channel_layout);
     int ret = avcodec_open2(m_encodeContext->codecContext, m_encodeContext->codec, nullptr);
     if (ret < 0) {
-        LOG_EX_WARN("Could not open opus codec");
+        LOG_EX_WARN_WITH_CONTEXT("Could not open opus codec");
         return;
     }
 
@@ -88,16 +89,17 @@ void OPUSEncoderProcessor::Process(const media_packet_ptr& pkt)
 {
     if (pkt->header.type == MediaPacketType::AUDIO_SAMPLES)
     {
-        m_encodeContext->frame->data[0] = pkt->data;
+        // m_encodeContext->frame->data[0] = pkt->data;
         
-        if (!Encode(m_encodeContext->codecContext, m_encodeContext->frame, m_encodeContext->packet)) {
-            LOG_EX_WARN("Frame wasn't encoded");
-            return;
-        }
-        LOG_EX_INFO("Frame was encoded");
+        // if (!Encode(m_encodeContext->codecContext, m_encodeContext->frame, m_encodeContext->packet)) {
+        //     LOG_EX_WARN_WITH_CONTEXT("Frame wasn't encoded");
+        //     return;
+        // }
+        // LOG_EX_INFO_WITH_CONTEXT("Frame was encoded");
         pkt->header.type = MediaPacketType::OPUS;
-        pkt->header.size = m_encodeContext->packet->size;
-        std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    
+        // pkt->header.size = m_encodeContext->packet->size;
+        // std::copy(m_encodeContext->packet->data, m_encodeContext->packet->data + m_encodeContext->packet->size, pkt->data);    
+
 
         DataProcessor::Process(pkt);
     }
