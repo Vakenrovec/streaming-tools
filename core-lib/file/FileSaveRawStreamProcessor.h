@@ -14,7 +14,7 @@ public:
 
     void Init() override
     {
-        m_file.open(m_filename, std::ios::binary);
+        m_file.open(m_filename, std::ios::binary | std::ios::trunc);
         DataProcessor::Init();
     }
 

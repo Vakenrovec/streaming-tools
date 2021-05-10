@@ -118,5 +118,25 @@ TEST_CASE("audiovideo", "[audio][video][save]")
         webcam->Destroy();
     }
 
+    SECTION("Audio-save-raw-stream") 
+    {
+        auto recorder = std::make_shared<RecordAudioProcessor>();
+        auto audioEncoder = std::make_shared<OPUSEncoderProcessor>();
+        auto saver = std::make_shared<FileSaveRawStreamProcessor<media_packet_ptr>>(filename);
+        auto reader = std::make_shared<FileReadRawStreamProcessor<media_packet_ptr>>(filename);
+        auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
+        auto playback = std::make_shared<PlaybackAudioProcessor>();
+
+        recorder->SetNextProcessor(audioEncoder);
+        audioEncoder->SetNextProcessor(saver);
+        saver->SetNextProcessor(reader);
+        reader->SetNextProcessor(audioDecoder);
+        audioDecoder->SetNextProcessor(playback);
+
+        recorder->Init();
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        recorder->Destroy();
+    }
+
     SDL_Quit();
 }
