@@ -10,7 +10,7 @@
 class PlaybackAudioProcessor: public DataProcessor
 {
 public:
-    PlaybackAudioProcessor(int audioBufferElements = 10);
+    PlaybackAudioProcessor(int audioBufferElements = 20);
 
     void Init() override;
     void Destroy() override;
