@@ -7,6 +7,7 @@ set(HEADERS
     utility/QueueDataProcessor.h
     utility/ForkDataProcessor.h
     utility/AudioVideoForkDataProcessor.h
+    utility/DelayDataProcessor.h
     codecs/VP8EncoderProcessor.h
     codecs/VP8DecoderProcessor.h
     codecs/OPUSEncoderProcessor.h

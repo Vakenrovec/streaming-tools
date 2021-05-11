@@ -56,5 +56,6 @@ add_subdirectory(network-lib)
 add_subdirectory(core-lib)
 
 add_subdirectory(tests)
+add_subdirectory(mediaplayer)
 add_subdirectory(client)
 add_subdirectory(agent)
