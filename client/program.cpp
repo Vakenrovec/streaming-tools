@@ -24,7 +24,8 @@ int main(int argc, char* argv[]) {
     int bitrate = 4'000'000, gopSize = 10;
 
     bool saveRawStream = false;
-    std::string rawStreamsDir = "/tmp";
+    std::string rawStreamDir = "/tmp/streams";
+    std::string rawStreamFilename = "stream.raw";
 
     bool disableAudio = false;
     bool disableVideo = false;
@@ -51,7 +52,8 @@ int main(int argc, char* argv[]) {
         ("disable-video", value<bool>()->default_value(disableVideo), "Disable video")
 
         ("save-raw-stream", value<bool>()->default_value(saveRawStream), "Save raw stream")
-        ("raw-stream-dir", value<std::string>()->default_value(rawStreamsDir), "Raw stream direction")
+        ("raw-stream-dir", value<std::string>()->default_value(rawStreamDir), "Raw stream direction")
+        ("raw-stream-filename", value<std::string>()->default_value(rawStreamFilename), "Raw stream filename")
     ;
 
     try {
@@ -113,7 +115,10 @@ int main(int argc, char* argv[]) {
             saveRawStream = vm["save-raw-stream"].as<bool>();
         }
         if (vm.count("raw-stream-dir")) {
-            rawStreamsDir = vm["raw-stream-dir"].as<std::string>();
+            rawStreamDir = vm["raw-stream-dir"].as<std::string>();
+        }
+        if (vm.count("raw-stream-filename")) {
+            rawStreamFilename = vm["raw-stream-filename"].as<std::string>();
         }
         
         if (vm.count("streamer")) {  
@@ -135,7 +140,8 @@ int main(int argc, char* argv[]) {
             streamer->SetDisableVideo(disableVideo);
 
             streamer->SetSaveRawStream(saveRawStream);
-            streamer->SetRawStreamDir(rawStreamsDir);
+            streamer->SetRawStreamDir(rawStreamDir);
+            streamer->SetRawStreamFilename(rawStreamFilename);
 
             streamer->StartAsync();
             streamer->HandleEvents();
@@ -157,6 +163,10 @@ int main(int argc, char* argv[]) {
 
             receiver->SetDisableAudio(disableAudio);
             receiver->SetDisableVideo(disableVideo);
+
+            receiver->SetSaveRawStream(saveRawStream);
+            receiver->SetRawStreamDir(rawStreamDir);
+            receiver->SetRawStreamFilename(rawStreamFilename);
 
             receiver->Start();
             receiver->HandleEvents();

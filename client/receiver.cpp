@@ -9,6 +9,7 @@
 #include "rtp/RTPOpusDepayProcessor.h"
 #include "codecs/OPUSDecoderProcessor.h"
 #include "audio/PlaybackAudioProcessor.h"
+#include "file/FileSaveRawStreamProcessor.h"
 #include "Logger.h"
 #include <SDL2/SDL.h>
 #include <chrono>
@@ -16,10 +17,6 @@
 Receiver::Receiver()
 {
     m_ioVideoContext = std::make_shared<boost::asio::io_context>();
-    // m_videoWork = std::make_shared<boost::asio::io_context::work>(*m_ioVideoContext);
-
-    // m_ioAudioContext = std::make_shared<boost::asio::io_context>();
-    // m_audioWork = std::make_shared<boost::asio::io_context::work>(*m_ioAudioContext);
 }
 
 void Receiver::Start()
@@ -35,6 +32,7 @@ void Receiver::Start()
     receiverSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
     receiverSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
     receiverSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
+    auto saver = std::make_shared<FileSaveRawStreamProcessor<udp_packet_ptr>>(m_rawStreamDir, m_rawStreamFilename);
     auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
 
     auto videoQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
@@ -49,7 +47,15 @@ void Receiver::Start()
     auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
     auto playback = std::make_shared<PlaybackAudioProcessor>();
 
-    receiverSession->SetNextProcessor(fork);
+    if (m_saveRawStream)
+    {
+        receiverSession->SetNextProcessor(saver);
+        saver->SetNextProcessor(fork);
+    }
+    else
+    {
+        receiverSession->SetNextProcessor(fork);
+    }    
     fork->SetNextProcessors({ { 
         !this->m_disableAudio ? audioQueue : nullptr, 
         !this->m_disableVideo ? videoQueue : nullptr

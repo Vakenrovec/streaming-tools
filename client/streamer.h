@@ -33,7 +33,8 @@ public:
     inline void SetDisableVideo(const bool disableVideo) { m_disableVideo = disableVideo; };
 
     inline void SetSaveRawStream(const bool saveRawStream) { m_saveRawStream = saveRawStream; };
-    inline void SetRawStreamDir(const std::string& rawStreamsDir) { m_rawStreamsDir = rawStreamsDir; };
+    inline void SetRawStreamDir(const std::string& rawStreamDir) { m_rawStreamDir = rawStreamDir; };
+    inline void SetRawStreamFilename(const std::string& rawStreamFilename) { m_rawStreamFilename = rawStreamFilename; };
 
 private:
     std::uint32_t m_streamId;
@@ -50,7 +51,8 @@ private:
     bool m_disableVideo;
 
     bool m_saveRawStream;
-    std::string m_rawStreamsDir;
+    std::string m_rawStreamDir;
+    std::string m_rawStreamFilename;
 
 private:
     std::shared_ptr<boost::asio::io_context> m_ioContext;
