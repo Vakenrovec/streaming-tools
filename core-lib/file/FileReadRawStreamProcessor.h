@@ -1,20 +1,28 @@
 #pragma once
 
 #include "DataProcessor.h"
+#include "Logger.h"
+#include "FileUtils.h"
 #include <fstream>
 
 template<typename packet_ptr_t>
 class FileReadRawStreamProcessor: public DataProcessor
 {
 public:
-    FileReadRawStreamProcessor(const std::string& filename)
+    FileReadRawStreamProcessor(const std::string& dir, const std::string& filename)
     : m_filename(filename)
+    , m_dir(dir)
+    , m_fullPath(FileUtils::CombinePath(dir, filename))
     {
     }
 
     void Init() override
     {
-        m_file.open(m_filename, std::ios::binary);
+        m_file.open(m_fullPath, std::ios::binary);
+        if (!m_file)
+        {
+            LOG_EX_ERROR_WITH_CONTEXT("Couldn't open file %s", m_fullPath.c_str());
+        }
         DataProcessor::Init();
     }
 
@@ -27,11 +35,27 @@ public:
     void Process(const packet_ptr_t& pkt) override
     {
         m_file.read((char*)&pkt->header, sizeof(pkt->header));
-        m_file.read((char*)&pkt->data, sizeof(pkt->header.size));
+        if (!m_file){
+            return;
+        }
+        m_file.read((char*)&pkt->data, pkt->header.size);
+        // LOG_EX_INFO_WITH_CONTEXT("Read packet, type: %d", pkt->header.type);
         DataProcessor::Process(pkt);
     }
 
+    int Play()
+    {
+        int count = 0;
+        while (!m_file.eof())
+        {
+            const auto pkt = std::make_shared<typename packet_ptr_t::element_type>();
+            Process(pkt);
+            count++;
+        }
+        return count;
+    }
+
 private:
-    std::string m_filename;
+    std::string m_dir, m_filename, m_fullPath;
     std::ifstream m_file;
 };

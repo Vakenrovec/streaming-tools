@@ -8,12 +8,14 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
 
 template<typename packet_ptr_t>
 class QueueDataProcessor: public DataProcessor
 {
 public:
-    QueueDataProcessor()
+    QueueDataProcessor(bool handleRemainigPackets = false)
+    : m_handleRemainigPackets(handleRemainigPackets)
     {
     }
 
@@ -25,7 +27,7 @@ public:
 
     void Destroy() override
     {
-        Close();
+        Close(m_handleRemainigPackets);
         DataProcessor::Destroy();
     }
     
@@ -83,8 +85,11 @@ private:
         m_worker.join();
     }
 
+private:
     std::thread m_worker;
     std::queue<packet_ptr_t> m_packetQueue;
     std::mutex m_packetMutex;
     std::condition_variable m_packetCV;
+
+    bool m_handleRemainigPackets;
 };

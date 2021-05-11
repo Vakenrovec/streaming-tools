@@ -33,6 +33,7 @@ media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<
 {
     auto pkt = std::make_shared<media_packet_t>();
     pkt->header.type = m_packetType;
+    pkt->header.ts = packets.front()->header.ts;
     int pos = 0;
     size_t payloadLen = 0;
     for (const auto& packet : packets)
@@ -50,6 +51,7 @@ media_packet_ptr RTPDefragmenterProcessor::DefragmentRTPPackets(const std::list<
 {
     auto pkt = std::make_shared<media_packet_t>();
     pkt->header.type = m_packetType;
+    pkt->header.ts = packets.front()->header.ts;
     pkt->header.size = payloadSize;
     int pos = 0;
     size_t payloadLen = 0;

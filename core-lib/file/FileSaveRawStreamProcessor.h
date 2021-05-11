@@ -1,20 +1,29 @@
 #pragma once
 
 #include "DataProcessor.h"
+#include "Logger.h"
+#include "FileUtils.h"
 #include <fstream>
 
 template<typename packet_ptr_t>
 class FileSaveRawStreamProcessor: public DataProcessor
 {
 public:
-    FileSaveRawStreamProcessor(const std::string& filename)
+    FileSaveRawStreamProcessor(const std::string& dir, const std::string& filename)
     : m_filename(filename)
+    , m_dir(dir)
+    , m_fullPath(FileUtils::CombinePath(dir, filename))
     {
     }
 
     void Init() override
     {
-        m_file.open(m_filename, std::ios::binary | std::ios::trunc);
+        FileUtils::CreateDirs(boost::filesystem::path(m_dir));
+        m_file.open(m_fullPath, std::ios::binary | std::ios::trunc);
+        if (!m_file)
+        {
+            LOG_EX_ERROR_WITH_CONTEXT("Couldn't open file %s", m_fullPath.c_str());
+        }
         DataProcessor::Init();
     }
 
@@ -27,11 +36,12 @@ public:
     void Process(const packet_ptr_t& pkt) override
     {
         m_file.write((char*)&pkt->header, sizeof(pkt->header));
-        m_file.write((char*)&pkt->data, sizeof(pkt->header.size));
+        m_file.write((char*)&pkt->data, pkt->header.size);
+        // LOG_EX_INFO_WITH_CONTEXT("Wrote packet, type = %d", pkt->header.type);
         DataProcessor::Process(pkt);
     }
 
 private:
-    std::string m_filename;
+    std::string m_dir, m_filename, m_fullPath;
     std::ofstream m_file;
 };
