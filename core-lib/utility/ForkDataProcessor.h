@@ -26,10 +26,16 @@ public:
 
     void Destroy() override
     {
-        for (const auto& processor: m_processors)
+        // for (const auto& processor: m_processors)
+        // {
+        //     if (processor) {
+        //         processor->Destroy();
+        //     }
+        // }
+        for (auto processor = m_processors.rbegin(); processor != m_processors.rend(); ++processor)
         {
-            if (processor) {
-                processor->Destroy();
+            if (*processor) {
+                (*processor)->Destroy();
             }
         }
         DataProcessor::Destroy();
