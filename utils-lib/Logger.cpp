@@ -47,8 +47,10 @@ void Logger::Log(const std::string& message)
     if (m_methodName)
     {
         log += m_methodName;
-        log +=  + ": ";
+        log += std::string(": ");
     }
-    log += logLevelName + ": " + message + "\n";
-    std::cout << log << std::endl;
+    log += logLevelName;
+    log += std::string(": ");
+    // log += message;
+    std::cout << log << message << std::endl;
 }
