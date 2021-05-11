@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
     auto audioDepay = std::make_shared<RTPOpusDepayProcessor>();
     auto audioDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::OPUS);
     auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
+    auto audioDelay = std::make_shared<DelayDataProcessor>();
     auto playback = std::make_shared<PlaybackAudioProcessor>();
 
     reader->SetNextProcessor(fork);
@@ -41,7 +42,8 @@ int main(int argc, char* argv[]) {
     audioQueue->SetNextProcessor(audioDepay);
     audioDepay->SetNextProcessor(audioDefragmenter);
     audioDefragmenter->SetNextProcessor(audioDecoder);
-    audioDecoder->SetNextProcessor(playback);
+    audioDecoder->SetNextProcessor(audioDelay);
+    audioDelay->SetNextProcessor(playback);
     
     videoQueue->SetNextProcessor(videoDepay);
     videoDepay->SetNextProcessor(videoDefragmenter);
