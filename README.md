@@ -61,7 +61,8 @@
     gopSize = 10
 
     save raw stream = false;
-    raw stream dir = "/tmp";
+    raw stream dir = "/tmp/streams";
+    raw stream filename = "stream.raw"
 
     disable video = false
     disable audio = false
@@ -76,3 +77,8 @@
     ./client --streamer --stream-id 777
     ./client --receiver --stream-id 777
     ./client --receiver --stream-id 777 --receiver-udp-port 35009
+
+## MediaPlayer
+
+    ./mediaplayer --raw-stream-dir "/tmp/streams" --raw-stream-filename "stream.raw"
+

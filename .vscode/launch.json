@@ -29,7 +29,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/client",
-            "args": [ "--receiver", "--stream-id", "777" ],
+            "args": [ "--receiver", "--stream-id", "777", "--save-raw-stream", "true" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
             "environment": [],
@@ -51,9 +51,9 @@
             "program": "${workspaceFolder}/build/bin/tests",
             // "args": [ "audio", "-c", "Record-encode-fragment-depay-defragment-decode-playback-audio" ],
             // "args": [ "video", "-c", "WebCamera-convert-encode-fragment-depay-defragment-decode-display" ],
-            "args": [ "audiovideo", "-c", "Audio-video" ],
+            // "args": [ "audiovideo", "-c", "Audio-read-raw-stream" ],
             // "args": [ "network", "-c", "Audio-communication" ],
-            // "args": [ "all", "-c", "Audio-video-communication" ],
+            "args": [ "all", "-c", "Audio-video-communication" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
             "environment": [],
@@ -73,6 +73,26 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/agent",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Включить автоматическое форматирование для gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "g++ - mediaplayer",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/mediaplayer",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/bin",
