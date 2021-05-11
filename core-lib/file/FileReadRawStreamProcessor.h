@@ -39,7 +39,6 @@ public:
             return;
         }
         m_file.read((char*)&pkt->data, pkt->header.size);
-        // LOG_EX_INFO_WITH_CONTEXT("Read packet, type: %d", pkt->header.type);
         DataProcessor::Process(pkt);
     }
 

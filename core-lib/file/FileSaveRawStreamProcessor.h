@@ -37,7 +37,6 @@ public:
     {
         m_file.write((char*)&pkt->header, sizeof(pkt->header));
         m_file.write((char*)&pkt->data, pkt->header.size);
-        // LOG_EX_INFO_WITH_CONTEXT("Wrote packet, type = %d", pkt->header.type);
         DataProcessor::Process(pkt);
     }
 

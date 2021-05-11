@@ -33,7 +33,7 @@ TEST_CASE("audiovideo", "[audio][video][save]")
 {
     std::uint32_t streamId = 777;
     int width = 1280, height = 720, gopSize = 10, bitrate = 4000000, want = 30;
-    std::string filename = "/tmp/1.jt";
+    std::string dir = "/tmp/streams", filename = "stream.raw";
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
 
     SECTION("Audio-video") 
@@ -101,41 +101,63 @@ TEST_CASE("audiovideo", "[audio][video][save]")
         auto webcam = std::make_shared<WebCameraProcessor>(width, height);
         auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(width, height);
         auto videoEncoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
-        auto saver = std::make_shared<FileSaveRawStreamProcessor<media_packet_ptr>>(filename);
-        auto reader = std::make_shared<FileReadRawStreamProcessor<media_packet_ptr>>(filename);
-        auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
-        auto display = std::make_shared<VideoDisplayProcessor>(width, height);
+        auto saver = std::make_shared<FileSaveRawStreamProcessor<media_packet_ptr>>(dir, filename);
 
         webcam->SetNextProcessor(jpeg2yv12);
         jpeg2yv12->SetNextProcessor(videoEncoder);
         videoEncoder->SetNextProcessor(saver);
-        saver->SetNextProcessor(reader);
-        reader->SetNextProcessor(videoDecoder);
-        videoDecoder->SetNextProcessor(display);
 
         webcam->Init();
         REQUIRE(webcam->Play(want) == want);
         webcam->Destroy();
     }
 
+    SECTION("Video-read-raw-stream") 
+    {
+        auto reader = std::make_shared<FileReadRawStreamProcessor<media_packet_ptr>>(dir, filename);
+        auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
+        auto display = std::make_shared<VideoDisplayProcessor>(width, height);
+
+        reader->SetNextProcessor(videoDecoder);
+        videoDecoder->SetNextProcessor(display);
+
+        reader->Init();
+        REQUIRE(reader->Play() > 0);
+        reader->Destroy();
+    }
+
     SECTION("Audio-save-raw-stream") 
     {
         auto recorder = std::make_shared<RecordAudioProcessor>();
         auto audioEncoder = std::make_shared<OPUSEncoderProcessor>();
-        auto saver = std::make_shared<FileSaveRawStreamProcessor<media_packet_ptr>>(filename);
-        auto reader = std::make_shared<FileReadRawStreamProcessor<media_packet_ptr>>(filename);
-        auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
-        auto playback = std::make_shared<PlaybackAudioProcessor>();
+        auto saver = std::make_shared<FileSaveRawStreamProcessor<media_packet_ptr>>(dir, filename);
 
         recorder->SetNextProcessor(audioEncoder);
         audioEncoder->SetNextProcessor(saver);
-        saver->SetNextProcessor(reader);
-        reader->SetNextProcessor(audioDecoder);
-        audioDecoder->SetNextProcessor(playback);
 
         recorder->Init();
         std::this_thread::sleep_for(std::chrono::seconds(5));
         recorder->Destroy();
+    }
+
+    SECTION("Audio-read-raw-stream") 
+    {
+        auto reader = std::make_shared<FileReadRawStreamProcessor<media_packet_ptr>>(dir, filename);
+        auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
+        auto playback = std::make_shared<PlaybackAudioProcessor>();
+
+        reader->SetNextProcessor(audioDecoder);
+        audioDecoder->SetNextProcessor(playback);
+
+        reader->Init();
+        REQUIRE(reader->Play() > 0);
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        reader->Destroy();
+    }
+
+    SECTION("Audio-video-save-raw-stream") 
+    {
+
     }
 
     SDL_Quit();
