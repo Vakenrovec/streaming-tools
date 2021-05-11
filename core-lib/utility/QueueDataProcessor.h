@@ -14,8 +14,9 @@ template<typename packet_ptr_t>
 class QueueDataProcessor: public DataProcessor
 {
 public:
-    QueueDataProcessor(bool handleRemainigPackets = false)
+    QueueDataProcessor(int delay = 0, bool handleRemainigPackets = true)
     : m_handleRemainigPackets(handleRemainigPackets)
+    , m_delay(delay)
     {
     }
 
@@ -27,6 +28,7 @@ public:
 
     void Destroy() override
     {
+        m_state = State::STOPPING;
         Close(m_handleRemainigPackets);
         DataProcessor::Destroy();
     }
@@ -62,7 +64,7 @@ private:
     packet_ptr_t Dequeue()
     {
         std::unique_lock<std::mutex> lock(m_packetMutex);
-        while (m_packetQueue.size() == 0)
+        while (m_packetQueue.size() <= m_delay && m_state != State::STOPPING)
         {
             m_packetCV.wait(lock);
         }
@@ -71,7 +73,7 @@ private:
         return pkt;
     }
 
-    void Close(bool handleRemainigPackets = false)
+    void Close(bool handleRemainigPackets)
     {
         {
             std::unique_lock<std::mutex> lock(m_packetMutex);
@@ -91,5 +93,6 @@ private:
     std::mutex m_packetMutex;
     std::condition_variable m_packetCV;
 
+    int m_delay;
     bool m_handleRemainigPackets;
 };

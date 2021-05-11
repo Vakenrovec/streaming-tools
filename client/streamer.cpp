@@ -30,6 +30,7 @@ void Streamer::StartAsync()
     auto webcam = std::make_shared<WebCameraProcessor>(m_width, m_height);
     auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(m_width, m_height);
     auto videoEncoder = std::make_shared<VP8EncoderProcessor>(m_width, m_height, m_gopSize, m_bitrate);
+    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(10);
     auto videoFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_VIDEO);
     
     auto recorder = std::make_shared<RecordAudioProcessor>();
@@ -44,7 +45,8 @@ void Streamer::StartAsync()
 
     webcam->SetNextProcessor(jpeg2yv12);
     jpeg2yv12->SetNextProcessor(videoEncoder);
-    videoEncoder->SetNextProcessor(videoFragmenter);
+    videoEncoder->SetNextProcessor(videoDelayQueue);
+    videoDelayQueue->SetNextProcessor(videoFragmenter);
     videoFragmenter->SetNextProcessor(streamerSession);
     
     recorder->SetNextProcessor(audioQueue);
@@ -55,7 +57,7 @@ void Streamer::StartAsync()
     m_firstVideoProcessor = webcam;
     m_firstAudioProcessor = recorder;
 
-    m_videoSenderThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
+    m_pipelineSenderThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
         this->m_ioContext->run();
     });
 
@@ -80,7 +82,7 @@ void Streamer::StartAsync()
 void Streamer::HandleEvents()
 {
     SDL_Event e;
-    while(SDL_WaitEvent(&e) != 0)
+    while (SDL_WaitEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT)
         {
@@ -96,8 +98,9 @@ void Streamer::Destroy()
 {
     m_pipelinePlayThread->join();
     m_firstVideoProcessor->Destroy();
+    m_firstAudioProcessor->Destroy();
     m_work.reset();
-    m_videoSenderThread->join();
+    m_pipelineSenderThread->join();
     SDL_Quit();
     LOG_EX_INFO("Streamer destroyed");
 }

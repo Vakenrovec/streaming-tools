@@ -11,6 +11,7 @@ public:
     enum class State {
         INITIALIZED,
         DESTROYED,
+        STOPPING,
         STOPPED,        
         ERROR
     };

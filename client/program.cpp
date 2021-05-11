@@ -1,6 +1,7 @@
 #include "program.h"
 #include "streamer.h"
 #include "receiver.h"
+#include "Logger.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>

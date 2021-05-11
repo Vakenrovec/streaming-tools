@@ -57,7 +57,7 @@ private:
 private:
     std::shared_ptr<boost::asio::io_context> m_ioContext;
     std::shared_ptr<boost::asio::io_context::work> m_work;
-    std::shared_ptr<std::thread> m_pipelinePlayThread, m_videoSenderThread;
+    std::shared_ptr<std::thread> m_pipelinePlayThread, m_pipelineSenderThread;
 
     std::shared_ptr<DataProcessor> m_firstVideoProcessor, m_firstAudioProcessor;
 };
