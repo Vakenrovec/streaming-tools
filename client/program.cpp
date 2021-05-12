@@ -2,11 +2,11 @@
 #include "streamer.h"
 #include "receiver.h"
 #include "Logger.h"
-#include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
 #include <cstdint>
 #include <memory>
+#include <boost/program_options.hpp>
 
 using namespace boost::program_options;
 

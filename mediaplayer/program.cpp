@@ -12,21 +12,33 @@
 #include "file/FileReadRawStreamProcessor.h"
 #include "Logger.h"
 #include <SDL2/SDL.h>
+#include <boost/program_options.hpp>
+
+using namespace boost::program_options;
 
 int main(int argc, char* argv[]) {
-    int width = 1280, height = 720, bitrate = 4000000, delay = 0;
-    std::string dir = "/tmp/streams", filename = "stream.raw";
+    int width = 1280, height = 720, framesDelay = 0;
+
+    std::string rawStreamDir = "/tmp/streams";
+    std::string rawStreamFilename = "stream.raw";
+
+    options_description desc("Allowed options");
+    desc.add_options()
+        ("help,h", "Prints this help")
+        ("raw-stream-dir", value<std::string>()->default_value(rawStreamDir), "Raw stream direction")
+        ("raw-stream-filename", value<std::string>()->default_value(rawStreamFilename), "Raw stream filename")
+    ;
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
 
-    auto reader = std::make_shared<FileReadRawStreamProcessor<udp_packet_ptr>>(dir, filename);
+    auto reader = std::make_shared<FileReadRawStreamProcessor<udp_packet_ptr>>(rawStreamDir, rawStreamFilename);
     auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
 
     auto videoQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
     auto videoDepay = std::make_shared<RTPVp8DepayProcessor>();
     auto videoDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::VP8);
     auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
-    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(delay);
+    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay);
     auto videoDelay = std::make_shared<DelayDataProcessor>();
     auto display = std::make_shared<VideoDisplayProcessor>(width, height);
 
