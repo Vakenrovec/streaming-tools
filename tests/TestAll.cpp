@@ -30,7 +30,7 @@ TEST_CASE("all", "[network][audio][video][all]")
 {
     std::uint32_t streamId = 777;
     int width = 1280, height = 720, gopSize = 10, bitrate = 4000000;
-    int want = 50, framesDelay = 10;
+    int want = 250, framesDelay = 10;
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
 
     auto ioStreamerContext = std::make_shared<boost::asio::io_context>();

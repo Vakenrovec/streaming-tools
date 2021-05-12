@@ -30,7 +30,7 @@ typedef struct rtp_header {
         #error "G_BYTE_ORDER should be big or little endian."
     #endif
         std::uint16_t              seq;         /* length of the recovery */
-        std::uint32_t              ts;          /* Timestamp */
+        std::uint64_t              ts;          /* Timestamp */
         std::uint32_t              ssrc;        /* synchronisation source */
 } rtp_header_t;
 

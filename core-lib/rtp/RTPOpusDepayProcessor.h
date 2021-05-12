@@ -20,8 +20,8 @@ public:
 
 private:
     int m_maxWidth, m_maxHeight;
-    std::uint32_t m_frameSize;
-    std::uint32_t m_frameTimestamp;
+    std::uint64_t m_frameSize;
+    std::uint64_t m_frameTimestamp;
     std::list<udp_packet_ptr> m_framePackets;    
     std::shared_ptr<RTPHelper> m_rtpHelper;
 };

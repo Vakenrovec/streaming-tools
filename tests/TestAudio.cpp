@@ -44,9 +44,9 @@ TEST_CASE("audio", "[record][playback][audio]") {
     SECTION("Record-fragment-depay-defragment-playback-audio")
     {
         auto recorder = std::make_shared<RecordAudioProcessor>();
-        auto fragmenter = std::make_shared<RTPFragmenterProcessor>();
+        auto fragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_AUDIO);
         auto depay = std::make_shared<RTPOpusDepayProcessor>();
-        auto defragmenter = std::make_shared<RTPDefragmenterProcessor>();
+        auto defragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::OPUS);
         auto playback = std::make_shared<PlaybackAudioProcessor>();
         recorder->SetNextProcessor(fragmenter);
         fragmenter->SetNextProcessor(depay);

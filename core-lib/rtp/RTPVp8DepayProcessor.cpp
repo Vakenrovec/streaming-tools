@@ -11,7 +11,7 @@ RTPVp8DepayProcessor::RTPVp8DepayProcessor()
 , m_maxHeight(0)
 , m_frameSize(0)
 , m_waitForKeyFrameState(true)
-, m_frameTimestamp(std::numeric_limits<std::uint32_t>::max())
+, m_frameTimestamp(std::numeric_limits<std::uint64_t>::max())
 , m_rtpHelper(new RTPHelper)
 {
 }
@@ -42,7 +42,7 @@ void RTPVp8DepayProcessor::Process(const udp_packet_ptr& pkt) {
         auto packetTimestamp = this->m_rtpHelper->timestamp();
 
         // we got packet at the first time
-        if (m_frameTimestamp == std::numeric_limits<std::uint32_t>::max())
+        if (m_frameTimestamp == std::numeric_limits<std::uint64_t>::max())
         {
             m_frameTimestamp = packetTimestamp;
         }

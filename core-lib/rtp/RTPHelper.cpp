@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "DateTimeUtils.h"
 #include <arpa/inet.h>
+#include <endian.h>
 
 RTPHelper::RTPHelper(udp_packet_type_t packetType)
 : m_packetType(packetType)
@@ -27,7 +28,7 @@ const uint8_t* RTPHelper::ReadRtppacket(
     }
 
     this->m_seqNumber = ntohs(header->seq);
-    this->m_timestamp = ntohl(header->ts);
+    this->m_timestamp = be64toh(header->ts);
     this->m_marker = !!header->m;
 
     offset += sizeof(rtp_header_t);
@@ -76,7 +77,7 @@ const bool RTPHelper::ReadTimestampInRtpPacket(
         return false;
     }
 
-    this->m_timestamp = ntohl(header->ts);
+    this->m_timestamp = be64toh(header->ts);
     return true;
 }
 
@@ -98,7 +99,7 @@ const uint8_t* RTPHelper::ReadFrameInRtpPacket(
     }
 
     this->m_seqNumber = ntohs(header->seq);
-    this->m_timestamp = ntohl(header->ts);
+    this->m_timestamp = be64toh(header->ts);
     this->m_marker = !!header->m;
 
     offset += sizeof(rtp_header_t);
@@ -195,7 +196,7 @@ udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size)
     rtpHeader.pt = 0; 
     rtpHeader.m = m_marker; 
     rtpHeader.seq = htons(m_seqNumber); 
-    rtpHeader.ts = htonl(m_timestamp); 
+    rtpHeader.ts = htobe64(m_timestamp); 
     rtpHeader.ssrc = 0;
 
     rtp_descriptor_t rtpDescriptor;
@@ -224,7 +225,7 @@ udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size, std::u
     rtpHeader.pt = 0; 
     rtpHeader.m = m_marker; 
     rtpHeader.seq = htons(m_seqNumber); 
-    rtpHeader.ts = htonl(m_timestamp); 
+    rtpHeader.ts = htobe64(m_timestamp); 
     rtpHeader.ssrc = 0;
 
     rtp_descriptor_t rtpDescriptor;
