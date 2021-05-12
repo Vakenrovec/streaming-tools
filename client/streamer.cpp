@@ -14,6 +14,7 @@
 #include <SDL2/SDL.h>
 
 Streamer::Streamer()
+: m_framesDelay(10)
 {
     m_ioContext = std::make_shared<boost::asio::io_context>();
     m_work = std::make_shared<boost::asio::io_context::work>(*m_ioContext);
@@ -30,7 +31,7 @@ void Streamer::StartAsync()
     auto webcam = std::make_shared<WebCameraProcessor>(m_width, m_height);
     auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(m_width, m_height);
     auto videoEncoder = std::make_shared<VP8EncoderProcessor>(m_width, m_height, m_gopSize, m_bitrate);
-    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(10);
+    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(m_framesDelay);
     auto videoFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_VIDEO);
     
     auto recorder = std::make_shared<RecordAudioProcessor>();

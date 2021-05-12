@@ -54,6 +54,8 @@ private:
     std::string m_rawStreamDir;
     std::string m_rawStreamFilename;
 
+    const int m_framesDelay;
+
 private:
     std::shared_ptr<boost::asio::io_context> m_ioContext;
     std::shared_ptr<boost::asio::io_context::work> m_work;

@@ -30,7 +30,7 @@ TEST_CASE("all", "[network][audio][video][all]")
 {
     std::uint32_t streamId = 777;
     int width = 1280, height = 720, gopSize = 10, bitrate = 4000000;
-    int want = 50, delay = 10;
+    int want = 50, framesDelay = 10;
     REQUIRE_FALSE(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
 
     auto ioStreamerContext = std::make_shared<boost::asio::io_context>();
@@ -90,7 +90,7 @@ TEST_CASE("all", "[network][audio][video][all]")
         auto webcam = std::make_shared<WebCameraProcessor>(width, height);
         auto jpeg2yv12 = std::make_shared<JPEG2YV12Processor>(width, height);
         auto videoEncoder = std::make_shared<VP8EncoderProcessor>(width, height, gopSize, bitrate);
-        auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(delay);
+        auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay);
         auto videoFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_VIDEO);
 
         auto streamer = std::make_shared<StreamerSessionProcessor>(*ioStreamerContext, streamId);
