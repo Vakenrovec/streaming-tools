@@ -14,7 +14,7 @@ void RecordAudioProcessor::AudioRecordingCallback(void* userdata, std::uint8_t* 
     RecordAudioProcessor *that = (RecordAudioProcessor*)userdata;
     auto pkt = std::make_shared<media_packet_t>();
     pkt->header.type = MediaPacketType::AUDIO_SAMPLES;
-    pkt->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
+    pkt->header.ts = DateTimeUtils::GetCurrentTimeNanoseconds();
     pkt->header.size = len;
     std::copy(stream, stream + len, pkt->data);
     that->Process(pkt);

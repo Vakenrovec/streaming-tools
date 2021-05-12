@@ -204,7 +204,7 @@ udp_packet_ptr RTPHelper::MakeUdpRtpPacket(std::uint8_t* slice, int size)
 
     auto packet = std::make_shared<udp_packet_t>();
     packet->header.type = m_packetType;
-    packet->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
+    packet->header.ts = DateTimeUtils::GetCurrentTimeNanoseconds();
     packet->header.size = size + sizeof(rtp_header_t) + sizeof(rtp_descriptor_t);
 
     std::copy((unsigned char *)&rtpHeader, (unsigned char *)&rtpHeader + sizeof(rtp_header_t), packet->data);

@@ -151,7 +151,7 @@ bool WebCameraProcessor::GetFrame(const media_packet_ptr& pkt)
     // LOG_EX_INFO("Frame was captured, size = " + std::to_string(m_bufferInfo.bytesused / 1024) + " KBytes");
 
     pkt->header.type = MediaPacketType::JPEG;
-    pkt->header.ts = DateTimeUtils::GetCurrentTimeMiliseconds();
+    pkt->header.ts = DateTimeUtils::GetCurrentTimeNanoseconds();
     pkt->header.size = m_bufferInfo.bytesused;
     std::copy(m_buffer, m_buffer + m_bufferInfo.bytesused, pkt->data);
 

@@ -31,7 +31,7 @@ void RTPFragmenterProcessor::Process(const media_packet_ptr& pkt)
     // if (m_packetType == udp_packet_type_t::RTP_AUDIO) LOG_EX_INFO_WITH_CONTEXT("slices = " + std::to_string(slices));
     int size = pkt->header.size, pos = 0;
     std::uint32_t seq = 0;
-    std::uint64_t ts = pkt->header.ts; // DateTimeUtils::GetCurrentTimeMiliseconds();
+    std::uint64_t ts = pkt->header.ts; // DateTimeUtils::GetCurrentTimeNanoseconds();
     while (size)
     {
         m_rtpHelper->seqNumber(++seq);
