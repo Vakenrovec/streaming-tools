@@ -13,7 +13,7 @@ public:
         if (m_prevTs != 0)
         {
             m_delay = pkt->header.ts - m_prevTs;
-            std::this_thread::sleep_for(std::chrono::milliseconds(m_delay));
+            std::this_thread::sleep_for(std::chrono::nanoseconds(m_delay));
         }
         m_prevTs = pkt->header.ts;
         DataProcessor::Process(pkt);
