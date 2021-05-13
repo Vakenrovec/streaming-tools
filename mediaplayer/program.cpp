@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     auto videoDepay = std::make_shared<RTPVp8DepayProcessor>();
     auto videoDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::VP8);
     auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
-    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay, false);
+    // auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay, false);
     auto videoDelay = std::make_shared<DelayDataProcessor>();
     auto display = std::make_shared<VideoDisplayProcessor>(width, height);
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     videoQueue->SetNextProcessor(videoDepay);
     videoDepay->SetNextProcessor(videoDefragmenter);
     videoDefragmenter->SetNextProcessor(videoDecoder);
-    videoDelayQueue->SetNextProcessor(display);
+    // videoDelayQueue->SetNextProcessor(display);
     videoDecoder->SetNextProcessor(videoDelay);
     videoDelay->SetNextProcessor(display);
 
