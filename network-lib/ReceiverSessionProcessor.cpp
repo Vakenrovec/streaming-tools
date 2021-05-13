@@ -68,7 +68,7 @@ void ReceiverSessionProcessor::ConnectToStream()
             }
         });
     } else {
-        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message().c_str());
     }
 }
 
@@ -112,7 +112,7 @@ void ReceiverSessionProcessor::DisconnectFromStream()
             }
         });
     } else {
-        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message().c_str());
     }
 }
 

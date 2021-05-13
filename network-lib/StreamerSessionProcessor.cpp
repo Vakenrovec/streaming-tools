@@ -74,7 +74,7 @@ void StreamerSessionProcessor::CreateStream()
             }
         });
     } else {
-        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message().c_str());
     }
 }
 
@@ -118,7 +118,7 @@ void StreamerSessionProcessor::DestroyStream()
             }
         });
     } else {
-        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message().c_str());
     }
 }
 
