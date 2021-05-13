@@ -1,4 +1,5 @@
 #include "program.h"
+#include "client.h"
 #include "streamer.h"
 #include "receiver.h"
 #include "Logger.h"
@@ -169,7 +170,7 @@ int main(int argc, char* argv[]) {
             receiver->SetRawStreamDir(rawStreamDir);
             receiver->SetRawStreamFilename(rawStreamFilename);
 
-            receiver->Start();
+            receiver->StartAsync();
             receiver->HandleEvents();
             receiver->Destroy();
         } else {

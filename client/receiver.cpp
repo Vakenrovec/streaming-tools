@@ -19,7 +19,7 @@ Receiver::Receiver()
     m_ioContext = std::make_shared<boost::asio::io_context>();
 }
 
-void Receiver::Start()
+void Receiver::StartAsync()
 {
     int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
     if (ret != 0)

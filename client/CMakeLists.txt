@@ -2,6 +2,7 @@ set (PROJECT_NAME client)
 
 set(HEADERS 
     program.h
+    client.h
     streamer.h
     receiver.h
 )
