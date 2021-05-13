@@ -54,9 +54,9 @@ private:
     std::string m_rawStreamDir;
     std::string m_rawStreamFilename;
 
-    std::shared_ptr<boost::asio::io_context> m_ioVideoContext;
-    std::shared_ptr<boost::asio::io_context::work> m_videoWork;
-    std::shared_ptr<std::thread> m_videoThread;
+    std::shared_ptr<boost::asio::io_context> m_ioContext;
+    std::shared_ptr<boost::asio::io_context::work> m_work;
+    std::shared_ptr<std::thread> m_pipelineReceiverThread;
 
     std::shared_ptr<DataProcessor> m_firstProcessor;
 };

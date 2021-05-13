@@ -16,7 +16,7 @@
 
 Receiver::Receiver()
 {
-    m_ioVideoContext = std::make_shared<boost::asio::io_context>();
+    m_ioContext = std::make_shared<boost::asio::io_context>();
 }
 
 void Receiver::Start()
@@ -28,7 +28,7 @@ void Receiver::Start()
         return;
     }
 
-    auto receiverSession = std::make_shared<ReceiverSessionProcessor>(*m_ioVideoContext, m_streamId);
+    auto receiverSession = std::make_shared<ReceiverSessionProcessor>(*m_ioContext, m_streamId);
     receiverSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
     receiverSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
     receiverSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
@@ -74,12 +74,12 @@ void Receiver::Start()
     m_firstProcessor = receiverSession;
 
     receiverSession->Init();   
-    m_ioVideoContext->run();
-    m_ioVideoContext->restart();
+    m_ioContext->run();
+    m_ioContext->restart();
     receiverSession->Play();
     
-    m_videoThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
-        this->m_ioVideoContext->run();
+    m_pipelineReceiverThread = std::make_shared<std::thread>([this, that = shared_from_this()](){
+        this->m_ioContext->run();
     });
 
     LOG_EX_INFO("Receiver started");
@@ -100,11 +100,11 @@ void Receiver::HandleEvents()
 
 void Receiver::Destroy()
 {
-    m_ioVideoContext->stop();  
-    m_videoThread->join();
+    m_ioContext->stop();  
+    m_pipelineReceiverThread->join();
     m_firstProcessor->Destroy();
-    m_ioVideoContext->restart();
-    m_ioVideoContext->run();    
+    m_ioContext->restart();
+    m_ioContext->run();    
     SDL_Quit();
     LOG_EX_INFO("Receiver destroyed");
 }
