@@ -33,77 +33,87 @@ void ReceiverSessionProcessor::Play()
 
 void ReceiverSessionProcessor::ConnectToStream()
 {
-    m_tcpSocket->open(boost::asio::ip::tcp::v4());
-    m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
-        if (!ec) {
-            auto pkt = std::make_shared<net_packet_ptr::element_type>();
-            pkt->header.type = net_packet_type_t::CONNECT;
-            pkt->header.id = this->m_sessionId;
-            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
-            pkt->header.size = pkt->data.size();
-            boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
-                [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
-                    if (!ec) {
-                        boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(pkt->data.data(), pkt->data.size()), 
-                            [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
-                                if (!ec) {
-                                    boost::system::error_code ec;
-                                    m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
-                                    m_tcpSocket->close(ec);
-                                    m_udpSocket->open(m_localUdpEndpoint.protocol());
-                                    m_udpSocket->bind(m_localUdpEndpoint);
-                                    m_sessionState = ReceiverSessionState::CONNECTED;
-                                } else {
-                                    LOG_EX_WARN("Unable to write net packet data: " + ec.message());
-                                }
-                            });
-                    } else {
-                        LOG_EX_WARN("Unable to write net packet header: " + ec.message());
-                    }
-                });
-        } else {
-            LOG_EX_WARN("Unable to connect to server: " + ec.message());
-        }
-    });
+    boost::system::error_code ec;
+    m_tcpSocket->open(boost::asio::ip::tcp::v4(), ec);
+    if (!ec) {
+        m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
+            if (!ec) {
+                auto pkt = std::make_shared<net_packet_ptr::element_type>();
+                pkt->header.type = net_packet_type_t::CONNECT;
+                pkt->header.id = this->m_sessionId;
+                pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
+                pkt->header.size = pkt->data.size();
+                boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
+                    [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
+                        if (!ec) {
+                            boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(pkt->data.data(), pkt->data.size()), 
+                                [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
+                                    if (!ec) {
+                                        boost::system::error_code ec;
+                                        m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
+                                        m_tcpSocket->close(ec);
+                                        m_udpSocket->open(m_localUdpEndpoint.protocol());
+                                        m_udpSocket->bind(m_localUdpEndpoint);
+                                        m_sessionState = ReceiverSessionState::CONNECTED;
+                                    } else {
+                                        LOG_EX_WARN("Unable to write net packet data: " + ec.message());
+                                    }
+                                });
+                        } else {
+                            LOG_EX_WARN("Unable to write net packet header: " + ec.message());
+                        }
+                    });
+            } else {
+                LOG_EX_WARN("Unable to connect to server: " + ec.message());
+            }
+        });
+    } else {
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+    }
 }
 
 void ReceiverSessionProcessor::DisconnectFromStream()
 {
-    m_tcpSocket->open(boost::asio::ip::tcp::v4());
-    m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
-        if (!ec) {
-            auto pkt = std::make_shared<net_packet_ptr::element_type>();
-            pkt->header.type = net_packet_type_t::DISCONNECT;
-            pkt->header.id = this->m_sessionId;
-            pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
-            pkt->header.size = pkt->data.size();
-            boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
-                [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
-                    if (!ec) {
-                        boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(pkt->data.data(), pkt->data.size()), 
-                            [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
-                                if (!ec) {
-                                    boost::system::error_code ec;
-                                    m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
-                                    m_tcpSocket->close(ec);
-                                    if (m_udpSocket->is_open())
-                                    {
-                                        m_udpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
-                                        m_udpSocket->close();
+    boost::system::error_code ec;
+    m_tcpSocket->open(boost::asio::ip::tcp::v4(), ec);
+    if (!ec) {
+        m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
+            if (!ec) {
+                auto pkt = std::make_shared<net_packet_ptr::element_type>();
+                pkt->header.type = net_packet_type_t::DISCONNECT;
+                pkt->header.id = this->m_sessionId;
+                pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
+                pkt->header.size = pkt->data.size();
+                boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
+                    [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
+                        if (!ec) {
+                            boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(pkt->data.data(), pkt->data.size()), 
+                                [this, that, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
+                                    if (!ec) {
+                                        boost::system::error_code ec;
+                                        m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
+                                        m_tcpSocket->close(ec);
+                                        if (m_udpSocket->is_open())
+                                        {
+                                            m_udpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
+                                            m_udpSocket->close();
+                                        }
+                                        m_sessionState = ReceiverSessionState::DISCONNECTED;
+                                    } else {
+                                        LOG_EX_WARN("Unable to write net packet data: " + ec.message());
                                     }
-                                    m_sessionState = ReceiverSessionState::DISCONNECTED;
-                                } else {
-                                    LOG_EX_WARN("Unable to write net packet data: " + ec.message());
-                                }
-                            });
-                    } else {
-                        LOG_EX_WARN("Unable to write net packet header: " + ec.message());
-                    }
-                });
-        } else {
-            LOG_EX_WARN("Unable to connect to server: " + ec.message());
-        }
-    });
+                                });
+                        } else {
+                            LOG_EX_WARN("Unable to write net packet header: " + ec.message());
+                        }
+                    });
+            } else {
+                LOG_EX_WARN("Unable to connect to server: " + ec.message());
+            }
+        });
+    } else {
+        LOG_EX_WARN_WITH_CONTEXT("Unable open socket: %s", ec.message());
+    }
 }
 
 void ReceiverSessionProcessor::ReceiveData()
