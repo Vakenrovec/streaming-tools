@@ -14,7 +14,7 @@
 #include <SDL2/SDL.h>
 
 Streamer::Streamer()
-: m_framesDelay(10)
+: m_framesDelay(5)
 {
     m_ioContext = std::make_shared<boost::asio::io_context>();
     m_work = std::make_shared<boost::asio::io_context::work>(*m_ioContext);
@@ -89,7 +89,7 @@ void Streamer::HandleEvents()
         {
             auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstVideoProcessor);
             processor->Stop();
-            LOG_EX_INFO("Exit from sdl");
+            LOG_EX_INFO("streamer stopped");
             break;
         }
     }

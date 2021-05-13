@@ -92,7 +92,7 @@ void Receiver::HandleEvents()
     {
         if (e.type == SDL_QUIT)
         {
-            LOG_EX_INFO("Exit from sdl");
+            LOG_EX_INFO("receiver stopped");
             break;
         }
     }
