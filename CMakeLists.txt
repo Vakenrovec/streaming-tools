@@ -33,16 +33,18 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(FFMPEG REQUIRED
     # libavdevice
     # libavfilter
-    libavformat
+    # libavformat
     libavcodec
     # libswresample
     libswscale
-    libavutil
+    # libavutil
 )
 
 pkg_check_modules(SDL2 REQUIRED 
     sdl2
 )
+
+pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 
 # message("ffmpeg include dirs = ${FFMPEG_INCLUDE_DIRS}")
 # message("ffmpeg libs = ${FFMPEG_LINK_LIBRARIES}")
@@ -50,6 +52,9 @@ pkg_check_modules(SDL2 REQUIRED
 
 # message("sdl include dirs = ${SDL2_INCLUDE_DIRS}")
 # message("sdl libs = ${SDL2_LINK_LIBRARIES}")
+
+# message("gtkmm include dirs = ${GTKMM_INCLUDE_DIRS}")
+# message("gtkmm libs = ${GTKMM_LINK_LIBRARIES}")
 
 add_subdirectory(utils-lib)
 add_subdirectory(network-lib)
