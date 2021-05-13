@@ -176,8 +176,11 @@ int main(int argc, char* argv[]) {
             std::cerr << "Neither receiver nor streamer were selected" << "\n";
             return 1;
         }
-    } catch(const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
+        return 1;
+    } catch (...) {
+        std::cerr << "Unknown exception\n";
         return 1;
     }
 
