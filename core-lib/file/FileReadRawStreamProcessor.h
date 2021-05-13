@@ -1,12 +1,12 @@
 #pragma once
 
-#include "DataProcessor.h"
+#include "PlayableDataProcessor.h"
 #include "Logger.h"
 #include "FileUtils.h"
 #include <fstream>
 
 template<typename packet_ptr_t>
-class FileReadRawStreamProcessor: public DataProcessor
+class FileReadRawStreamProcessor: public PlayableDataProcessor
 {
 public:
     FileReadRawStreamProcessor(const std::string& dir, const std::string& filename)
@@ -42,10 +42,10 @@ public:
         DataProcessor::Process(pkt);
     }
 
-    int Play()
+    int Play(int count = 0) override
     {
-        int count = 0;
-        while (!m_file.eof())
+        count = 0;
+        while (!m_file.eof() && !stop)
         {
             const auto pkt = std::make_shared<typename packet_ptr_t::element_type>();
             Process(pkt);

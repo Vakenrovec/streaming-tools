@@ -11,6 +11,7 @@
 #include "audio/PlaybackAudioProcessor.h"
 #include "file/FileReadRawStreamProcessor.h"
 #include "Logger.h"
+#include <thread>
 #include <SDL2/SDL.h>
 #include <boost/program_options.hpp>
 
@@ -34,15 +35,15 @@ int main(int argc, char* argv[]) {
     auto reader = std::make_shared<FileReadRawStreamProcessor<udp_packet_ptr>>(rawStreamDir, rawStreamFilename);
     auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
 
-    auto videoQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
+    auto videoQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>(0, false);
     auto videoDepay = std::make_shared<RTPVp8DepayProcessor>();
     auto videoDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::VP8);
     auto videoDecoder = std::make_shared<VP8DecoderProcessor>();
-    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay);
+    auto videoDelayQueue = std::make_shared<QueueDataProcessor<media_packet_ptr>>(framesDelay, false);
     auto videoDelay = std::make_shared<DelayDataProcessor>();
     auto display = std::make_shared<VideoDisplayProcessor>(width, height);
 
-    auto audioQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>();
+    auto audioQueue = std::make_shared<QueueDataProcessor<udp_packet_ptr>>(0, false);
     auto audioDepay = std::make_shared<RTPOpusDepayProcessor>();
     auto audioDefragmenter = std::make_shared<RTPDefragmenterProcessor>(media_packet_type_t::OPUS);
     auto audioDecoder = std::make_shared<OPUSDecoderProcessor>();
@@ -66,10 +67,23 @@ int main(int argc, char* argv[]) {
     videoDelay->SetNextProcessor(display);
 
     reader->Init();
-    reader->Play();
+    std::thread mediaplayerThread([&reader, &width, &height](){
+        reader->Play();
+    });    
+    SDL_Event e;
+    while (SDL_WaitEvent(&e) != 0)
+    {
+        if (e.type == SDL_QUIT)
+        {
+            reader->Stop();
+            LOG_EX_INFO("Mediaplayer stopped");
+            break;
+        }
+    }
+    mediaplayerThread.join();
     reader->Destroy();
-
     SDL_Quit();
+    LOG_EX_INFO_WITH_CONTEXT("Mediaplayer destroyed");
 
     return 0;
 }
