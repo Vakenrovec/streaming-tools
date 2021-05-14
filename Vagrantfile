@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
       id: "streaming-tools"
 
     ubuntu2004_dev.vm.network "private_network", ip: "192.11.0.3"
+    ubuntu2004_dev.vm.network "public_network", ip: "192.12.0.3"
     
     ubuntu2004_dev.vm.provider "virtualbox" do |vb|
       vb.gui = true
