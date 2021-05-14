@@ -46,10 +46,9 @@
 
 # Program default values
 
-    server tcp ip = 192.11.0.3
+    server private ip = 192.11.0.3
+    server public ip = 192.12.0.3
     server tcp port = 35005
-
-    server udp ip = 192.11.0.3
     server udp port = 35006
 
     streamer udp ip = 192.11.0.3
