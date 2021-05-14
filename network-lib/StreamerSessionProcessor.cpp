@@ -62,15 +62,15 @@ void StreamerSessionProcessor::CreateStream()
                                         m_udpSocket->bind(m_localUdpEndpoint);
                                         m_sessionState = StreamerSessionState::SESSION_CREATED;
                                     } else {
-                                        LOG_EX_WARN("Unable to write net packet data: " + ec.message());
+                                        LOG_EX_WARN_WITH_CONTEXT("Unable to write net packet data: " + ec.message());
                                     }
                                 });
                         } else {
-                            LOG_EX_WARN("Unable to write net packet header: " + ec.message());
+                            LOG_EX_WARN_WITH_CONTEXT("Unable to write net packet header: " + ec.message());
                         }
                     });
             } else {
-                LOG_EX_WARN("Unable to connect to server: " + ec.message());
+                LOG_EX_WARN_WITH_CONTEXT("Unable to connect to server: " + ec.message());
             }
         });
     } else {
@@ -106,15 +106,15 @@ void StreamerSessionProcessor::DestroyStream()
                                         }
                                         m_sessionState = StreamerSessionState::SESSION_DESTROYED;
                                     } else {
-                                        LOG_EX_WARN("Unable to write net packet data: " + ec.message());
+                                        LOG_EX_WARN_WITH_CONTEXT("Unable to write net packet data: " + ec.message());
                                     }
                                 });
                         } else {
-                            LOG_EX_WARN("Unable to write net packet header: " + ec.message());
+                            LOG_EX_WARN_WITH_CONTEXT("Unable to write net packet header: " + ec.message());
                         }
                     });
             } else {
-                LOG_EX_WARN("Unable to connect to server: " + ec.message());
+                LOG_EX_WARN_WITH_CONTEXT("Unable to connect to server: " + ec.message());
             }
         });
     } else {
