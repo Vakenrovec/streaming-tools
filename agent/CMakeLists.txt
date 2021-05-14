@@ -2,6 +2,7 @@ set (PROJECT_NAME agent)
 
 set(HEADERS 
     program.h
+    Credentials.h
 )
 
 set(SOURCES

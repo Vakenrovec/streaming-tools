@@ -1,4 +1,5 @@
 #include "program.h"
+#include "Credentials.h"
 #include "client.h"
 #include "streamer.h"
 #include "receiver.h"
@@ -12,13 +13,13 @@
 using namespace boost::program_options;
 
 int main(int argc, char* argv[]) {
-    std::string serverIp = "192.11.0.3";
-    std::uint16_t serverTcpPort = 35005;
-    std::uint16_t serverUdpPort = 35006;
-    std::string streamerIp = "192.11.0.3";
-    std::uint16_t streamerUdpPort = 35007;
-    std::string receiverIp = "192.11.0.3";
-    std::uint16_t receiverUdpPort = 35008;
+    std::string serverIp = Credentials::serverPublicIp;
+    std::uint16_t serverTcpPort = Credentials::serverTcpPort;
+    std::uint16_t serverUdpPort = Credentials::serverUdpPort;
+    std::string streamerIp = Credentials::streamerUdpIp;
+    std::uint16_t streamerUdpPort = Credentials::streamerUdpPort;
+    std::string receiverIp = Credentials::receiverUdpIp;
+    std::uint16_t receiverUdpPort = Credentials::receiverUdpPort;
 
     std::uint32_t streamId = 777;
     int width = 1280, height = 720;

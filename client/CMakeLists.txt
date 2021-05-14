@@ -4,6 +4,7 @@ set (PROJECT_NAME client)
 
 set(HEADERS 
     program.h
+    Credentials.h
     client.h
     streamer.h
     receiver.h
