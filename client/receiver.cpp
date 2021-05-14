@@ -29,8 +29,8 @@ void Receiver::StartAsync()
     }
 
     auto receiverSession = std::make_shared<ReceiverSessionProcessor>(*m_ioContext, m_streamId);
-    receiverSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
-    receiverSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
+    receiverSession->SetServerTcpEndpoint(m_serverIp, m_serverTcpPort);
+    receiverSession->SetServerUdpEndpoint(m_serverIp, m_serverUdpPort);
     receiverSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
     auto saver = std::make_shared<FileSaveRawStreamProcessor<udp_packet_ptr>>(m_rawStreamDir, m_rawStreamFilename);
     auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();

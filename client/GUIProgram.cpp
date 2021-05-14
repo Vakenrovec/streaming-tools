@@ -13,16 +13,15 @@
 using namespace boost::program_options;
 
 int main(int argc, char* argv[]) {
-    std::string serverTcpIp = "192.11.0.3";
+    std::string serverIp = "192.11.0.3";
     std::uint16_t serverTcpPort = 35005;
-    std::string serverUdpIp = "192.11.0.3";
     std::uint16_t serverUdpPort = 35006;
-    std::string streamerUdpIp = "192.11.0.3";
+    std::string streamerIp = "192.11.0.3";
     std::uint16_t streamerUdpPort = 35007;
-    std::string receiverUdpIp = "192.11.0.3";
+    std::string receiverIp = "192.11.0.3";
     std::uint16_t receiverUdpPort = 35008;
 
-    std::uint32_t streamId;
+    std::uint32_t streamId = 777;
     int width = 1280, height = 720;
     int bitrate = 4'000'000, gopSize = 10;
 
@@ -38,17 +37,16 @@ int main(int argc, char* argv[]) {
         ("help,h", "Prints this help")
         ("streamer", "Create sreamer")
         ("receiver", "Create receiver")
-        ("stream-id", value<std::uint32_t>()->required(), "Stream id")
+        ("stream-id", value<std::uint32_t>()->default_value(streamId)->required(), "Stream id")
         ("bitrate", value<int>()->default_value(bitrate)->required(), "Bitrate")
         ("gop-size", value<int>()->default_value(gopSize)->required(), "Gop size")
 
-        ("server-tcp-ip", value<std::string>()->default_value(serverTcpIp)->required(), "Server bind TCP IP")
+        ("server-ip", value<std::string>()->default_value(serverIp)->required(), "Server bind IP")
         ("server-tcp-port", value<std::uint16_t>()->default_value(serverTcpPort)->required(), "Server bind TCP port")
-        ("server-udp-ip", value<std::string>()->default_value(serverUdpIp)->required(), "Server bind UDP IP")
         ("server-udp-port", value<std::uint16_t>()->default_value(serverUdpPort)->required(), "Server bind UDP port")
-        ("streamer-udp-ip", value<std::string>()->default_value(streamerUdpIp)->required(), "Streamer bind UDP IP")
+        ("streamer-ip", value<std::string>()->default_value(streamerIp)->required(), "Streamer bind IP")
         ("streamer-udp-port", value<std::uint16_t>()->default_value(streamerUdpPort)->required(), "Streamer bind UDP port")
-        ("receiver-udp-ip", value<std::string>()->default_value(receiverUdpIp)->required(), "Receiver bind UDP IP")
+        ("receiver-ip", value<std::string>()->default_value(receiverIp)->required(), "Receiver bind IP")
         ("receiver-udp-port", value<std::uint16_t>()->default_value(receiverUdpPort)->required(), "Receiver bind UDP port")
 
         ("disable-audio", value<bool>()->default_value(disableAudio), "Disable audio")
@@ -79,29 +77,25 @@ int main(int argc, char* argv[]) {
             gopSize = vm["gop-size"].as<int>();
         }
 
-        if (vm.count("server-tcp-ip")) {
-            serverTcpIp = vm["server-tcp-ip"].as<std::string>();
+        if (vm.count("server-ip")) {
+            serverIp = vm["server-ip"].as<std::string>();
         }
         if (vm.count("server-tcp-port")) {
             serverTcpPort = vm["server-tcp-port"].as<std::uint16_t>();
-        }
-        
-        if (vm.count("server-udp-ip")) {
-            serverUdpIp = vm["server-udp-ip"].as<std::string>();
         }
         if (vm.count("server-udp-port")) {
             serverUdpPort = vm["server-udp-port"].as<std::uint16_t>();
         }
 
-        if (vm.count("streamer-udp-ip")) {
-            streamerUdpIp = vm["streamer-udp-ip"].as<std::string>();
+        if (vm.count("streamer-ip")) {
+            streamerIp = vm["streamer-ip"].as<std::string>();
         }
         if (vm.count("streamer-udp-port")) {
             streamerUdpPort = vm["streamer-udp-port"].as<std::uint16_t>();
         }
 
-        if (vm.count("receiver-udp-ip")) {
-            receiverUdpIp = vm["receiver-udp-ip"].as<std::string>();
+        if (vm.count("receiver-ip")) {
+            receiverIp = vm["receiver-ip"].as<std::string>();
         }
         if (vm.count("receiver-udp-port")) {
             receiverUdpPort = vm["receiver-udp-port"].as<std::uint16_t>();
@@ -130,11 +124,10 @@ int main(int argc, char* argv[]) {
         
         if (vm.count("streamer")) {  
             auto streamer = std::make_shared<Streamer>();
-            streamer->SetServerTcpIp(serverTcpIp);
+            streamer->SetServerIp(serverIp);
             streamer->SetServerTcpPort(serverTcpPort);
-            streamer->SetServerUdpIp(serverUdpIp);
             streamer->SetServerUdpPort(serverUdpPort);
-            streamer->SetLocalUdpIp(streamerUdpIp);
+            streamer->SetLocalIp(streamerIp);
             streamer->SetLocalUdpPort(streamerUdpPort);
 
             streamer->SetStreamId(streamId);
@@ -155,11 +148,10 @@ int main(int argc, char* argv[]) {
             streamer->Destroy();
         } else if (vm.count("receiver")) {
             auto receiver = std::make_shared<Receiver>();
-            receiver->SetServerTcpIp(serverTcpIp);
+            receiver->SetServerIp(serverIp);
             receiver->SetServerTcpPort(serverTcpPort);
-            receiver->SetServerUdpIp(serverUdpIp);
             receiver->SetServerUdpPort(serverUdpPort);
-            receiver->SetLocalUdpIp(receiverUdpIp);
+            receiver->SetLocalIp(receiverIp);
             receiver->SetLocalUdpPort(receiverUdpPort);
 
             receiver->SetStreamId(streamId);

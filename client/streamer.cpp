@@ -40,8 +40,8 @@ void Streamer::StartAsync()
     auto audioFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_AUDIO);
 
     auto streamerSession = std::make_shared<StreamerSessionProcessor>(*m_ioContext, m_streamId);
-    streamerSession->SetServerTcpEndpoint(m_serverTcpIp, m_serverTcpPort);
-    streamerSession->SetServerUdpEndpoint(m_serverUdpIp, m_serverUdpPort);
+    streamerSession->SetServerTcpEndpoint(m_serverIp, m_serverTcpPort);
+    streamerSession->SetServerUdpEndpoint(m_serverIp, m_serverUdpPort);
     streamerSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
 
     webcam->SetNextProcessor(jpeg2yv12);
