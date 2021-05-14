@@ -26,9 +26,10 @@ void WebCameraProcessor::Init()
     QueryBuffer();
     if (!Start())
     {
-        LOG_EX_WARN("Couldn't start web canera");
+        LOG_EX_WARN_WITH_CONTEXT("Couldn't start web camera");
         return;
     }
+    LOG_EX_INFO_WITH_CONTEXT("Start web camera");
 
     DataProcessor::Init();
 }
@@ -37,9 +38,10 @@ void WebCameraProcessor::Destroy()
 {
     if (!Close())
     {
-        LOG_EX_WARN("Couldn't stop web canera");
+        LOG_EX_WARN("Couldn't stop web camera");
         return;
     }
+    LOG_EX_INFO_WITH_CONTEXT("Stop web camera");
 
     DataProcessor::Destroy();
 }
@@ -47,7 +49,7 @@ void WebCameraProcessor::Destroy()
 void WebCameraProcessor::Process(const media_packet_ptr& pkt)
 {
     if (!GetFrame(pkt)) {
-        LOG_EX_WARN("Couldn't get frame from web camera");
+        LOG_EX_WARN_WITH_CONTEXT("Couldn't get frame from web camera");
     }
     
     DataProcessor::Process(pkt);

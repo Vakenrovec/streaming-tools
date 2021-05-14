@@ -82,8 +82,12 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
                 room
             });
             room->Start();
-            LOG_EX_INFO("Accepted new streamer");
+            LOG_EX_INFO_WITH_CONTEXT("Accepted new streamer, room id = %lu", pkt->header.id);
         } 
+        else
+        {
+            LOG_EX_INFO_WITH_CONTEXT("there is already such room with id = %lu", pkt->header.id);
+        }
         break;
     }
     case NetPacketType::DESTROY:
@@ -94,7 +98,11 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         {
             room->second->Destroy();
             m_rooms->erase(pkt->header.id);
-            LOG_EX_INFO("Erased streamer");
+            LOG_EX_INFO_WITH_CONTEXT("Erased streamer, room id = %lu", pkt->header.id);
+        }
+        else
+        {
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
         }
         break;
     }
@@ -107,8 +115,12 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
             auto address = std::string(&pkt->data[0], pkt->header.size);
             boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Join(endpoint);
-            LOG_EX_INFO("Connected new receiver");
-        } 
+            LOG_EX_INFO_WITH_CONTEXT("Connected new receiver, room id = %lu", pkt->header.id);
+        }
+        else
+        {
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
+        }
         break;
     }
     case NetPacketType::DISCONNECT:
@@ -120,8 +132,12 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
             auto address = std::string(&pkt->data[0], pkt->header.size);
             boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
             room->second->Leave(endpoint);
-            LOG_EX_INFO("Disconnected receiver");
-        } 
+            LOG_EX_INFO_WITH_CONTEXT("Disconnected receiver, room id = %lu", pkt->header.id);
+        }
+        else
+        {
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
+        }
         break;
     }
     default:

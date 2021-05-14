@@ -26,6 +26,19 @@ void PlaybackAudioProcessor::AudioPlaybackCallback(void* userdata, std::uint8_t*
 
 void PlaybackAudioProcessor::Init()
 {
+    int gPlaybackDeviceCount = SDL_GetNumAudioDevices(false);
+    if (gPlaybackDeviceCount < 1)
+    {
+        LOG_EX_WARN_WITH_CONTEXT("Unable to get audio playback device! SDL Error: " + std::string(SDL_GetError()));
+        return;
+    }
+    LOG_EX_INFO_WITH_CONTEXT("Available audio playback devices:");
+    for(int i = 0; i < gPlaybackDeviceCount; i++)
+    {
+        LOG_EX_INFO_WITH_CONTEXT("      %d - %s", i, SDL_GetAudioDeviceName(i, false));
+    }
+
+    int index = 0;
     SDL_AudioSpec desiredPlaybackSpec;
     SDL_zero(desiredPlaybackSpec);
     desiredPlaybackSpec.freq = 44100;
@@ -34,12 +47,13 @@ void PlaybackAudioProcessor::Init()
     desiredPlaybackSpec.samples = 4096; // 4096 1152;
     desiredPlaybackSpec.callback = AudioPlaybackCallback;
     desiredPlaybackSpec.userdata = this;
-    m_playbackDeviceId = SDL_OpenAudioDevice(nullptr, false, 
+    m_playbackDeviceId = SDL_OpenAudioDevice(
+        SDL_GetAudioDeviceName(index, false), false, 
         &desiredPlaybackSpec, &m_receivedPlaybackSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE
     );
     if(m_playbackDeviceId == 0)
     {
-        LOG_EX_WARN("Failed to open playback device! SDL Error: " + std::string(SDL_GetError()));
+        LOG_EX_WARN_WITH_CONTEXT("Failed to open playback device! SDL Error: %s", SDL_GetError());
         return;
     }
 
@@ -49,6 +63,7 @@ void PlaybackAudioProcessor::Init()
     m_bufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
     m_bufferByteSize = bytesPerSample * m_receivedPlaybackSpec.samples;
     SDL_PauseAudioDevice(m_playbackDeviceId, false);
+    LOG_EX_INFO_WITH_CONTEXT("Open playback device with id = %lu", m_playbackDeviceId);
 
     DataProcessor::Init();
 }
@@ -58,6 +73,7 @@ void PlaybackAudioProcessor::Destroy()
     SDL_LockAudioDevice(m_playbackDeviceId);
     SDL_PauseAudioDevice(m_playbackDeviceId, true);
     SDL_UnlockAudioDevice(m_playbackDeviceId);
+    LOG_EX_INFO_WITH_CONTEXT("Close audio playback with id = %lu", m_playbackDeviceId);
 
     DataProcessor::Destroy();
 }

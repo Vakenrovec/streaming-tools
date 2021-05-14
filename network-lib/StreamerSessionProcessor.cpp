@@ -44,6 +44,7 @@ void StreamerSessionProcessor::CreateStream()
     if (!ec) {
         m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
             if (!ec) {
+                LOG_EX_INFO_WITH_CONTEXT("Connected to server");
                 auto pkt = std::make_shared<net_packet_ptr::element_type>();
                 pkt->header.type = net_packet_type_t::CREATE;
                 pkt->header.id = this->m_sessionId;
@@ -58,6 +59,7 @@ void StreamerSessionProcessor::CreateStream()
                                         boost::system::error_code ec;
                                         m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
                                         m_tcpSocket->close(ec);
+                                        LOG_EX_INFO_WITH_CONTEXT("Wrote to server pkt = %s", NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint).c_str());
                                         m_udpSocket->open(m_localUdpEndpoint.protocol());
                                         m_udpSocket->bind(m_localUdpEndpoint);
                                         m_sessionState = StreamerSessionState::SESSION_CREATED;
@@ -85,6 +87,7 @@ void StreamerSessionProcessor::DestroyStream()
     if (!ec) {
         m_tcpSocket->async_connect(m_serverTcpEndpoint, [this, that = shared_from_this()](const boost::system::error_code& ec){
             if (!ec) {
+                LOG_EX_INFO_WITH_CONTEXT("Connected to server");
                 auto pkt = std::make_shared<net_packet_ptr::element_type>();
                 pkt->header.type = net_packet_type_t::DESTROY;
                 pkt->header.id = this->m_sessionId;
@@ -104,6 +107,8 @@ void StreamerSessionProcessor::DestroyStream()
                                             m_udpSocket->shutdown(boost::asio::socket_base::shutdown_both, ec);
                                             m_udpSocket->close();
                                         }
+                                        LOG_EX_INFO_WITH_CONTEXT("Wrote to server pkt = %s", NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint).c_str());                                   
+                                        LOG_EX_INFO_WITH_CONTEXT("Disconected from server");
                                         m_sessionState = StreamerSessionState::SESSION_DESTROYED;
                                     } else {
                                         LOG_EX_WARN_WITH_CONTEXT("Unable to write net packet data: " + ec.message());
@@ -131,7 +136,7 @@ void StreamerSessionProcessor::SendData(const udp_packet_ptr& pkt)
                 if (!ec) {
                     // LOG_EX_INFO("Udp packet was sent");
                 } else {
-                    LOG_EX_WARN("Unable to send udp packet: " + ec.message());
+                    LOG_EX_WARN_WITH_CONTEXT("Unable to send udp packet: %s", ec.message().c_str());
                 }
             });
     }

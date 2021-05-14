@@ -22,7 +22,7 @@ public:
     inline void SetServerTcpPort(const std::uint16_t& serverTcpPort) { m_serverTcpPort = serverTcpPort; };
     inline void SetServerUdpPort(const std::uint16_t& serverUdpPort) { m_serverUdpPort = serverUdpPort; };
     
-    inline void SetLocalIp(const std::string& localUdpIp) { m_localUdpIp = localUdpIp; };
+    inline void SetLocalIp(const std::string& localUdpIp) { m_localIp = localUdpIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localUdpPort) { m_localUdpPort = localUdpPort; };
 
     inline void SetDisableAudio(const bool disableAudio) { m_disableAudio = disableAudio; };
@@ -40,7 +40,7 @@ protected:
     std::uint16_t m_serverTcpPort;
     std::uint16_t m_serverUdpPort;
 
-    std::string m_localUdpIp;
+    std::string m_localIp;
     std::uint16_t m_localUdpPort;
 
     bool m_disableAudio;

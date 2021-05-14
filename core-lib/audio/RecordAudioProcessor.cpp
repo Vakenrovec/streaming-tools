@@ -25,12 +25,13 @@ void RecordAudioProcessor::Init()
     int gRecordingDeviceCount = SDL_GetNumAudioDevices(true);
     if (gRecordingDeviceCount < 1)
     {
-        LOG_EX_WARN("Unable to get audio capture device! SDL Error: " + std::string(SDL_GetError()));
+        LOG_EX_WARN_WITH_CONTEXT("Unable to get audio capture device! SDL Error: " + std::string(SDL_GetError()));
         return;
     }
+    LOG_EX_INFO_WITH_CONTEXT("Available audio microphones:");
     for(int i = 0; i < gRecordingDeviceCount; i++)
     {
-        LOG_EX_INFO(std::to_string(i) + ": " + SDL_GetAudioDeviceName(i, true));
+        LOG_EX_INFO_WITH_CONTEXT("      %d - %s", i, SDL_GetAudioDeviceName(i, true));
     }
 
     int index = 0;
@@ -48,7 +49,7 @@ void RecordAudioProcessor::Init()
     );
     if (m_recordingDeviceId == 0)
     {
-        LOG_EX_WARN("Failed to open recording device! SDL Error: " + std::string(SDL_GetError()));
+        LOG_EX_WARN("Failed to open microphone! SDL Error: " + std::string(SDL_GetError()));
         return;
     }
 
@@ -58,6 +59,7 @@ void RecordAudioProcessor::Init()
     m_bufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
     m_bufferByteSize = bytesPerSample * m_receivedRecordingSpec.samples;
     SDL_PauseAudioDevice(m_recordingDeviceId, false);
+    LOG_EX_INFO_WITH_CONTEXT("Open audio microphone with id = %lu", m_recordingDeviceId);
 
     DataProcessor::Init();
 }
@@ -67,6 +69,7 @@ void RecordAudioProcessor::Destroy()
     SDL_LockAudioDevice(m_recordingDeviceId);
     SDL_PauseAudioDevice(m_recordingDeviceId, true);
     SDL_UnlockAudioDevice(m_recordingDeviceId);
+    LOG_EX_INFO_WITH_CONTEXT("Close audio microphone with id = %lu", m_recordingDeviceId);
 
     DataProcessor::Destroy();
 }

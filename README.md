@@ -51,11 +51,13 @@
     server tcp port = 35005
     server udp port = 35006
 
-    streamer udp ip = 192.11.0.3
+    streamer private ip = 192.11.0.3
+    streamer public ip = 192.12.0.3
     streamer udp port = 35007
 
-    receiver udp ip = 192.11.0.3
-    receiver udp port = 35008
+    receiver private ip = 192.11.0.3
+    receiver public ip = 192.12.0.3
+    receiver udp port = 35007
 
     streamId = 777
     width = 1280, height = 720
@@ -76,9 +78,8 @@
 
 ## Client
 
-    ./client --streamer --stream-id 777
-    ./client --receiver --stream-id 777
-    ./client --receiver --stream-id 777 --receiver-udp-port 35009
+    ./client --streamer
+    ./client --receiver --local-udp-port 35008
 
 ## MediaPlayer
 

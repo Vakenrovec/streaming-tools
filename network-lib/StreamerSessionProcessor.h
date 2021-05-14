@@ -34,7 +34,7 @@ public:
     inline void SetLocalUdpEndpoint(const std::string& bindUdpIp, const std::uint16_t bindUdpPort) { 
         m_localUdpEndpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4::from_string(bindUdpIp), bindUdpPort); 
     };
-    inline void SetLocalUdpIp(const std::string& localIp) { m_localUdpIp = localIp; };
+    inline void SetLocalUdpIp(const std::string& localIp) { m_localIp = localIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localPort) { m_localUdpPort = localPort; };
     inline void SetSessionState(const StreamerSessionState sessionState) { m_sessionState = sessionState; };    // for tests
     inline StreamerSessionState GetSessionState() const { return m_sessionState; };                                           
@@ -50,7 +50,7 @@ private:
     boost::asio::ip::tcp::endpoint m_serverTcpEndpoint;
     boost::asio::ip::udp::endpoint m_serverUdpEndpoint;
     boost::asio::ip::udp::endpoint m_localUdpEndpoint;
-    std::string m_localUdpIp;
+    std::string m_localIp;
     std::uint16_t m_localUdpPort;
     std::shared_ptr<boost::asio::ip::tcp::socket> m_tcpSocket;
     std::shared_ptr<boost::asio::ip::udp::socket> m_udpSocket;

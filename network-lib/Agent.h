@@ -21,8 +21,6 @@ public:
     inline void SetUdpEndpoint(const std::string& bindUdpIp, const std::uint16_t bindUdpPort) { 
         m_localUdpEndpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4::from_string(bindUdpIp), bindUdpPort); 
     };
-    inline void SetSaveRawStreams(bool save) { this->m_saveRawStreams = save; }
-    inline void SetRawStreamsDir(const std::string& dir) { this->m_rawStreamsDir = dir; }
 
 private:
     void AcceptNewConnection();
@@ -33,8 +31,7 @@ private:
     boost::asio::ip::tcp::acceptor m_acceptor;
     boost::asio::ip::tcp::endpoint m_localTcpEndpoint;
     boost::asio::ip::udp::endpoint m_localUdpEndpoint;
-    bool m_saveRawStreams;
-    std::string m_rawStreamsDir;    
+    
     std::shared_ptr<std::map<std::uint32_t, room_ptr>> m_rooms;
     std::mutex m_roomsMutex;
 };

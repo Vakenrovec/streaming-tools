@@ -24,7 +24,7 @@ void Streamer::StartAsync()
 {
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_AUDIO))
     {
-        LOG_EX_WARN("Could not initialize SDL - %s", SDL_GetError());
+        LOG_EX_WARN_WITH_CONTEXT("Could not initialize SDL - %s", SDL_GetError());
         return;
     }
 
@@ -42,7 +42,7 @@ void Streamer::StartAsync()
     auto streamerSession = std::make_shared<StreamerSessionProcessor>(*m_ioContext, m_streamId);
     streamerSession->SetServerTcpEndpoint(m_serverIp, m_serverTcpPort);
     streamerSession->SetServerUdpEndpoint(m_serverIp, m_serverUdpPort);
-    streamerSession->SetLocalUdpEndpoint(m_localUdpIp, m_localUdpPort);
+    streamerSession->SetLocalUdpEndpoint(m_localIp, m_localUdpPort);
 
     webcam->SetNextProcessor(jpeg2yv12);
     jpeg2yv12->SetNextProcessor(videoEncoder);
@@ -77,7 +77,7 @@ void Streamer::StartAsync()
         }
     });
 
-    LOG_EX_INFO("Streamer started");
+    LOG_EX_INFO_WITH_CONTEXT("Streamer started");
 }
 
 void Streamer::HandleEvents()
@@ -89,7 +89,7 @@ void Streamer::HandleEvents()
         {
             auto processor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstVideoProcessor);
             processor->Stop();
-            LOG_EX_INFO("streamer stopped");
+            LOG_EX_INFO_WITH_CONTEXT("Got stopped sygnal");
             break;
         }
     }
@@ -103,5 +103,5 @@ void Streamer::Destroy()
     m_work.reset();
     m_pipelineSenderThread->join();
     SDL_Quit();
-    LOG_EX_INFO("Streamer destroyed");
+    LOG_EX_INFO_WITH_CONTEXT("Streamer destroyed");
 }

@@ -16,10 +16,8 @@ int main(int argc, char* argv[]) {
     std::string serverIp = Credentials::serverPublicIp;
     std::uint16_t serverTcpPort = Credentials::serverTcpPort;
     std::uint16_t serverUdpPort = Credentials::serverUdpPort;
-    std::string streamerIp = Credentials::streamerUdpIp;
-    std::uint16_t streamerUdpPort = Credentials::streamerUdpPort;
-    std::string receiverIp = Credentials::receiverUdpIp;
-    std::uint16_t receiverUdpPort = Credentials::receiverUdpPort;
+    std::string localIp = Credentials::streamerPublicIp;
+    std::uint16_t localUdpPort = Credentials::streamerUdpPort;
 
     std::uint32_t streamId = 777;
     int width = 1280, height = 720;
@@ -44,11 +42,10 @@ int main(int argc, char* argv[]) {
         ("server-ip", value<std::string>()->default_value(serverIp)->required(), "Server bind IP")
         ("server-tcp-port", value<std::uint16_t>()->default_value(serverTcpPort)->required(), "Server bind TCP port")
         ("server-udp-port", value<std::uint16_t>()->default_value(serverUdpPort)->required(), "Server bind UDP port")
-        ("streamer-ip", value<std::string>()->default_value(streamerIp)->required(), "Streamer bind IP")
-        ("streamer-udp-port", value<std::uint16_t>()->default_value(streamerUdpPort)->required(), "Streamer bind UDP port")
-        ("receiver-ip", value<std::string>()->default_value(receiverIp)->required(), "Receiver bind IP")
-        ("receiver-udp-port", value<std::uint16_t>()->default_value(receiverUdpPort)->required(), "Receiver bind UDP port")
-
+        
+        ("local-ip", value<std::string>()->default_value(localIp)->required(), "Local bind IP")
+        ("local-udp-port", value<std::uint16_t>()->default_value(localUdpPort)->required(), "Local bind UDP port")
+        
         ("disable-audio", value<bool>()->default_value(disableAudio), "Disable audio")
         ("disable-video", value<bool>()->default_value(disableVideo), "Disable video")
 
@@ -87,18 +84,11 @@ int main(int argc, char* argv[]) {
             serverUdpPort = vm["server-udp-port"].as<std::uint16_t>();
         }
 
-        if (vm.count("streamer-ip")) {
-            streamerIp = vm["streamer-ip"].as<std::string>();
+        if (vm.count("local-ip")) {
+            localIp = vm["local-ip"].as<std::string>();
         }
-        if (vm.count("streamer-udp-port")) {
-            streamerUdpPort = vm["streamer-udp-port"].as<std::uint16_t>();
-        }
-
-        if (vm.count("receiver-ip")) {
-            receiverIp = vm["receiver-ip"].as<std::string>();
-        }
-        if (vm.count("receiver-udp-port")) {
-            receiverUdpPort = vm["receiver-udp-port"].as<std::uint16_t>();
+        if (vm.count("local-udp-port")) {
+            localUdpPort = vm["local-udp-port"].as<std::uint16_t>();
         }
 
         if (vm.count("disable-audio")) {
@@ -118,58 +108,38 @@ int main(int argc, char* argv[]) {
             rawStreamFilename = vm["raw-stream-filename"].as<std::string>();
         }
         
+        std::shared_ptr<IClient> client = nullptr;
         if (vm.count("streamer")) {  
-            auto streamer = std::make_shared<Streamer>();
-            streamer->SetServerIp(serverIp);
-            streamer->SetServerTcpPort(serverTcpPort);
-            streamer->SetServerUdpPort(serverUdpPort);
-            streamer->SetLocalIp(streamerIp);
-            streamer->SetLocalUdpPort(streamerUdpPort);
-
-            streamer->SetStreamId(streamId);
-            streamer->SetWidth(width);
-            streamer->SetHeight(height);
-            streamer->SetBitrate(bitrate);
-            streamer->SetGopSize(gopSize);
-
-            streamer->SetDisableAudio(disableAudio);
-            streamer->SetDisableVideo(disableVideo);
-
-            streamer->SetSaveRawStream(saveRawStream);
-            streamer->SetRawStreamDir(rawStreamDir);
-            streamer->SetRawStreamFilename(rawStreamFilename);
-
-            streamer->StartAsync();
-            streamer->HandleEvents();
-            streamer->Destroy();
+            client = std::make_shared<Streamer>();
         } else if (vm.count("receiver")) {
-            auto receiver = std::make_shared<Receiver>();
-            receiver->SetServerIp(serverIp);
-            receiver->SetServerTcpPort(serverTcpPort);
-            receiver->SetServerUdpPort(serverUdpPort);
-            receiver->SetLocalIp(receiverIp);
-            receiver->SetLocalUdpPort(receiverUdpPort);
-
-            receiver->SetStreamId(streamId);
-            receiver->SetWidth(width);
-            receiver->SetHeight(height);
-            receiver->SetBitrate(bitrate);
-            receiver->SetGopSize(gopSize);
-
-            receiver->SetDisableAudio(disableAudio);
-            receiver->SetDisableVideo(disableVideo);
-
-            receiver->SetSaveRawStream(saveRawStream);
-            receiver->SetRawStreamDir(rawStreamDir);
-            receiver->SetRawStreamFilename(rawStreamFilename);
-
-            receiver->StartAsync();
-            receiver->HandleEvents();
-            receiver->Destroy();
+            client = std::make_shared<Receiver>();
         } else {
             std::cerr << "Neither receiver nor streamer were selected" << "\n";
             return 1;
         }
+
+        client->SetServerIp(serverIp);
+        client->SetServerTcpPort(serverTcpPort);
+        client->SetServerUdpPort(serverUdpPort);
+        client->SetLocalIp(localIp);
+        client->SetLocalUdpPort(localUdpPort);
+
+        client->SetStreamId(streamId);
+        client->SetWidth(width);
+        client->SetHeight(height);
+        client->SetBitrate(bitrate);
+        client->SetGopSize(gopSize);
+
+        client->SetDisableAudio(disableAudio);
+        client->SetDisableVideo(disableVideo);
+
+        client->SetSaveRawStream(saveRawStream);
+        client->SetRawStreamDir(rawStreamDir);
+        client->SetRawStreamFilename(rawStreamFilename);
+
+        client->StartAsync();
+        client->HandleEvents();
+        client->Destroy();        
     } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
         return 1;
