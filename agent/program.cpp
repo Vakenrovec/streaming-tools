@@ -10,7 +10,7 @@ using namespace boost::program_options;
 
 int main(int argc, char* argv[])
 {
-    std::string ip = Credentials::serverPublicIp;
+    std::string ip = Credentials::serverIp;
     std::uint16_t tcpPort = Credentials::serverTcpPort;
     std::uint16_t udpPort = Credentials::serverUdpPort;
     std::uint32_t threadsCount = 2;

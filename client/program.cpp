@@ -13,10 +13,10 @@
 using namespace boost::program_options;
 
 int main(int argc, char* argv[]) {
-    std::string serverIp = Credentials::serverPublicIp;
+    std::string serverIp = Credentials::serverIp;
     std::uint16_t serverTcpPort = Credentials::serverTcpPort;
     std::uint16_t serverUdpPort = Credentials::serverUdpPort;
-    std::string localIp = Credentials::streamerPublicIp;
+    std::string localIp = Credentials::streamerIp;
     std::uint16_t localUdpPort = Credentials::streamerUdpPort;
 
     std::uint32_t streamId = 777;

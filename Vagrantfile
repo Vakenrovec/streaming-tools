@@ -12,8 +12,8 @@ Vagrant.configure("2") do |config|
       automount: true,
       id: "streaming-tools"
 
-    ubuntu2004_dev.vm.network "private_network", ip: "192.11.0.3"
-    ubuntu2004_dev.vm.network "public_network", ip: "192.12.0.3"
+    ubuntu2004_dev.vm.network "private_network", ip: "192.11.0.5"
+    #ubuntu2004_dev.vm.network "public_network", ip: "192.168.12.3"
     
     ubuntu2004_dev.vm.provider "virtualbox" do |vb|
       vb.gui = true
@@ -63,7 +63,8 @@ Vagrant.configure("2") do |config|
 
     # Install guest additions
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
-      sudo apt-get install -y virtualbox-guest-dkms virtualbox-guest-x11 virtualbox-guest-utils
+      sudo apt-get install -y virtualbox-guest-dkms virtualbox-guest-x11 virtualbox-guest-utils 
+      # virtualbox-ext-pack
     SHELL
 
     # Let default user access shared folder

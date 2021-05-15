@@ -56,6 +56,7 @@ pkg_check_modules(GTKMM REQUIRED gtkmm-3.0)
 # message("gtkmm include dirs = ${GTKMM_INCLUDE_DIRS}")
 # message("gtkmm libs = ${GTKMM_LINK_LIBRARIES}")
 
+add_subdirectory(credentials-lib)
 add_subdirectory(utils-lib)
 add_subdirectory(network-lib)
 add_subdirectory(core-lib)

@@ -2,7 +2,6 @@ set (PROJECT_NAME agent)
 
 set(HEADERS 
     program.h
-    Credentials.h
 )
 
 set(SOURCES
@@ -19,6 +18,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_CONTENT})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
+        ../credentials-lib
         ${Boost_INCLUDE_DIRS}
         ../utils-lib
         ../network-lib
@@ -27,6 +27,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+        credentials-lib
         ${Boost_LIBRARIES}
         utils-lib
         network-lib

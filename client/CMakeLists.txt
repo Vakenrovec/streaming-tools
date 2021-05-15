@@ -4,7 +4,6 @@ set (PROJECT_NAME client)
 
 set(HEADERS 
     program.h
-    Credentials.h
     client.h
     streamer.h
     receiver.h
@@ -26,6 +25,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_CONTENT})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
+        ../credentials-lib
         ../utils-lib
         ../core-lib
         ../network-lib
@@ -36,6 +36,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+        credentials-lib
         utils-lib
         core-lib
         network-lib
