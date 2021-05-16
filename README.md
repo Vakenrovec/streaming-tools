@@ -46,18 +46,15 @@
 
 # Program default values
 
-    server private ip = 192.11.0.3
-    server public ip = 192.12.0.3
-    server tcp port = 35005
-    server udp port = 35006
+    server ip = 192.11.0.5
+    server tcp port = 35000
+    server udp port = 35001 ...
 
-    streamer private ip = 192.11.0.3
-    streamer public ip = 192.12.0.3
-    streamer udp port = 35007
+    streamer ip = 192.11.0.5
+    streamer udp port = 36000
 
-    receiver private ip = 192.11.0.3
-    receiver public ip = 192.12.0.3
-    receiver udp port = 35007
+    receiver ip = 192.11.0.5
+    receiver udp port = 37000
 
     streamId = 777
     width = 1280, height = 720
@@ -78,8 +75,19 @@
 
 ## Client
 
-    ./client --streamer
-    ./client --receiver --local-udp-port 35008
+1. case one streamer - two receivers
+
+        ./client --streamer
+        ./client --receiver --local-udp-port 37000
+        ./client --receiver --local-udp-port 37001
+
+2. case two streamers - two receivers
+
+        ./client --streamer
+        ./client --receiver --local-udp-port 37000
+
+        ./client --streamer --stream-id 111 --disable-video true --local-udp-port 36001
+        ./client --receiver --stream-id 111 --local-udp-port 37001
 
 ## MediaPlayer
 
