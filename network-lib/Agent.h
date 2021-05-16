@@ -24,8 +24,8 @@ public:
 
 private:
     void AcceptNewConnection();
-    void ReadNetPacket(std::shared_ptr<boost::asio::ip::tcp::socket> socket);
-    void ProcessNetPacket(net_packet_ptr pkt);
+    void ReadNetPacket(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+    void ProcessNetPacket(net_packet_ptr pkt, const std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 
     boost::asio::io_context& m_ioContext;
     boost::asio::ip::tcp::acceptor m_acceptor;

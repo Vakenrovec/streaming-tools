@@ -32,16 +32,16 @@ void Agent::AcceptNewConnection()
         }
         else if (ec != boost::asio::error::operation_aborted) {
             AcceptNewConnection();
-            LOG_EX_WARN("async_accept failed: " + ec.message());
+            LOG_EX_WARN("async_accept failed (aborted): " + ec.message());
         }
         else
         {
-            LOG_EX_WARN("async_accept failed (aborted): " + ec.message());
+            LOG_EX_WARN("async_accept failed: " + ec.message());
         }
     });
 }
 
-void Agent::ReadNetPacket(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
+void Agent::ReadNetPacket(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
     auto pkt = std::make_shared<net_packet_ptr::element_type>();
     boost::asio::async_read(*socket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
@@ -50,8 +50,8 @@ void Agent::ReadNetPacket(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
                 pkt->data.resize(pkt->header.size);
                 boost::asio::async_read(*socket, boost::asio::buffer(const_cast<char*>(pkt->data.data()), pkt->data.size()), 
                     [this, that, socket, pkt](const boost::system::error_code& ec, std::size_t bytesTransferred){
-                        if (!ec) {
-                            ProcessNetPacket(pkt);
+                        if (!ec) {                            
+                            ProcessNetPacket(pkt, socket);
                             boost::system::error_code ec;
                             socket->shutdown(boost::asio::socket_base::shutdown_both, ec);
                             socket->close(ec);
@@ -65,8 +65,15 @@ void Agent::ReadNetPacket(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
         });
 }
 
-void Agent::ProcessNetPacket(net_packet_ptr pkt)
+void Agent::ProcessNetPacket(net_packet_ptr pkt, const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
+    auto address = std::string(&pkt->data[0], pkt->header.size);
+    boost::asio::ip::udp::endpoint packetUdpEndpoint = NetworkUtils::DecodeUdpAddress(address);
+    const auto clientUdpEndpoint = boost::asio::ip::udp::endpoint(
+        socket->remote_endpoint().address(),
+        packetUdpEndpoint.port()
+    );
+
     switch (pkt->header.type)
     {
     case NetPacketType::CREATE:
@@ -74,19 +81,19 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         std::lock_guard<std::mutex> lock(m_roomsMutex);
         if (m_rooms->find(pkt->header.id) == m_rooms->end())
         {
-            auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint streamerUdpEndpoint = NetworkUtils::DecodeUdpAddress(address);
-            auto room = std::make_shared<room_ptr::element_type>(m_ioContext, m_localUdpEndpoint, streamerUdpEndpoint);
+            auto room = std::make_shared<room_ptr::element_type>(m_ioContext, m_localUdpEndpoint, clientUdpEndpoint);
             m_rooms->insert({ 
                 pkt->header.id, 
                 room
             });
             room->Start();
-            LOG_EX_INFO_WITH_CONTEXT("Accepted new streamer, room id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("Accepted new streamer, room id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         } 
         else
         {
-            LOG_EX_INFO_WITH_CONTEXT("there is already such room with id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("there is already such room with id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         break;
     }
@@ -98,11 +105,13 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         {
             room->second->Destroy();
             m_rooms->erase(pkt->header.id);
-            LOG_EX_INFO_WITH_CONTEXT("Erased streamer, room id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("Erased streamer, room id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         else
         {
-            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         break;
     }
@@ -112,14 +121,14 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         auto room = m_rooms->find(pkt->header.id);
         if (room != m_rooms->end())
         {
-            auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
-            room->second->Join(endpoint);
-            LOG_EX_INFO_WITH_CONTEXT("Connected new receiver, room id = %lu", pkt->header.id);
+            room->second->Join(clientUdpEndpoint);
+            LOG_EX_INFO_WITH_CONTEXT("Connected new receiver, room id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         else
         {
-            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         break;
     }
@@ -129,14 +138,14 @@ void Agent::ProcessNetPacket(net_packet_ptr pkt)
         auto room = m_rooms->find(pkt->header.id);
         if (room != m_rooms->end())
         {
-            auto address = std::string(&pkt->data[0], pkt->header.size);
-            boost::asio::ip::udp::endpoint endpoint = NetworkUtils::DecodeUdpAddress(address);
-            room->second->Leave(endpoint);
-            LOG_EX_INFO_WITH_CONTEXT("Disconnected receiver, room id = %lu", pkt->header.id);
+            room->second->Leave(clientUdpEndpoint);
+            LOG_EX_INFO_WITH_CONTEXT("Disconnected receiver, room id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         else
         {
-            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu", pkt->header.id);
+            LOG_EX_INFO_WITH_CONTEXT("there isn't such room with id = %lu, ip = %s, port = %d", 
+                pkt->header.id, clientUdpEndpoint.address().to_string().c_str(), clientUdpEndpoint.port());
         }
         break;
     }
