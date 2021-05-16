@@ -55,8 +55,9 @@ int main(int argc, char* argv[])
     ThreadPoolManager::GetInstance()->Start(threadsCount);
 
     auto agent = std::make_shared<Agent>(ThreadPoolManager::GetInstance()->Get());
-    agent->SetTcpEndpoint(ip, tcpPort);
-    agent->SetUdpEndpoint(ip, udpPort);
+    agent->SetIp(ip);
+    agent->SetTcpPort(tcpPort);
+    agent->SetUdpPort(udpPort);
     agent->Start();
 
     ThreadPoolManager::GetInstance()->Get().run();

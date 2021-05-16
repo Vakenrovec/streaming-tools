@@ -15,7 +15,6 @@ using namespace boost::program_options;
 int main(int argc, char* argv[]) {
     std::string serverIp = Credentials::serverIp;
     std::uint16_t serverTcpPort = Credentials::serverTcpPort;
-    std::uint16_t serverUdpPort = Credentials::serverUdpPort;
     std::string localIp = Credentials::streamerIp;
     std::uint16_t localUdpPort = Credentials::streamerUdpPort;
 
@@ -41,7 +40,6 @@ int main(int argc, char* argv[]) {
 
         ("server-ip", value<std::string>()->default_value(serverIp)->required(), "Server bind IP")
         ("server-tcp-port", value<std::uint16_t>()->default_value(serverTcpPort)->required(), "Server bind TCP port")
-        ("server-udp-port", value<std::uint16_t>()->default_value(serverUdpPort)->required(), "Server bind UDP port")
         
         ("local-ip", value<std::string>()->default_value(localIp)->required(), "Local bind IP")
         ("local-udp-port", value<std::uint16_t>()->default_value(localUdpPort)->required(), "Local bind UDP port")
@@ -80,9 +78,6 @@ int main(int argc, char* argv[]) {
         if (vm.count("server-tcp-port")) {
             serverTcpPort = vm["server-tcp-port"].as<std::uint16_t>();
         }
-        if (vm.count("server-udp-port")) {
-            serverUdpPort = vm["server-udp-port"].as<std::uint16_t>();
-        }
 
         if (vm.count("local-ip")) {
             localIp = vm["local-ip"].as<std::string>();
@@ -120,7 +115,6 @@ int main(int argc, char* argv[]) {
 
         client->SetServerIp(serverIp);
         client->SetServerTcpPort(serverTcpPort);
-        client->SetServerUdpPort(serverUdpPort);
         client->SetLocalIp(localIp);
         client->SetLocalUdpPort(localUdpPort);
 

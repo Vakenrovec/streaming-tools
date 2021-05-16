@@ -29,9 +29,10 @@ void Receiver::StartAsync()
     }
 
     auto receiverSession = std::make_shared<ReceiverSessionProcessor>(*m_ioContext, m_streamId);
-    receiverSession->SetServerTcpEndpoint(m_serverIp, m_serverTcpPort);
-    receiverSession->SetServerUdpEndpoint(m_serverIp, m_serverUdpPort);
-    receiverSession->SetLocalUdpEndpoint(m_localIp, m_localUdpPort);
+    receiverSession->SetLocalIp(m_localIp);
+    receiverSession->SetLocalUdpPort(m_localUdpPort);
+    receiverSession->SetServerIp(m_serverIp);
+    receiverSession->SetServerTcpPort(m_serverTcpPort);
     auto saver = std::make_shared<FileSaveRawStreamProcessor<udp_packet_ptr>>(m_rawStreamDir, m_rawStreamFilename);
     auto fork = std::make_shared<AudioVideoForkDataProcessor<2>>();
 
@@ -82,7 +83,7 @@ void Receiver::StartAsync()
         this->m_ioContext->run();
     });
 
-    LOG_EX_INFO_WITH_CONTEXT("Receiver started");
+    LOG_EX_INFO("Receiver started");
 }
 
 void Receiver::HandleEvents()
@@ -92,7 +93,7 @@ void Receiver::HandleEvents()
     {
         if (e.type == SDL_QUIT)
         {
-            LOG_EX_INFO_WITH_CONTEXT("Got stopped sygnal");
+            LOG_EX_INFO("Got stopped sygnal");
             break;
         }
     }
@@ -106,5 +107,5 @@ void Receiver::Destroy()
     m_ioContext->restart();
     m_ioContext->run();    
     SDL_Quit();
-    LOG_EX_INFO_WITH_CONTEXT("Receiver destroyed");
+    LOG_EX_INFO("Receiver destroyed");
 }

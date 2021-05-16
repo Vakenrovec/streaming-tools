@@ -32,10 +32,10 @@ void PlaybackAudioProcessor::Init()
         LOG_EX_WARN_WITH_CONTEXT("Unable to get audio playback device! SDL Error: " + std::string(SDL_GetError()));
         return;
     }
-    LOG_EX_INFO_WITH_CONTEXT("Available audio playback devices:");
+    LOG_EX_INFO("Available audio playback devices:");
     for(int i = 0; i < gPlaybackDeviceCount; i++)
     {
-        LOG_EX_INFO_WITH_CONTEXT("      %d - %s", i, SDL_GetAudioDeviceName(i, false));
+        LOG_EX_INFO("      %d - %s", i, SDL_GetAudioDeviceName(i, false));
     }
 
     int index = 0;
@@ -63,7 +63,7 @@ void PlaybackAudioProcessor::Init()
     m_bufferByteMaxPosition = MAX_RECORDING_SECONDS * bytesPerSecond;
     m_bufferByteSize = bytesPerSample * m_receivedPlaybackSpec.samples;
     SDL_PauseAudioDevice(m_playbackDeviceId, false);
-    LOG_EX_INFO_WITH_CONTEXT("Open playback device with id = %lu", m_playbackDeviceId);
+    LOG_EX_INFO("Open playback device with id = %lu", m_playbackDeviceId);
 
     DataProcessor::Init();
 }
@@ -73,7 +73,7 @@ void PlaybackAudioProcessor::Destroy()
     SDL_LockAudioDevice(m_playbackDeviceId);
     SDL_PauseAudioDevice(m_playbackDeviceId, true);
     SDL_UnlockAudioDevice(m_playbackDeviceId);
-    LOG_EX_INFO_WITH_CONTEXT("Close audio playback with id = %lu", m_playbackDeviceId);
+    LOG_EX_INFO("Close audio playback with id = %lu", m_playbackDeviceId);
 
     DataProcessor::Destroy();
 }

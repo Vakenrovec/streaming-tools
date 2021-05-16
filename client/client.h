@@ -20,7 +20,6 @@ public:
 
     inline void SetServerIp(const std::string& serverIp) { m_serverIp = serverIp; };
     inline void SetServerTcpPort(const std::uint16_t& serverTcpPort) { m_serverTcpPort = serverTcpPort; };
-    inline void SetServerUdpPort(const std::uint16_t& serverUdpPort) { m_serverUdpPort = serverUdpPort; };
     
     inline void SetLocalIp(const std::string& localUdpIp) { m_localIp = localUdpIp; };
     inline void SetLocalUdpPort(const std::uint16_t& localUdpPort) { m_localUdpPort = localUdpPort; };
@@ -38,7 +37,6 @@ protected:
 
     std::string m_serverIp;
     std::uint16_t m_serverTcpPort;
-    std::uint16_t m_serverUdpPort;
 
     std::string m_localIp;
     std::uint16_t m_localUdpPort;

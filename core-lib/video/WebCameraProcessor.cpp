@@ -29,7 +29,7 @@ void WebCameraProcessor::Init()
         LOG_EX_WARN_WITH_CONTEXT("Couldn't start web camera");
         return;
     }
-    LOG_EX_INFO_WITH_CONTEXT("Start web camera");
+    LOG_EX_INFO("Start web camera");
 
     DataProcessor::Init();
 }
@@ -41,7 +41,7 @@ void WebCameraProcessor::Destroy()
         LOG_EX_WARN("Couldn't stop web camera");
         return;
     }
-    LOG_EX_INFO_WITH_CONTEXT("Stop web camera");
+    LOG_EX_INFO("Stop web camera");
 
     DataProcessor::Destroy();
 }

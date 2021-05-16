@@ -3,20 +3,23 @@
 #include "Logger.h"
 #include <functional>
 
-Room::Room(boost::asio::io_context& ioContext, 
-    const udp_endpoint_t& serverUdpEndpoint, const udp_endpoint_t& streamerUdpEndpoint
+Room::Room(std::uint32_t id, boost::asio::io_context& ioContext, 
+    const udp_endpoint_t& localUdpEndpoint, const udp_endpoint_t& streamerUdpEndpoint
 )
 : m_ioContext(ioContext)
-, m_serverUdpEndpoint(serverUdpEndpoint)
+, m_id(id)
+, m_localUdpEndpoint(localUdpEndpoint)
 , m_streamerUdpEndpoint(streamerUdpEndpoint)
+, m_isStarted(false)
 {
 }
 
 void Room::Start()
 {
+    m_isStarted = true;
     m_localUdpSocket = std::make_shared<boost::asio::ip::udp::socket>(m_ioContext);
-    m_localUdpSocket->open(m_serverUdpEndpoint.protocol());
-    m_localUdpSocket->bind(m_serverUdpEndpoint);
+    m_localUdpSocket->open(m_localUdpEndpoint.protocol());
+    m_localUdpSocket->bind(m_localUdpEndpoint);
     ReadMediaPacket();
 }
 
@@ -41,7 +44,7 @@ void Room::ReadMediaPacket()
                 Multicast(buffer);
                 ReadMediaPacket();              
             } else {
-                LOG_EX_WARN("Unable to receive media packet: " + ec.message());
+                LOG_EX_WARN_WITH_CONTEXT("Unable to receive media packet: " + ec.message());
             }
         });
 }
@@ -63,7 +66,7 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
             if (!ec) {
                 // LOG_EX_INFO("Send media packet: size(bytes) = " + std::to_string(bytesTransferred));
             } else {
-                LOG_EX_WARN("Unable to send media packet: " + ec.message());
+                LOG_EX_WARN_WITH_CONTEXT("Unable to send media packet: " + ec.message());
             }
         });
 }
@@ -71,8 +74,6 @@ void Room::WriteMediaPacket(udp_endpoint_t receiverUdpEndpoint, const std::share
 void Room::Join(const udp_endpoint_t& receiverEndpoint)
 {
     std::lock_guard<std::mutex> lock(m_receiversMutex);
-    auto port = receiverEndpoint.port();
-    auto ip = receiverEndpoint.address().to_string();
     m_receivers.insert(receiverEndpoint);
 }
 

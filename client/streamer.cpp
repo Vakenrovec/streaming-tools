@@ -40,9 +40,10 @@ void Streamer::StartAsync()
     auto audioFragmenter = std::make_shared<RTPFragmenterProcessor>(udp_packet_type_t::RTP_AUDIO);
 
     auto streamerSession = std::make_shared<StreamerSessionProcessor>(*m_ioContext, m_streamId);
-    streamerSession->SetServerTcpEndpoint(m_serverIp, m_serverTcpPort);
-    streamerSession->SetServerUdpEndpoint(m_serverIp, m_serverUdpPort);
-    streamerSession->SetLocalUdpEndpoint(m_localIp, m_localUdpPort);
+    streamerSession->SetLocalIp(m_localIp);
+    streamerSession->SetLocalUdpPort(m_localUdpPort);
+    streamerSession->SetServerIp(m_serverIp);
+    streamerSession->SetServerTcpPort(m_serverTcpPort);
 
     webcam->SetNextProcessor(jpeg2yv12);
     jpeg2yv12->SetNextProcessor(videoEncoder);
@@ -77,7 +78,7 @@ void Streamer::StartAsync()
         }
     });
 
-    LOG_EX_INFO_WITH_CONTEXT("Streamer started");
+    LOG_EX_INFO("Streamer started");
 }
 
 void Streamer::HandleEvents()
@@ -103,5 +104,5 @@ void Streamer::Destroy()
     m_work.reset();
     m_pipelineSenderThread->join();
     SDL_Quit();
-    LOG_EX_INFO_WITH_CONTEXT("Streamer destroyed");
+    LOG_EX_INFO("Streamer destroyed");
 }
