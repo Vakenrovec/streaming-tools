@@ -3,6 +3,7 @@
 #include "client.h"
 #include "streamer.h"
 #include "receiver.h"
+#include "GuiClient.h"
 #include "Logger.h"
 #include <iostream>
 #include <string>
@@ -32,6 +33,7 @@ int main(int argc, char* argv[]) {
     options_description desc("Allowed options");
     desc.add_options()
         ("help,h", "Prints this help")
+        ("gui", "Show gui window")
         ("streamer", "Create sreamer")
         ("receiver", "Create receiver")
         ("stream-id", value<std::uint32_t>()->default_value(streamId)->required(), "Stream id")
@@ -57,7 +59,7 @@ int main(int argc, char* argv[]) {
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
 
-        if (vm.count("help")) {  
+        if (vm.count("help")) {
             std::cout << desc << "\n";
             return 0;
         }
@@ -102,14 +104,16 @@ int main(int argc, char* argv[]) {
         if (vm.count("raw-stream-filename")) {
             rawStreamFilename = vm["raw-stream-filename"].as<std::string>();
         }
-        
+
         std::shared_ptr<IClient> client = nullptr;
         if (vm.count("streamer")) {  
             client = std::make_shared<Streamer>();
         } else if (vm.count("receiver")) {
             client = std::make_shared<Receiver>();
+        } else if (vm.count("gui")) {
+            client = std::make_shared<GuiClient>();
         } else {
-            std::cerr << "Neither receiver nor streamer were selected" << "\n";
+            std::cerr << "Neither receiver nor streamer nor gui were selected" << "\n";
             return 1;
         }
 
