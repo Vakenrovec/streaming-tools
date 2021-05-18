@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gtkmm/window.h>
+#include <gtkmm/menubar.h>
 #include <gtkmm/box.h>
 #include <gtkmm/label.h>
 #include <gtkmm/radiobutton.h>
@@ -8,9 +9,12 @@
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/button.h>
-
+#include <gtkmm/messagedialog.h>
+#include <gtkmm/menuitem.h>
+#include <gtkmm/imagemenuitem.h>
+#include <gtkmm/separatormenuitem.h>
+#include <gtkmm/stock.h>
 #include "GuiClient.h"
-#include "Credentials.h"
 #include <string>
 #include <cstdint>
 #include <map>
@@ -27,9 +31,20 @@ protected:
     void OnButtonChooseFileClicked();
     void OnButtonGoClicked();
     void OnButtonStopClicked();
+    void OnMenuAboutClicked();
+    void OnMenuOpenClicked();
+    void OnMenuQuitClicked();
 
 protected:
     Gtk::Box m_VBoxMain;
+    
+    Gtk::MenuBar m_menuBar;
+    Gtk::MenuItem m_menuMain; Gtk::Menu m_subMenuMain;
+    Gtk::SeparatorMenuItem hline;
+    Gtk::ImageMenuItem m_menuOpen, m_menuQuit;
+    Gtk::MenuItem m_menuHelp; Gtk::Menu m_subMenuHelp;
+    Gtk::ImageMenuItem m_menuAbout;
+
     Gtk::Label m_labelRole, m_labelStreamId, m_labelVideoQuality;
     Gtk::RadioButton::Group m_roleGroup;
     Gtk::RadioButton m_radioButtonStreamer, m_radioButtonReceiver;
@@ -37,6 +52,8 @@ protected:
     Gtk::ComboBoxText m_comboBoxVideoQuality;
     Gtk::CheckButton m_checkButtonDisableAudio, m_checkButtonDisableVideo, m_checkButtonSaveRawStream;
     Gtk::Button m_buttonChooseFile, m_buttonGo, m_buttonStop;
+
+    Gtk::Image m_image;
 
 private:
     GuiClient* m_owner;

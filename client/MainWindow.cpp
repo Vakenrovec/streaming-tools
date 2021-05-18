@@ -5,9 +5,11 @@
 #include "Logger.h"
 #include "FileUtils.h"
 #include <gtkmm/filechooserdialog.h>
-#include <gtkmm/messagedialog.h>
+#include "gtkmm/messagedialog.h"
 #include <string>
 #include <SDL2/SDL.h>
+#include <MediaCredentials.h>
+#include <AboutProgramCredentials.h>
 
 #define MSGDIALOG_EX_INFO(info)     Gtk::MessageDialog dialog("INFO"); \
                                     dialog.set_secondary_text(info); \
@@ -35,16 +37,34 @@ MainWindow::MainWindow(GuiClient* owner)
 , m_buttonStop("Stop")
 , m_client(nullptr)
 {
-    m_qualities = {
-        { "High",   4'000'000 },
-        { "Middle", 4'000'00 },
-        { "Low",    4'000'0 }
-    };
-
     this->set_title("Main");
     this->set_position(Gtk::WIN_POS_CENTER);
-    this->set_border_width(50);
+    // this->set_border_width(50);
+    this->set_default_size(500, -1);
     this->add(m_VBoxMain);
+
+    m_VBoxMain.pack_start(m_menuBar, Gtk::PACK_SHRINK);
+
+    m_menuBar.append(m_menuMain);
+    m_menuMain.set_label("Main");
+    m_menuMain.set_submenu(m_subMenuMain);
+    m_menuOpen = Gtk::ImageMenuItem(Gtk::Stock::OPEN);
+    m_menuOpen.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuOpenClicked));
+    m_subMenuMain.append(m_menuOpen);
+    m_subMenuMain.append(hline);
+    m_menuQuit = Gtk::ImageMenuItem(Gtk::Stock::QUIT);
+    m_menuQuit.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuQuitClicked));
+    m_subMenuMain.append(m_menuQuit);
+
+    m_menuBar.append(m_menuHelp);
+    m_menuHelp.set_label("Help");
+    m_menuHelp.set_submenu(m_subMenuHelp);
+    m_menuAbout = Gtk::ImageMenuItem(Gtk::Stock::ABOUT);
+    m_menuAbout.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuAboutClicked));
+    m_subMenuHelp.append(m_menuAbout);
+
+    m_image = Gtk::Image(MediaCredentials::imagePath);
+    m_VBoxMain.pack_start(m_image);
 
     m_VBoxMain.pack_start(m_labelRole, Gtk::PACK_SHRINK);
     m_VBoxMain.pack_start(m_radioButtonStreamer);
@@ -55,6 +75,11 @@ MainWindow::MainWindow(GuiClient* owner)
     m_VBoxMain.pack_start(m_entryStreamId, Gtk::PACK_SHRINK);
     m_entryStreamId.set_text(std::to_string(m_owner->m_streamId));
 
+    m_qualities = {
+        { "High",   MediaCredentials::bitrate },
+        { "Middle", MediaCredentials::bitrate / 10 },
+        { "Low",    MediaCredentials::bitrate / 100 }
+    };
     m_VBoxMain.pack_start(m_labelVideoQuality, Gtk::PACK_SHRINK);
     m_VBoxMain.pack_start(m_comboBoxVideoQuality, Gtk::PACK_SHRINK);
     for (const auto& quality : m_qualities)
@@ -196,4 +221,26 @@ void MainWindow::OnButtonStopClicked()
     m_client->HandleEvents();
     m_client->Destroy();
     m_client = nullptr;
+}
+
+void MainWindow::OnMenuOpenClicked()
+{
+    
+}
+
+void MainWindow::OnMenuQuitClicked()
+{
+    hide();
+}
+
+void MainWindow::OnMenuAboutClicked()
+{
+    std::string about;
+    about.reserve(1024); 
+    about += "\n" + AboutProgramCredentials::programName + "\n\n";
+    about += "Version: " + AboutProgramCredentials::version + "\n";
+    about += "Date: " + AboutProgramCredentials::date + "\n";
+    about += "OS: " + AboutProgramCredentials::os + "\n";
+    
+    MSGDIALOG_EX_INFO(about);
 }
