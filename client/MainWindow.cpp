@@ -3,9 +3,21 @@
 #include "streamer.h"
 #include "receiver.h"
 #include "Logger.h"
+#include "FileUtils.h"
 #include <gtkmm/filechooserdialog.h>
+#include <gtkmm/messagedialog.h>
 #include <string>
 #include <SDL2/SDL.h>
+
+#define MSGDIALOG_EX_INFO(info)     Gtk::MessageDialog dialog("INFO"); \
+                                    dialog.set_secondary_text(info); \
+                                    dialog.run();
+#define MSGDIALOG_EX_WARN(warn)     Gtk::MessageDialog dialog("WARNING"); \
+                                    dialog.set_secondary_text(warn); \
+                                    dialog.run();
+#define MSGDIALOG_EX_ERROR(error)   Gtk::MessageDialog dialog("ERROR"); \
+                                    dialog.set_secondary_text(error); \
+                                    dialog.run();
 
 MainWindow::MainWindow(GuiClient* owner)
 : m_owner(owner) 
@@ -101,6 +113,7 @@ void MainWindow::OnButtonChooseFileClicked()
             m_owner->SetRawStreamDir(folder);
             m_owner->SetRawStreamFilename(filename);
             LOG_EX_INFO("Select clicked. Folder: %s, Filename: %s", folder.c_str(), filename.c_str());
+            MSGDIALOG_EX_INFO("You selected " + FileUtils::CombinePath(folder, filename));
             break;
         }
         case (Gtk::RESPONSE_CANCEL):
@@ -118,6 +131,12 @@ void MainWindow::OnButtonChooseFileClicked()
 
 void MainWindow::OnButtonGoClicked()
 {
+    if (m_client)
+    {
+        MSGDIALOG_EX_WARN("Client was already started");
+        return;
+    }
+
     m_owner->SetStreamId(std::strtoul(m_entryStreamId.get_text().c_str(), nullptr, 10));
     m_owner->SetBitrate(m_qualities[m_comboBoxVideoQuality.get_active_text()]);
     m_owner->SetDisableAudio(m_checkButtonDisableAudio.get_active());
@@ -164,6 +183,12 @@ void MainWindow::OnButtonGoClicked()
 
 void MainWindow::OnButtonStopClicked()
 {
+    if (!m_client)
+    {
+        MSGDIALOG_EX_WARN("Client wasn't started");
+        return;
+    }
+
     SDL_Event sdlevent;
     sdlevent.type = SDL_QUIT;
     SDL_PushEvent(&sdlevent);

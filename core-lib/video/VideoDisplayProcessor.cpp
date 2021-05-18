@@ -19,7 +19,7 @@ VideoDisplayProcessor::VideoDisplayProcessor(int width, int height)
 void VideoDisplayProcessor::Init()
 {
     m_screen = SDL_CreateWindow(
-        "FFmpeg SDL Video Player",
+        "SDL Video Player",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         m_width,
@@ -28,7 +28,7 @@ void VideoDisplayProcessor::Init()
     );
     if (!m_screen)
     {
-        LOG_EX_WARN("SDL: could not create window");
+        LOG_EX_WARN_WITH_CONTEXT("SDL: could not create window");
         return;
     }
     SDL_GL_SetSwapInterval(1);
