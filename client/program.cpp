@@ -14,10 +14,10 @@
 using namespace boost::program_options;
 
 int main(int argc, char* argv[]) {
-    std::string serverIp = Credentials::serverIp;
-    std::uint16_t serverTcpPort = Credentials::serverTcpPort;
-    std::string localIp = Credentials::streamerIp;
-    std::uint16_t localUdpPort = Credentials::streamerUdpPort;
+    std::string serverIp = NetworkCredentials::serverIp;
+    std::uint16_t serverTcpPort = NetworkCredentials::serverTcpPort;
+    std::string localIp = NetworkCredentials::streamerIp;
+    std::uint16_t localUdpPort = NetworkCredentials::streamerUdpPort;
 
     std::uint32_t streamId = 777;
     int width = 1280, height = 720;

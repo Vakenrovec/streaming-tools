@@ -10,9 +10,9 @@ using namespace boost::program_options;
 
 int main(int argc, char* argv[])
 {
-    std::string ip = Credentials::serverIp;
-    std::uint16_t tcpPort = Credentials::serverTcpPort;
-    std::uint16_t udpPort = Credentials::serverUdpPort;
+    std::string ip = NetworkCredentials::serverIp;
+    std::uint16_t tcpPort = NetworkCredentials::serverTcpPort;
+    std::uint16_t udpPort = NetworkCredentials::serverUdpPort;
     std::uint32_t threadsCount = 2;
 
     options_description desc("Allowed options");

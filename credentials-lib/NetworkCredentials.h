@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <string>
 
-class Credentials
+class NetworkCredentials
 {
 public:
-    Credentials() = delete;
+    NetworkCredentials() = delete;
 
 private:
     static inline const std::string m_localPrivateIp = "192.11.0.5";
