@@ -1,5 +1,6 @@
 #include "program.h"
-#include "Credentials.h"
+#include "NetworkCredentials.h"
+#include "MediaCredentials.h"
 #include "client.h"
 #include "streamer.h"
 #include "receiver.h"
@@ -19,16 +20,16 @@ int main(int argc, char* argv[]) {
     std::string localIp = NetworkCredentials::streamerIp;
     std::uint16_t localUdpPort = NetworkCredentials::streamerUdpPort;
 
-    std::uint32_t streamId = 777;
-    int width = 1280, height = 720;
-    int bitrate = 4'000'000, gopSize = 10;
+    std::uint32_t streamId = MediaCredentials::streamId;
+    int width = MediaCredentials::width, height = MediaCredentials::height;
+    int bitrate = MediaCredentials::bitrate, gopSize = MediaCredentials::gopSize;
 
-    bool saveRawStream = false;
-    std::string rawStreamDir = "/tmp/streams";
-    std::string rawStreamFilename = "stream.raw";
+    bool saveRawStream = MediaCredentials::saveRawStream;
+    std::string rawStreamDir = MediaCredentials::rawStreamDir;
+    std::string rawStreamFilename = MediaCredentials::rawStreamFilename;
 
-    bool disableAudio = false;
-    bool disableVideo = false;
+    bool disableAudio = MediaCredentials::disableAudio;
+    bool disableVideo = MediaCredentials::disableVideo;
 
     options_description desc("Allowed options");
     desc.add_options()

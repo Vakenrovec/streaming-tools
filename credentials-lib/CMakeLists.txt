@@ -1,7 +1,9 @@
 set(PROJECT_NAME credentials-lib)
 
 set(HEADERS 
-    credentials.h
+    NetworkCredentials.h
+    MediaCredentials.h
+    AboutProgramCredentials.h
 )
 
 set(SOURCES
