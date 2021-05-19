@@ -28,6 +28,7 @@ set(HEADERS
     file/FileReadRawStreamProcessor.h
     file/FileSaveRawStreamProcessor.h
     image/JPEG2YV12Processor.h
+    pipeline/PipelineHelper.h
 )
 
 set(SOURCES
@@ -50,6 +51,7 @@ set(SOURCES
     file/FileSaveProcessor.cpp
     file/FileReadProcessor.cpp
     image/JPEG2YV12Processor.cpp
+    pipeline/PipelineHelper.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})
@@ -62,6 +64,7 @@ add_library(${PROJECT_NAME} STATIC ${PROJECT_CONTENT})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         .
+        ../credentials-lib
         ../utils-lib
         ../network-lib
         ${FFMPEG_INCLUDE_DIRS}

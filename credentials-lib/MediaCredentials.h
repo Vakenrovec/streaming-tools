@@ -16,6 +16,7 @@ public:
 
     static inline const int bitrate = 4'000'000;
     static inline const int gopSize = 10;
+    static inline const int framesDelay = 5;
 
     static inline const bool saveRawStream = false;
     static inline const std::string rawStreamDir = "/tmp/streams";

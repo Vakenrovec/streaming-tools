@@ -38,6 +38,14 @@ public:
         Enqueue(pkt);
     }
 
+    void Clear()
+    {
+        std::unique_lock<std::mutex> lock(m_packetMutex);
+        m_packetQueue = {};
+        m_packetQueue.push(nullptr);
+        m_packetCV.notify_all();
+    }
+
     std::shared_ptr<std::thread> worker;
 
 private:

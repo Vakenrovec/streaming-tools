@@ -22,6 +22,7 @@ public:
         if (!m_file)
         {
             LOG_EX_ERROR_WITH_CONTEXT("Couldn't open file %s", m_fullPath.c_str());
+            return;
         }
         DataProcessor::Init();
     }

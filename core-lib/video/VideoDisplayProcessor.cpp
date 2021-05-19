@@ -19,7 +19,7 @@ VideoDisplayProcessor::VideoDisplayProcessor(int width, int height)
 void VideoDisplayProcessor::Init()
 {
     m_screen = SDL_CreateWindow(
-        "SDL Video Player",
+        "SDL Media Player",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         m_width,

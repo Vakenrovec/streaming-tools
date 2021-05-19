@@ -1,5 +1,5 @@
 #include "program.h"
-#include "Credentials.h"
+#include "../credentials-lib/NetworkCredentials.h"
 #include "Agent.h"
 #include "Logger.h"
 #include "ThreadPoolManager.h"

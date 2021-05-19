@@ -11,10 +11,11 @@
 #include "rtp/RTPFragmenterProcessor.h"
 #include "StreamerSessionProcessor.h"
 #include "Logger.h"
+#include "../credentials-lib/MediaCredentials.h"
 #include <SDL2/SDL.h>
 
 Streamer::Streamer()
-: m_framesDelay(5)
+: m_framesDelay(MediaCredentials::framesDelay)
 {
     m_ioContext = std::make_shared<boost::asio::io_context>();
     m_work = std::make_shared<boost::asio::io_context::work>(*m_ioContext);
