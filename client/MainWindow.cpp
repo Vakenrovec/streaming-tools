@@ -11,15 +11,18 @@
 #include <MediaCredentials.h>
 #include <AboutProgramCredentials.h>
 
-#define MSGDIALOG_EX_INFO(info)     Gtk::MessageDialog dialog("INFO"); \
-                                    dialog.set_secondary_text(info); \
-                                    dialog.run();
-#define MSGDIALOG_EX_WARN(warn)     Gtk::MessageDialog dialog("WARNING"); \
-                                    dialog.set_secondary_text(warn); \
-                                    dialog.run();
-#define MSGDIALOG_EX_ERROR(error)   Gtk::MessageDialog dialog("ERROR"); \
-                                    dialog.set_secondary_text(error); \
-                                    dialog.run();
+#define MSGDIALOG(caption, info)    Gtk::MessageDialog dialog(caption); \
+                                            dialog.set_secondary_text(info); \
+                                            dialog.run();
+#define MSGDIALOG_EX_INFO(info)             Gtk::MessageDialog dialog("INFO"); \
+                                            dialog.set_secondary_text(info); \
+                                            dialog.run();
+#define MSGDIALOG_EX_WARN(warn)             Gtk::MessageDialog dialog("WARNING"); \
+                                            dialog.set_secondary_text(warn); \
+                                            dialog.run();
+#define MSGDIALOG_EX_ERROR(error)           Gtk::MessageDialog dialog("ERROR"); \
+                                            dialog.set_secondary_text(error); \
+                                            dialog.run();
 
 MainWindow::MainWindow(GuiClient* owner)
 : m_owner(owner) 
@@ -40,7 +43,7 @@ MainWindow::MainWindow(GuiClient* owner)
     this->set_title("Main");
     this->set_position(Gtk::WIN_POS_CENTER);
     // this->set_border_width(50);
-    this->set_default_size(500, -1);
+    // this->set_default_size(500, -1);
     this->add(m_VBoxMain);
 
     m_VBoxMain.pack_start(m_menuBar, Gtk::PACK_SHRINK);
@@ -235,12 +238,14 @@ void MainWindow::OnMenuQuitClicked()
 
 void MainWindow::OnMenuAboutClicked()
 {
+    std::string caption = AboutProgramCredentials::programName;
     std::string about;
     about.reserve(1024); 
-    about += "\n" + AboutProgramCredentials::programName + "\n\n";
-    about += "Version: " + AboutProgramCredentials::version + "\n";
-    about += "Date: " + AboutProgramCredentials::date + "\n";
+    about += "Version: " + AboutProgramCredentials::programVersion + "\n";
+    about += "Datetime: " + AboutProgramCredentials::date + " " + AboutProgramCredentials::time + "\n";
+    about += "c++: " + std::to_string(AboutProgramCredentials::cppVersion) + "\n";
+    about += "GNU: " + AboutProgramCredentials::compilerVersion + "\n";
     about += "OS: " + AboutProgramCredentials::os + "\n";
     
-    MSGDIALOG_EX_INFO(about);
+    MSGDIALOG(caption, about);
 }
