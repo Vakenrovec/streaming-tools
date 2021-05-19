@@ -168,7 +168,15 @@ void MainWindow::OnButtonGoClicked()
         return;
     }
 
-    m_owner->SetStreamId(std::strtoul(m_entryStreamId.get_text().c_str(), nullptr, 10));
+    std::string strStreamId = m_entryStreamId.get_text().c_str();
+    char* pEnd;
+    std::uint32_t streamId = std::strtoul(strStreamId.c_str(), &pEnd, 10);    
+    if (*pEnd != 0 || strStreamId.size() > 9)
+    {
+        MSGDIALOG_EX_WARN("Stream id must be a number with less than 10 digits");
+        return;
+    }
+    m_owner->SetStreamId(streamId);
     m_owner->SetBitrate(m_qualities[m_comboBoxVideoQuality.get_active_text()]);
     m_owner->SetDisableAudio(m_checkButtonDisableAudio.get_active());
     m_owner->SetDisableVideo(m_checkButtonDisableVideo.get_active());
