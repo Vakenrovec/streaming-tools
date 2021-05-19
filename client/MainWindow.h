@@ -31,9 +31,9 @@ protected:
     void OnButtonChooseFileClicked();
     void OnButtonGoClicked();
     void OnButtonStopClicked();
-    void OnMenuAboutClicked();
-    void OnMenuOpenClicked();
+    void OnMenuPlayClicked();
     void OnMenuQuitClicked();
+    void OnMenuAboutClicked();
 
 protected:
     Gtk::Box m_VBoxMain;
@@ -41,7 +41,7 @@ protected:
     Gtk::MenuBar m_menuBar;
     Gtk::MenuItem m_menuMain; Gtk::Menu m_subMenuMain;
     Gtk::SeparatorMenuItem hline;
-    Gtk::ImageMenuItem m_menuOpen, m_menuQuit;
+    Gtk::ImageMenuItem m_menuPlay, m_menuQuit;
     Gtk::MenuItem m_menuHelp; Gtk::Menu m_subMenuHelp;
     Gtk::ImageMenuItem m_menuAbout;
 

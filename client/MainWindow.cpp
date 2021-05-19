@@ -4,12 +4,15 @@
 #include "Receiver.h"
 #include "Logger.h"
 #include "FileUtils.h"
+#include "../credentials-lib/MediaCredentials.h"
+#include "../credentials-lib/AboutProgramCredentials.h"
+#include "pipeline/PipelineHelper.h"
+#include "utility/QueueDataProcessor.h"
+#include "PlayableDataProcessor.h"
 #include <gtkmm/filechooserdialog.h>
-#include "gtkmm/messagedialog.h"
+#include <gtkmm/messagedialog.h>
 #include <string>
 #include <SDL2/SDL.h>
-#include <MediaCredentials.h>
-#include <AboutProgramCredentials.h>
 
 #define MSGDIALOG(caption, info)    Gtk::MessageDialog dialog(caption); \
                                             dialog.set_secondary_text(info); \
@@ -51,9 +54,9 @@ MainWindow::MainWindow(GuiClient* owner)
     m_menuBar.append(m_menuMain);
     m_menuMain.set_label("Main");
     m_menuMain.set_submenu(m_subMenuMain);
-    m_menuOpen = Gtk::ImageMenuItem(Gtk::Stock::OPEN);
-    m_menuOpen.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuOpenClicked));
-    m_subMenuMain.append(m_menuOpen);
+    m_menuPlay = Gtk::ImageMenuItem(Gtk::Stock::MEDIA_PLAY);
+    m_menuPlay.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuPlayClicked));
+    m_subMenuMain.append(m_menuPlay);
     m_subMenuMain.append(hline);
     m_menuQuit = Gtk::ImageMenuItem(Gtk::Stock::QUIT);
     m_menuQuit.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuQuitClicked));
@@ -226,9 +229,61 @@ void MainWindow::OnButtonStopClicked()
     m_client = nullptr;
 }
 
-void MainWindow::OnMenuOpenClicked()
+void MainWindow::OnMenuPlayClicked()
 {
-    
+    const std::string& rawStreamDir = m_owner->m_rawStreamDir;
+    const std::string& rawStreamFilename = m_owner->m_rawStreamFilename;
+    const int width = m_owner->m_width;
+    const int height = m_owner->m_height;
+
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+
+    Pipeline pipeline = PipelineHelper::CreateMediaplayer(rawStreamDir, rawStreamFilename, width, height);
+    auto reader = std::dynamic_pointer_cast<PlayableDataProcessor>((*pipeline)[0]);
+    auto audioQueue = std::dynamic_pointer_cast<QueueDataProcessor<udp_packet_ptr>>((*pipeline)[2]);
+    auto videoQueue = std::dynamic_pointer_cast<QueueDataProcessor<udp_packet_ptr>>((*pipeline)[8]);
+
+    bool end = false;
+    reader->Init();
+    if (reader->GetState() != DataProcessor::State::INITIALIZED)
+    {
+        MSGDIALOG_EX_WARN("Couldn't initialize mediaplayer");
+        return;
+    }
+
+    std::thread mediaplayerThread([reader, audioQueue, videoQueue, &end](){
+        reader->Play();
+        LOG_EX_INFO("Everything was read");
+        audioQueue->Process(nullptr);
+        audioQueue->SetState(DataProcessor::State::STOPPING);
+        videoQueue->Process(nullptr);
+        videoQueue->SetState(DataProcessor::State::STOPPING); 
+        reader->Destroy();
+        end = true;
+    });    
+    SDL_Event e;
+    std::chrono::milliseconds delay = std::chrono::seconds(1);
+    LOG_EX_INFO("%d", delay);
+    for (;;)
+    {
+        int res = SDL_WaitEventTimeout(&e, delay.count());
+        if (end)
+        {
+            break;
+        }
+        if (e.type == SDL_QUIT)
+        {
+            reader->Stop();
+            videoQueue->Clear();
+            audioQueue->Clear();                
+            LOG_EX_INFO("Mediaplayer stopped");
+            break;
+        }            
+    }
+    mediaplayerThread.join();
+
+    SDL_Quit();
+    LOG_EX_INFO_WITH_CONTEXT("Mediaplayer destroyed");
 }
 
 void MainWindow::OnMenuQuitClicked()
