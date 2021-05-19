@@ -26,6 +26,7 @@ public:
     virtual void Destroy();
     
     inline State GetState() const { return this->m_state; }
+    inline void SetState(State state) { this->m_state = state; }
     void SetNextProcessor(const data_processor_ptr& processor);
 
     virtual void Process(const media_packet_ptr& pkt);
