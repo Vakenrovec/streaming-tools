@@ -1,7 +1,7 @@
 #include "MainWindow.h"
-#include "client.h"
-#include "streamer.h"
-#include "receiver.h"
+#include "IClient.h"
+#include "Streamer.h"
+#include "Receiver.h"
 #include "Logger.h"
 #include "FileUtils.h"
 #include <gtkmm/filechooserdialog.h>

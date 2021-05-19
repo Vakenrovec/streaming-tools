@@ -1,6 +1,6 @@
 #pragma once
 
-#include "client.h"
+#include "IClient.h"
 
 class MainWindow;
 

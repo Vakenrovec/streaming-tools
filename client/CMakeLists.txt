@@ -2,19 +2,19 @@ set (PROJECT_NAME client)
 
 set(HEADERS 
     program.h
-    client.h
+    IClient.h
     GuiClient.h
     MainWindow.h
-    streamer.h
-    receiver.h
+    Streamer.h
+    Receiver.h
 )
 
 set(SOURCES
     program.cpp
     GuiClient.cpp
     MainWindow.cpp
-    streamer.cpp
-    receiver.cpp
+    Streamer.cpp
+    Receiver.cpp
 )
 
 source_group("Source Files" FILES ${SOURCES})

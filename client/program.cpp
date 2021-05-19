@@ -1,9 +1,9 @@
 #include "program.h"
 #include "NetworkCredentials.h"
 #include "MediaCredentials.h"
-#include "client.h"
-#include "streamer.h"
-#include "receiver.h"
+#include "IClient.h"
+#include "Streamer.h"
+#include "Receiver.h"
 #include "GuiClient.h"
 #include "Logger.h"
 #include <iostream>

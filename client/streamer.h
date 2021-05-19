@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataProcessor.h"
-#include "client.h"
+#include "IClient.h"
 #include <memory>
 #include <cstdint>
 #include <string>
