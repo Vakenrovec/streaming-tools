@@ -71,7 +71,7 @@ void Streamer::StartAsync()
             audioProcessor->Init();
         }
 
-        if (!m_disableVideo) 
+        if (!this->m_disableVideo) 
         {
             auto videoProcessor = std::dynamic_pointer_cast<PlayableDataProcessor>(this->m_firstVideoProcessor);
             videoProcessor->Init();

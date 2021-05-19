@@ -25,7 +25,7 @@ void RecordAudioProcessor::Init()
     int gRecordingDeviceCount = SDL_GetNumAudioDevices(true);
     if (gRecordingDeviceCount < 1)
     {
-        LOG_EX_WARN_WITH_CONTEXT("Unable to get audio capture device! SDL Error: " + std::string(SDL_GetError()));
+        LOG_EX_WARN_WITH_CONTEXT("Unable to get audio capture device! gRecordingDeviceCount < 1. SDL Error: " + std::string(SDL_GetError()));
         return;
     }
     LOG_EX_INFO("Available audio microphones:");
