@@ -83,7 +83,7 @@ bool WebCameraProcessor::SetImageFormat(int width, int height, std::uint32_t pix
     imageFormat.fmt.pix.pixelformat = pixelformat;
     imageFormat.fmt.pix.field = V4L2_FIELD_NONE;
     if(ioctl(m_descriptor, VIDIOC_S_FMT, &imageFormat) < 0){
-        LOG_EX_ERROR("Device could not set format, VIDIOC_S_FMT");
+        LOG_EX_ERROR_WITH_CONTEXT("Device could not set format, VIDIOC_S_FMT");
         return false;
     }
     return true;
@@ -104,34 +104,32 @@ bool WebCameraProcessor::RequestBuffer()
 
 bool WebCameraProcessor::QueryBuffer()
 {
-    v4l2_buffer queryBuffer = {0};
-    queryBuffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    queryBuffer.memory = V4L2_MEMORY_MMAP;
-    queryBuffer.index = 0;
-    if(ioctl(m_descriptor, VIDIOC_QUERYBUF, &queryBuffer) < 0){
+    m_queryBuffer = {0};
+    m_queryBuffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    m_queryBuffer.memory = V4L2_MEMORY_MMAP;
+    m_queryBuffer.index = 0;
+    if(ioctl(m_descriptor, VIDIOC_QUERYBUF, &m_queryBuffer) < 0){
         LOG_EX_ERROR("Device did not return the buffer information, VIDIOC_QUERYBUF");
         return false;
     }
     m_buffer = (std::uint8_t*)mmap(
-        nullptr, queryBuffer.length, PROT_READ | PROT_WRITE, MAP_SHARED,
-        m_descriptor, queryBuffer.m.offset
+        nullptr, m_queryBuffer.length, PROT_READ | PROT_WRITE, MAP_SHARED,
+        m_descriptor, m_queryBuffer.m.offset
     );
-    memset(m_buffer, 0, queryBuffer.length);
+    memset(m_buffer, 0, m_queryBuffer.length);
     return true;
 }
 
 bool WebCameraProcessor::Start()
 {
-    v4l2_buffer bufferinfo;
-    memset(&bufferinfo, 0, sizeof(bufferinfo));
-    bufferinfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    bufferinfo.memory = V4L2_MEMORY_MMAP;
-    bufferinfo.index = 0;
-    if(ioctl(m_descriptor, VIDIOC_STREAMON, &bufferinfo.type) < 0){
+    memset(&m_bufferInfo, 0, sizeof(m_bufferInfo));
+    m_bufferInfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    m_bufferInfo.memory = V4L2_MEMORY_MMAP;
+    m_bufferInfo.index = 0;
+    if(ioctl(m_descriptor, VIDIOC_STREAMON, &m_bufferInfo.type) < 0){
         LOG_EX_ERROR("Could not start streaming, VIDIOC_STREAMON");
         return false;
     }
-    m_bufferInfo = bufferinfo;
     return true;
 }
 
@@ -162,12 +160,18 @@ bool WebCameraProcessor::GetFrame(const media_packet_ptr& pkt)
 
 bool WebCameraProcessor::Close()
 {
+    if (m_buffer)
+    {
+        munmap(m_buffer, m_queryBuffer.length);
+        m_buffer = nullptr;
+    }
     if (ioctl(m_descriptor, VIDIOC_STREAMOFF, &m_bufferInfo.type) < 0) {
         LOG_EX_INFO("Could not end streaming, VIDIOC_STREAMOFF");
         return false;
     }
     if (m_descriptor) {
         close(m_descriptor);
+        m_descriptor = 0;
     }
 
     return true;

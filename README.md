@@ -44,7 +44,14 @@
 
     ffplay -s 1280x720 -pixel_format yuv420p -f rawvideo -i ./webcam_output.yv12
 
+# Some useful commands to test webcam's relese
+
+    lsof /dev/video0
+    fuser /dev/video0
+
 # Program default values
+
+## Check credentials-lib 
 
     server ip = 192.11.0.5
     server tcp port = 35000

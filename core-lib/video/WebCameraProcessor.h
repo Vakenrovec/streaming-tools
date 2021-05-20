@@ -32,5 +32,5 @@ private:
 
     int m_descriptor;
     std::uint8_t* m_buffer;
-    v4l2_buffer m_bufferInfo;
+    v4l2_buffer m_bufferInfo, m_queryBuffer;
 };
