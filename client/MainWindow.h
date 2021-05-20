@@ -17,7 +17,7 @@
 #include "GuiClient.h"
 #include <string>
 #include <cstdint>
-#include <map>
+#include <unordered_map>
 #include <memory>
 
 class MainWindow: public Gtk::Window
@@ -35,7 +35,6 @@ protected:
     void OnMenuQuitClicked();
     void OnMenuAboutClicked();
 
-protected:
     Gtk::Box m_VBoxMain;
     
     Gtk::MenuBar m_menuBar;
@@ -56,7 +55,10 @@ protected:
     Gtk::Image m_image;
 
 private:
+    void AddMenu();
+    void AddControls();
+
     GuiClient* m_owner;
     std::shared_ptr<IClient> m_client;
-    std::map<std::string, int> m_qualities;
+    std::unordered_map<std::string, int> m_qualities;
 };

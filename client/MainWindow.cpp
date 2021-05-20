@@ -43,12 +43,22 @@ MainWindow::MainWindow(GuiClient* owner)
 , m_buttonStop("Stop")
 , m_client(nullptr)
 {
-    this->set_title("Main");
-    this->set_position(Gtk::WIN_POS_CENTER);
-    // this->set_border_width(50);
-    // this->set_default_size(500, -1);
-    this->add(m_VBoxMain);
+    m_qualities = {
+        { "Low",    MediaCredentials::bitrate / 100 },
+        { "Middle", MediaCredentials::bitrate / 10 },
+        { "High",   MediaCredentials::bitrate }
+    };
 
+    this->set_title(AboutProgramCredentials::programName);
+    this->set_position(Gtk::WIN_POS_CENTER);
+    this->add(m_VBoxMain);
+    AddMenu();
+    AddControls();
+    this->show_all_children();
+}
+
+void MainWindow::AddMenu()
+{
     m_VBoxMain.pack_start(m_menuBar, Gtk::PACK_SHRINK);
 
     m_menuBar.append(m_menuMain);
@@ -68,7 +78,10 @@ MainWindow::MainWindow(GuiClient* owner)
     m_menuAbout = Gtk::ImageMenuItem(Gtk::Stock::ABOUT);
     m_menuAbout.signal_activate().connect(sigc::mem_fun(*this, &MainWindow::OnMenuAboutClicked));
     m_subMenuHelp.append(m_menuAbout);
+}
 
+void MainWindow::AddControls()
+{
     m_image = Gtk::Image(MediaCredentials::imagePath);
     m_VBoxMain.pack_start(m_image);
 
@@ -81,11 +94,6 @@ MainWindow::MainWindow(GuiClient* owner)
     m_VBoxMain.pack_start(m_entryStreamId, Gtk::PACK_SHRINK);
     m_entryStreamId.set_text(std::to_string(m_owner->m_streamId));
 
-    m_qualities = {
-        { "High",   MediaCredentials::bitrate },
-        { "Middle", MediaCredentials::bitrate / 10 },
-        { "Low",    MediaCredentials::bitrate / 100 }
-    };
     m_VBoxMain.pack_start(m_labelVideoQuality, Gtk::PACK_SHRINK);
     m_VBoxMain.pack_start(m_comboBoxVideoQuality, Gtk::PACK_SHRINK);
     for (const auto& quality : m_qualities)
@@ -107,8 +115,6 @@ MainWindow::MainWindow(GuiClient* owner)
 
     m_VBoxMain.pack_start(m_buttonStop, Gtk::PACK_SHRINK);
     m_buttonStop.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::OnButtonStopClicked));
-
-    this->show_all_children();
 }
 
 bool MainWindow::on_key_press_event(GdkEventKey* key_event)
