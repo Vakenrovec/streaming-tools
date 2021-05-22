@@ -51,6 +51,9 @@ void StreamerSessionProcessor::CreateStream()
                 auto pkt = std::make_shared<net_packet_ptr::element_type>();
                 pkt->header.type = net_packet_type_t::CREATE;
                 pkt->header.id = this->m_sessionId;
+                m_localIp = m_tcpSocket->local_endpoint().address().to_string();
+                m_localUdpPort = m_tcpSocket->local_endpoint().port();
+                m_localUdpEndpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4::from_string(m_localIp), m_localUdpPort);
                 pkt->data = NetworkUtils::EncodeUdpAddress(m_localUdpEndpoint);
                 pkt->header.size = pkt->data.size();
                 boost::asio::async_write(*m_tcpSocket, boost::asio::buffer(&pkt->header, sizeof(pkt->header)), 
@@ -62,8 +65,6 @@ void StreamerSessionProcessor::CreateStream()
                                         std::shared_ptr<char[]> roomUdpPortBuffer = std::shared_ptr<char[]>(new char[sizeof(std::uint16_t)]);                                      
                                         boost::asio::async_read(*m_tcpSocket, boost::asio::buffer(&roomUdpPortBuffer[0], sizeof(std::uint16_t)), 
                                             [this, that, pkt, roomUdpPortBuffer](const boost::system::error_code& ec, std::size_t bytesTransferred) {
-                                                m_localIp = m_tcpSocket->local_endpoint().address().to_string();
-                                                m_localUdpEndpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4::from_string(m_localIp), m_localUdpPort);
                                                 boost::system::error_code dummy;
                                                 m_tcpSocket->shutdown(boost::asio::socket_base::shutdown_both, dummy);
                                                 m_tcpSocket->close(dummy);
