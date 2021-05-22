@@ -28,3 +28,12 @@ boost::asio::ip::tcp::endpoint NetworkUtils::DecodeTcpAddress(std::string& addre
     std::string port = address.substr(address.find(':', 0) + 1);
     return boost::asio::ip::tcp::endpoint(boost::asio::ip::address_v4::from_string(ip), std::atoi(port.c_str()));
 }
+
+std::uint16_t NetworkUtils::FindFreeUdpPortFrom(const std::uint16_t startPort, const std::uint16_t endPort)
+{
+    // boost::asio::ip::udp::endpoint
+    // boost::asio::ip::udp::socket
+    std::uint16_t freePort = startPort;
+    freePort++;
+    return freePort;
+}

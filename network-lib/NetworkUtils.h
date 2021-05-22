@@ -16,4 +16,6 @@ public:
 
     static boost::asio::ip::udp::endpoint DecodeUdpAddress(std::string& address);
     static boost::asio::ip::tcp::endpoint DecodeTcpAddress(std::string& address);
+
+    static std::uint16_t FindFreeUdpPortFrom(const std::uint16_t startPort, const std::uint16_t endPort);
 };
