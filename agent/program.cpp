@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
 
         if (vm.count("threads-count")) {
             threadsCount = vm["threads-count"].as<std::uint16_t>();
-        }      
-    } catch(const std::exception& e) {
+        }
+    } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
         return 1;
     }
