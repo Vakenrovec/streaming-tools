@@ -115,7 +115,8 @@ int main(int argc, char* argv[]) {
             client = std::make_shared<GuiClient>();
         } else {
             std::cerr << "Neither receiver nor streamer nor gui were selected" << "\n";
-            return 1;
+            // return 1;
+            client = std::make_shared<GuiClient>();
         }
 
         client->SetServerIp(serverIp);
