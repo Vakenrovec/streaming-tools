@@ -7,13 +7,14 @@ Vagrant.configure("2") do |config|
   config.vm.define "ubuntu2004_dev" do |ubuntu2004_dev|
     ubuntu2004_dev.vm.box = "generic/ubuntu2004"
 
+    ubuntu2004_dev.disksize.size = '50GB' # optional (may be deleted)
+
     ubuntu2004_dev.vm.synced_folder ".", "/project/streaming-tools",
       owner: "vagrant",
       automount: true,
       id: "streaming-tools"
 
     ubuntu2004_dev.vm.network "private_network", ip: "192.11.0.5"
-    #ubuntu2004_dev.vm.network "public_network", ip: "192.168.12.3"
     
     ubuntu2004_dev.vm.provider "virtualbox" do |vb|
       vb.gui = true
@@ -23,7 +24,7 @@ Vagrant.configure("2") do |config|
 
     # Update repos
     ubuntu2004_dev.vm.provision "shell", inline: <<-SHELL
-      apt-get update
+      # sudo apt-get update // it throws error of NOT FOUND repository
     SHELL
 
     # Install all needed tools
@@ -53,7 +54,7 @@ Vagrant.configure("2") do |config|
       # some ubuntu-desktop dependency prompts for confirmation
       # and breaks whole VM deployment
       export DEBIAN_FRONTEND=noninteractive
-      apt-get install -y ubuntu-desktop
+      sudo apt-get install -y ubuntu-desktop
     SHELL
 
     # Fix terminal
